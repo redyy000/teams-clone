@@ -1,5 +1,4 @@
 import pytest
-
 from src import auth
 from src.error import InputError
 from src.other import clear_v1
@@ -15,8 +14,6 @@ def test_email_invalid():
         assert (auth.auth_register_v1("@@@@@", "Password", "First", "Last"))
         assert (auth.auth_register_v1("0000", "Password", "First", "Last"))
         
-  
-
 # Normal Tests to test valid inputs and output ids
 # Output ids should be in ascending order from 1,2,3....
 def test_valid():
@@ -73,22 +70,40 @@ def test_name_last_length_short():
         assert(auth.auth_register_v1("normal@gmail.com", "abc", "John", ""))
 
 # Test for duplicate handles
-# NOT BLACKBOX
-# How can I solve extracting handle_str from a given user?
-# Using create_handle_str just kicks the problem down
+# Not a blackbox test due to being forced to extract data from Datastore
+# Each different group's implementation of Datastore would be impossible to account for.
 def test_handle_duplicate():
-    pass
-    '''
     clear_v1()
     store = data_store.get()
-    
-    handle_one = auth.create_handle_str()
+
     auth.auth_register_v1("one@gmail.com", "Password", "John", "Smith")
     auth.auth_register_v1("two@gmail.com", "Password", "John", "Smith")
     auth.auth_register_v1("three@gmail.com", "Password", "John", "Smith")
+    auth.auth_register_v1("four@gmail.com", "Password", "John", "Smith")
+    
     
     assert(store['users'][0]['handle_str']) == "johnsmith"
     assert(store['users'][1]['handle_str']) == "johnsmith0"
     assert(store['users'][2]['handle_str']) == "johnsmith1"
-    '''
+    assert(store['users'][3]['handle_str']) == "johnsmith2"
+    
+    
 
+# Test a long (20+ chars) handle is shrunk to 20 characters 
+
+def test_handle_long():
+    clear_v1()
+    store = data_store.get()
+    auth.auth_register_v1("one@gmail.com", "Password", "LongLongLongLong", "MeebMaabMuub")
+    auth.auth_register_v1("two@gmail.com", "Password", "LongLongLongLong", "MeebMaabMuub")
+    assert(store['users'][0]['handle_str']) == "longlonglonglongmeeb"
+    assert(len(store['users'][0]['handle_str'])) == 20
+    
+# Test that a duplicate handle is allowed to exceed 20 characters after shrinkage.
+def test_handle_duplicate_length():
+    clear_v1()
+    store = data_store.get()
+    auth.auth_register_v1("one@gmail.com", "Password", "LongLongLongLong", "MeebMaabMuub")
+    auth.auth_register_v1("two@gmail.com", "Password", "LongLongLongLong", "MeebMaabMuub")
+    assert(len(store['users'][0]['handle_str'])) == 20
+    assert(len(store['users'][1]['handle_str'])) == 21
