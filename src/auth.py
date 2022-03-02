@@ -4,7 +4,6 @@ from src.data_store import data_store
 from src.error import InputError
 
 
-
 '''
 
 Given an email and a password, validate the given inputs and return the appropriate
@@ -75,7 +74,8 @@ def create_handle_str(store, name_first, name_last):
                 temp_handle_str = handle_str + str(counter)
                 counter += 1
                 break
-        is_duplicate = False
+        else:
+            is_duplicate = False
         
     if temp_handle_str != handle_str:
         handle_str = temp_handle_str
