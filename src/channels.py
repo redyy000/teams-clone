@@ -16,12 +16,10 @@ Return Value:
 
 '''
 def channels_list_v1(auth_user_id):
-
     if isinstance(auth_user_id, int) != True:
         raise AccessError("User ID is invalid. Unable to obtain channels list with this ID.")
     elif auth_user_id < 1:
         raise AccessError("User ID is invalid. Unable to obtain channels list with this ID.")
-
     store = data_store.get()
     channel_details = []
     # For each channel in the list of channels
@@ -33,6 +31,7 @@ def channels_list_v1(auth_user_id):
                 'name': channels['name']
             }
             channel_details.append(channel_info)
+    data_store.set(store)
     return {
         'channels': channel_details
     }
@@ -59,6 +58,7 @@ def channels_listall_v1(auth_user_id):
             'name': channels['name']
         }
         channel_details.append(channel_info)
+    data_store.set(store)
     return {
         'channels': channel_details
     }
