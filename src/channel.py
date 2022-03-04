@@ -171,7 +171,63 @@ def channel_messages_v1(auth_user_id, channel_id, start):
 
 
 def channel_join_v1(auth_user_id, channel_id):
+    '''
+    Given a channel_id of a channel that the authorised user can join, adds them to that channel.
+    Arguments:
+        auth_user_id (integer) - unique identifier for the authorised user
+        channel_id   (integer) - unique identifier of the channel
+    Exceptions:
+        InputError - Occurs when channel_id is invalid
+        InputError - Occurs when u_id refers to an invitee that is already in the channel
+        AccessError - Occurs when the authorised user tries to join a private channel and is not already a member
+    Return Type:
+        None
+    '''
+
+    store = data_store.get()
+    channel_info = store['channels']
+    user_info = store['users']
+
+    # Additional test for is auth user id exists
+    authidfound = False
+    for users in user_info:
+        if users['u_id'] == auth_user_id:
+            authidfound = True
+    if auth_user_id == False or isinstance(auth_user_id, int) != True or auth_user_id < 0 or auth_user_id > len(user_info):
+        raise AccessError("Authenticating user is invalid. ")
+
+    # Checks for if user is already in the channel.
+    for channels in channel_info:
+        if channels['channel_id'] == channel_id:
+            for members in channels['members']:
+                if members['user_id'] == auth_user_id:
+                    raise InputError("User is already in the channel")
+
+    channelfound = False
+    isPublic = False
+    # Checks to see if entered channel id exists
+    for channels in channel_info:
+        if channels['channel_id'] == channel_id:
+            channelfound = True
+            # If channel is indeed found, check to see if it's private
+            if channels['public_status'] == "is_public":
+                isPublic = True
+
+    # If channel is valid check
+    if channelfound == False or isinstance(channel_id, int) != True or channel_id < 0 or channel_id > len(channel_info):
+        raise InputError("Channel ID is invalid. ")
+    elif isPublic == False:
+        raise AccessError("User is trying to access a private server")
+
+    # If all prior checks pass, create a new dictionary and append to members list in datastore
+    new_member = {'user_id': auth_user_id, 'permission_id': 0}
+    for channels in channel_info:
+        if channels['channel_id'] == channel_id:
+            channels['members'].append(new_member)
+
+    data_store.set(store)
 
     return {
     }
+
 
