@@ -98,19 +98,76 @@ def channel_details_v1(auth_user_id, channel_id):
     }
 
 
+'''
+Given a channel with a channel ID that the authorised user (auth_user_id) is
+a member of, return up to 50 messages between 'start' and 'start + 50'. If
+the function has return the lease recent message in the channel return -1 to
+indicate there are no more messages
+
+Arguments:
+    auth_user_id (integer) - id number of authorised user
+    channel_id (integer) - id number for channel
+    start (integer) - integer value of starting index (e.g. 0 for messages[0])
+    ...
+
+Exceptions:
+    InputError  - Occurs when channel_id does not refer to a valid channel
+    InputError  - Occurs when starting index is greater than number of messages
+    AccessError - Occurs when channel_id exists but the user is not a channel member
+
+General Exceptions
+    InputError - Occurs when channel_id is not an integer
+    InputError - Occurs when starting index is not an integer
+    AccessError - Occurs when auth_user_id is not an integer
+
+Return Value:
+    Returns dictionary containing list of messages, the starting index (start) and
+    the ending index (start + 50 or -1 if least recent message returned)
+'''
+
 def channel_messages_v1(auth_user_id, channel_id, start):
+    store = data_store.get()
+    
+    ##check channel_id invalid
+    channels_list = store["channels"]
+    if isinstance(channel_id, int) == False or channel_id > len(channels_list) \
+    or channel_id <= 0:
+        raise InputError("Channel_id is not valid!")
+    
+    ##get channel and messages list from data_store
+    channel = channels_list[channel_id - 1]
+    channel_messages = channel["messages"]      
+    
+    ##check start index invalid
+    if isinstance(start, int) == False or start > len(channel_messages):
+        raise InputError("Message index is invalid!")
+    
+    ##check user_id invalid
+    is_in_channel = False 
+    for current_channel in channel["members"]:
+        if auth_user_id == current_channel["user_id"]:
+            is_in_channel = True
+        assert isinstance(current_channel, dict) == True
+    if isinstance(auth_user_id, int) == False or is_in_channel == False:
+        raise AccessError("User ID is invalid")
+        
+    ##return messages
+    message_list = []
+    i = 0
+    for idx in channel_messages and idx in range (1, 50):
+        message_list.append(idx)
+        i += 1
+    if i < 50:
+        end = -1
+    else:
+        end = start + 50
+    
     return {
-        'messages': [
-            {
-                'message_id': 1,
-                'u_id': 1,
-                'message': 'Hello world',
-                'time_created': 1582426789,
-            }
-        ],
-        'start': 0,
-        'end': 50,
+        'messages': [message_list],
+        'start': start,
+        'end': end,
     }
+
 
 
 def channel_join_v1(auth_user_id, channel_id):
