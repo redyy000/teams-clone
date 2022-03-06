@@ -139,7 +139,7 @@ def channel_messages_v1(auth_user_id, channel_id, start):
     channel_messages = channel["messages"]      
     
     # check start index invalid
-    if isinstance(start, int) == False or start > len(channel_messages):
+    if isinstance(start, int) == False or start > len(channel_messages) or start < 0:
         raise InputError("Message index is invalid!")
     
     # check user_id invalid
@@ -153,7 +153,7 @@ def channel_messages_v1(auth_user_id, channel_id, start):
     #return messages
     message_list = []
     i = 0
-    for idx in channel_messages and idx in range (start, start + 50):
+    for idx in channel_messages and start in start + 50:
         message_list.append(idx)
         i += 1
     if i < 50:

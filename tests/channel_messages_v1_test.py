@@ -16,6 +16,7 @@ def test_channel_id_invalid():
     channel_invite_v1(user_id["auth_user_id"], new_channel["channel_id"], user_id_2["auth_user_id"])
     with pytest.raises(InputError):
         assert channel_messages_v1(user_id["auth_user_id"], 500, 0)
+    with pytest.raises(InputError):
         assert channel_messages_v1(user_id_2["auth_user_id"], "invalid", 0) 
     
 
@@ -26,7 +27,9 @@ def test_channel_index_invalid():
     new_channel = channels_create_v1(user_id["auth_user_id"], "Reddit", True)
     with pytest.raises(InputError):
         assert channel_messages_v1(user_id["auth_user_id"], new_channel["channel_id"], 20)
+    with pytest.raises(InputError):
         assert channel_messages_v1(user_id["auth_user_id"], new_channel["channel_id"], -200) 
+    with pytest.raises(InputError):        
         assert channel_messages_v1(user_id["auth_user_id"], new_channel["channel_id"], "notanint")     
     
 # Test the user is valid but not in channel or is an invalid input
@@ -39,7 +42,9 @@ def test_channel_member_invalid():
     channel_invite_v1(user_id["auth_user_id"], new_channel["channel_id"], user_id_2["auth_user_id"])
     with pytest.raises(AccessError):
         assert channel_messages_v1(200, new_channel["channel_id"], 0)
+    with pytest.raises(AccessError):
         assert channel_messages_v1(200, new_channel["channel_id"], 0)
+    with pytest.raises(AccessError):
         assert channel_messages_v1("invalid", new_channel["channel_id"], 0)        
     
     
