@@ -63,7 +63,7 @@ def channel_invite_v1(auth_user_id, channel_id, u_id):
         raise AccessError("Authenticating user is invalid. ")
 
     # If all prior checks pass, create a new dictionary and append to members list in datastore
-    new_member = {'user_id': u_id, 'permission_id': 0}
+    new_member = {'user_id': u_id, 'permission_id': 2}
     for channels in channel_info:
         if channels['channel_id'] == channel_id:
             channels['members'].append(new_member)
@@ -75,26 +75,104 @@ def channel_invite_v1(auth_user_id, channel_id, u_id):
 
 
 def channel_details_v1(auth_user_id, channel_id):
+    '''
+    Function: Given a channel with ID channel_id that the authorised user is a member of, provide basic details about the channel.
+    Arguments:
+        auth_user_id (integer)- an authorisation hash of the user.
+        channel_id (integer)  - id number of channel generated at creation.
+    Exceptions:
+        InputError    -    Occurs when channel id is invalid.
+        InputError    -    Occurs when backend detail collection is not successful
+        AccessError   -    Occurs when user attempting to access details is not a memnber of the channel.
+        AccessError   -    Occurs when user id is invalid
+
+    Return Value:
+        Returns {name, is_public, owner_members, all_members} on successful access to details
+    '''
+    store = data_store.get() 
+      
+    is_channelfound = False
+    isPublic = False    
+    
+    # Checks to see if entered channel id exists
+    for channels in store['channels']:
+        if channels['channel_id'] == channel_id:
+            is_channelfound = True
+            # return channels
+            if channels['is_public'] == True:
+                isPublic = True    
+    
+    #Checks to see if the channel_id is valid
+    if is_channelfound == False or isinstance(channel_id, int) != True or channel_id <= 0 or channel_id > len(store['channels']):
+        raise InputError(f"Channel ID {channel_id} is invalid. ")      
+        
+    if isinstance(auth_user_id, int) != True or auth_user_id <= 0 or auth_user_id > len(store['users']):
+        raise AccessError(f"User ID {auth_user_id} is invalid. Unable to access any details with this ID.")        
+    
+    # Given a channel ID, find the correct channel and see if user is member
+    is_member = False
+    for channels in store['channels']:
+        if channels['channel_id'] == channel_id:
+            for members in channels['members']:
+                if auth_user_id == members['user_id']:
+                    is_member = True
+                    
+    if is_member == False:
+        raise AccessError(f"User ID {auth_user_id} is not a member of {channels['name']}, channel ID {channel_id} ")
+
+
+    # found = False
+    # for channels in store['channels']:
+    #     if channels['channel_id'] == channel_id:
+    #         for members in channels['members']:
+    #             if members['user_id'] == auth_user_id:
+    #                 found = True
+    # If not found, raise access error.
+    # if found == False:
+    #     raise AccessError("Authorised user is not a member of the channel. ")
+
+
+    # Function for invalid user id
+
+    # channels = find_channel(channel_id, store)  
+    
+    #Function for invalid Channel I
+
+    owner_id = []
+    member_id = []
+
+    # Add users and owners to the owner_ids and member_ids empty lists we've created
+    for member in channels['members']:
+        member_id.append(member['user_id'])
+        if member['permission_id'] == 1:
+            owner_id.append(member['user_id'])
+    
+    owner_details = []
+    member_details = []
+    
+    for user in store['users']:
+        for member in channels['members']:
+            if user['u_id'] == member['user_id']:
+                user_dict = {
+                    'u_id': user['u_id'],
+                    'email': user['email'],
+                    'name_first': user['name_first'],
+                    'name_last': user['name_last'],
+                    'handle_str': user['handle_str']
+                }
+                
+                if member['permission_id'] == 1:
+                    owner_details.append(user_dict)
+                    member_details.append(user_dict)
+                elif member['permission_id'] == 2:
+                    member_details.append(user_dict)
+    data_store.set(store)
+    
     return {
-        'name': 'Hayden',
-        'owner_members': [
-            {
-                'u_id': 1,
-                'email': 'example@gmail.com',
-                'name_first': 'Hayden',
-                'name_last': 'Jacobs',
-                'handle_str': 'haydenjacobs',
-            }
-        ],
-        'all_members': [
-            {
-                'u_id': 1,
-                'email': 'example@gmail.com',
-                'name_first': 'Hayden',
-                'name_last': 'Jacobs',
-                'handle_str': 'haydenjacobs',
-            }
-        ],
+        'name': channels['name'],
+        'is_public': channels['is_public'],
+        'owners': owner_details,
+        'members': member_details,
     }
 
 
@@ -179,16 +257,37 @@ def channel_messages_v1(auth_user_id, channel_id, start):
         None
 '''
 def channel_join_v1(auth_user_id, channel_id):
+    '''
+    Given a channel_id of a channel that the authorised user can join, adds them to that channel.
+    Arguments:
+        auth_user_id (integer) - unique identifier for the authorised user
+        channel_id   (integer) - unique identifier of the channel
+    Exceptions:
+        InputError - Occurs when channel_id is invalid
+        InputError - Occurs when u_id refers to an invitee that is already in the channel
+        AccessError - Occurs when the authorised user tries to join a private channel and is not already a member
+    Return Type:
+        None
+    '''
+
     store = data_store.get()
     channel_info = store['channels']
     user_info = store['users']
 
+    is_channel_exist = False
+    for channel in channel_info:
+        if channel['channel_id'] == channel_id:
+            is_channel_exist = True
+
+    if is_channel_exist == False:
+        raise InputError("This channel does not exist!")
+
     # Additional test for is auth user id exists
-    authidfound = False
+    is_authidfound = False
     for users in user_info:
         if users['u_id'] == auth_user_id:
-            authidfound = True
-    if auth_user_id == False or isinstance(auth_user_id, int) != True or auth_user_id < 0 or auth_user_id > len(user_info):
+            is_authidfound = True
+    if auth_user_id == False or isinstance(auth_user_id, int) != True or auth_user_id <= 0 or auth_user_id > len(user_info):
         raise AccessError("Authenticating user is invalid. ")
 
     # Checks for if user is already in the channel.
@@ -198,24 +297,24 @@ def channel_join_v1(auth_user_id, channel_id):
                 if members['user_id'] == auth_user_id:
                     raise InputError("User is already in the channel")
 
-    channelfound = False
-    isPublic = False
+    is_channelfound = False
+    is_public = False
     # Checks to see if entered channel id exists
     for channels in channel_info:
         if channels['channel_id'] == channel_id:
-            channelfound = True
+            is_channelfound = True
             # If channel is indeed found, check to see if it's private
-            if channels['public_status'] == "is_public":
-                isPublic = True
+            if channels['is_public'] == True:
+                is_public = True
 
     # If channel is valid check
-    if channelfound == False or isinstance(channel_id, int) != True or channel_id < 0 or channel_id > len(channel_info):
+    if is_channelfound == False or isinstance(channel_id, int) != True or channel_id <= 0 or channel_id > len(channel_info):
         raise InputError("Channel ID is invalid. ")
-    elif isPublic == False:
+    elif is_public == False:
         raise AccessError("User is trying to access a private server")
 
     # If all prior checks pass, create a new dictionary and append to members list in datastore
-    new_member = {'user_id': auth_user_id, 'permission_id': 0}
+    new_member = {'user_id': auth_user_id, 'permission_id': 2}
     for channels in channel_info:
         if channels['channel_id'] == channel_id:
             channels['members'].append(new_member)
@@ -224,5 +323,4 @@ def channel_join_v1(auth_user_id, channel_id):
 
     return {
     }
-
 
