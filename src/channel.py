@@ -3,24 +3,24 @@ from src.channels import channels_create_v1, channels_list_v1
 from src.error import InputError, AccessError
 
 
-def channel_invite_v1(auth_user_id, channel_id, u_id):
-    '''
-    Invites a user with ID u_id to join a channel with ID channel_id. 
-    Once invited, the user is added to the channel immediately. 
-    In both public and private channels, all members are able to invite users.
+'''
+Invites a user with ID u_id to join a channel with ID channel_id. 
+Once invited, the user is added to the channel immediately. 
+In both public and private channels, all members are able to invite users.
 
-    Arguments:
-        auth_user_id (integer) - unique identifier for the authorised user
-        channel_id   (integer) - unique identifier of the channel
-        u_id         (integer) - unique identifier for the invitee
-    Exceptions:
-        InputError - Occurs when channel_id is invalid
-        InputError - Occurs when u_id does not refer to a valid user
-        InputError - Occurs when u_id refers to an invitee that is already in the channel
-        AccessError - Occurs when the authorised user is not a member of the channel
-    Return Type:
-        None
-    '''
+Arguments:
+    auth_user_id (integer) - unique identifier for the authorised user
+    channel_id   (integer) - unique identifier of the channel
+    u_id         (integer) - unique identifier for the invitee
+Exceptions:
+    InputError - Occurs when channel_id is invalid
+    InputError - Occurs when u_id does not refer to a valid user
+    InputError - Occurs when u_id refers to an invitee that is already in the channel
+    AccessError - Occurs when the authorised user is not a member of the channel
+Return Type:
+    None
+'''
+def channel_invite_v1(auth_user_id, channel_id, u_id):
 
     store = data_store.get()
     channel_info = store['channels']
@@ -128,33 +128,32 @@ Return Value:
 def channel_messages_v1(auth_user_id, channel_id, start):
     store = data_store.get()
     
-    ##check channel_id invalid
+    # check channel_id invalid
     channels_list = store["channels"]
     if isinstance(channel_id, int) == False or channel_id > len(channels_list) \
     or channel_id <= 0:
         raise InputError("Channel_id is not valid!")
     
-    ##get channel and messages list from data_store
+    # get channel and messages list from data_store
     channel = channels_list[channel_id - 1]
     channel_messages = channel["messages"]      
     
-    ##check start index invalid
-    if isinstance(start, int) == False or start > len(channel_messages):
+    # check start index invalid
+    if isinstance(start, int) == False or start > len(channel_messages) or start < 0:
         raise InputError("Message index is invalid!")
     
-    ##check user_id invalid
+    # check user_id invalid
     is_in_channel = False 
     for current_channel in channel["members"]:
         if auth_user_id == current_channel["user_id"]:
             is_in_channel = True
-        assert isinstance(current_channel, dict) == True
     if isinstance(auth_user_id, int) == False or is_in_channel == False:
         raise AccessError("User ID is invalid")
         
-    ##return messages
+    #return messages
     message_list = []
     i = 0
-    for idx in channel_messages and idx in range (1, 50):
+    for idx in channel_messages and start in start + 50:
         message_list.append(idx)
         i += 1
     if i < 50:
@@ -167,11 +166,7 @@ def channel_messages_v1(auth_user_id, channel_id, start):
         'start': start,
         'end': end,
     }
-
-
-
-def channel_join_v1(auth_user_id, channel_id):
-    '''
+'''
     Given a channel_id of a channel that the authorised user can join, adds them to that channel.
     Arguments:
         auth_user_id (integer) - unique identifier for the authorised user
@@ -182,8 +177,8 @@ def channel_join_v1(auth_user_id, channel_id):
         AccessError - Occurs when the authorised user tries to join a private channel and is not already a member
     Return Type:
         None
-    '''
-
+'''
+def channel_join_v1(auth_user_id, channel_id):
     store = data_store.get()
     channel_info = store['channels']
     user_info = store['users']
