@@ -38,8 +38,6 @@ def test_password_length_short():
     with pytest.raises(InputError):
         # 3 Letter long password
         assert(auth.auth_register_v1("normal@gmail.com", "abc", "John", "Smith"))
-        # 5 Letter long password
-        assert(auth.auth_register_v1("normal@gmail.com", "abcde", "John", "Smith"))
         # 0 Letter long password
         assert(auth.auth_register_v1("normal@gmail.com", "", "John", "Smith"))
 
@@ -87,7 +85,33 @@ def test_handle_duplicate():
     assert(store['users'][2]['handle_str']) == "johnsmith1"
     assert(store['users'][3]['handle_str']) == "johnsmith2"
     
+# Test correct handle output for each name
+def test_handle_valid():
+    clear_v1()
+    store = data_store.get()
     
+    auth.auth_register_v1("one@gmail.com", "Password", "John", "Smith")
+    auth.auth_register_v1("two@gmail.com", "Password", "Scott", "Jimini")
+    auth.auth_register_v1("three@gmail.com", "Password", "Adr1an0002", "=2-3?esfe")
+    
+    assert(store['users'][0]['handle_str']) == "johnsmith"
+    assert(store['users'][1]['handle_str']) == "scottjimini"
+    # Specifically tests for removal of non-alphanumerical characters
+    assert(store['users'][2]['handle_str']) == "adr1an000223esfe"
+    
+# Tests handles made from non-alphanumerical first and last names
+def test_handle_empty():
+    clear_v1()
+    store = data_store.get()
+    auth.auth_register_v1("one@gmail.com", "Password", "????", "|||||")
+    auth.auth_register_v1("two@gmail.com", "Password", "!!!!", "[][][]")
+    auth.auth_register_v1("three@gmail.com", "Password", "####", "()()()")
+    
+    assert(store['users'][0]['handle_str']) == ""
+    assert(store['users'][1]['handle_str']) == "0"
+    assert(store['users'][2]['handle_str']) == "1"
+    
+
 
 # Test a long (20+ chars) handle is shrunk to 20 characters 
 
@@ -96,7 +120,6 @@ def test_handle_long():
     store = data_store.get()
     auth.auth_register_v1("one@gmail.com", "Password", "LongLongLongLong", "MeebMaabMuub")
     auth.auth_register_v1("two@gmail.com", "Password", "LongLongLongLong", "MeebMaabMuub")
-    assert(store['users'][0]['handle_str']) == "longlonglonglongmeeb"
     assert(len(store['users'][0]['handle_str'])) == 20
     
 # Test that a duplicate handle is allowed to exceed 20 characters after shrinkage.
@@ -105,5 +128,4 @@ def test_handle_duplicate_length():
     store = data_store.get()
     auth.auth_register_v1("one@gmail.com", "Password", "LongLongLongLong", "MeebMaabMuub")
     auth.auth_register_v1("two@gmail.com", "Password", "LongLongLongLong", "MeebMaabMuub")
-    assert(len(store['users'][0]['handle_str'])) == 20
     assert(len(store['users'][1]['handle_str'])) == 21
