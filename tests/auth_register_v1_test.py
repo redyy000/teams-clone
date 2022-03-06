@@ -2,7 +2,6 @@ import pytest
 from src import auth
 from src.error import InputError
 from src.other import clear_v1
-from src.data_store import data_store
 
 
 
@@ -67,65 +66,6 @@ def test_name_last_length_short():
     with pytest.raises(InputError):
         assert(auth.auth_register_v1("normal@gmail.com", "abc", "John", ""))
 
-# Test for duplicate handles
-# Not a blackbox test due to being forced to extract data from Datastore
-# Each different group's implementation of Datastore would be impossible to account for.
-def test_handle_duplicate():
-    clear_v1()
-    store = data_store.get()
-
-    auth.auth_register_v1("one@gmail.com", "Password", "John", "Smith")
-    auth.auth_register_v1("two@gmail.com", "Password", "John", "Smith")
-    auth.auth_register_v1("three@gmail.com", "Password", "John", "Smith")
-    auth.auth_register_v1("four@gmail.com", "Password", "John", "Smith")
-    
-    
-    assert(store['users'][0]['handle_str']) == "johnsmith"
-    assert(store['users'][1]['handle_str']) == "johnsmith0"
-    assert(store['users'][2]['handle_str']) == "johnsmith1"
-    assert(store['users'][3]['handle_str']) == "johnsmith2"
-    
-# Test correct handle output for each name
-def test_handle_valid():
-    clear_v1()
-    store = data_store.get()
-    
-    auth.auth_register_v1("one@gmail.com", "Password", "John", "Smith")
-    auth.auth_register_v1("two@gmail.com", "Password", "Scott", "Jimini")
-    auth.auth_register_v1("three@gmail.com", "Password", "Adr1an0002", "=2-3?esfe")
-    
-    assert(store['users'][0]['handle_str']) == "johnsmith"
-    assert(store['users'][1]['handle_str']) == "scottjimini"
-    # Specifically tests for removal of non-alphanumerical characters
-    assert(store['users'][2]['handle_str']) == "adr1an000223esfe"
-    
-# Tests handles made from non-alphanumerical first and last names
-def test_handle_empty():
-    clear_v1()
-    store = data_store.get()
-    auth.auth_register_v1("one@gmail.com", "Password", "????", "|||||")
-    auth.auth_register_v1("two@gmail.com", "Password", "!!!!", "[][][]")
-    auth.auth_register_v1("three@gmail.com", "Password", "####", "()()()")
-    
-    assert(store['users'][0]['handle_str']) == ""
-    assert(store['users'][1]['handle_str']) == "0"
-    assert(store['users'][2]['handle_str']) == "1"
-    
-
-
-# Test a long (20+ chars) handle is shrunk to 20 characters 
-
-def test_handle_long():
-    clear_v1()
-    store = data_store.get()
-    auth.auth_register_v1("one@gmail.com", "Password", "LongLongLongLong", "MeebMaabMuub")
-    auth.auth_register_v1("two@gmail.com", "Password", "LongLongLongLong", "MeebMaabMuub")
-    assert(len(store['users'][0]['handle_str'])) == 20
-    
-# Test that a duplicate handle is allowed to exceed 20 characters after shrinkage.
-def test_handle_duplicate_length():
-    clear_v1()
-    store = data_store.get()
-    auth.auth_register_v1("one@gmail.com", "Password", "LongLongLongLong", "MeebMaabMuub")
-    auth.auth_register_v1("two@gmail.com", "Password", "LongLongLongLong", "MeebMaabMuub")
-    assert(len(store['users'][1]['handle_str'])) == 21
+# Originally there were multiple different handle tests, however it required non-blackbox solutions
+# in order to test outputs. While the outputs were correct, in order to maintain all tests as blackbox tests,
+# they have been removed.
