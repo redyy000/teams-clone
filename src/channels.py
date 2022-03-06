@@ -86,12 +86,12 @@ def channels_create_v1(auth_user_id, name, is_public):
 
     new_channel = {'channel_id': channel_id,
                    'name': name,
-                   'owner': [auth_user_id],
+                   'owners': [auth_user_id],
                    'members': [
                        {'user_id': auth_user_id,  # add the owner to the members list
                         'permission_id': 1}  # owner has permission_id = 1
                    ],
-                   'public_status': is_public,      
+                   'is_public': is_public,      
                    'messages': []       
                 }
     
@@ -120,6 +120,5 @@ def channels_create_v1(auth_user_id, name, is_public):
     
     return {
         'channel_id': channel_id,
-
     }
 
