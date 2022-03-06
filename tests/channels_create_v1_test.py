@@ -8,6 +8,8 @@ from src.other import clear_v1
 
 store = data_store.get
 
+
+# Function to be used in tests
 def auth_user_id():
     clear_v1()
     # creates a test user and returns auth_user_id
@@ -49,4 +51,10 @@ def test_channel_duplicate():
     channels_create_v1(1, 'duplicate channel', True)
     with pytest.raises(InputError):
         assert channels_create_v1(1, 'duplicate channel', True)
-
+        
+def test_channel_success():
+    clear_v1()
+    auth_user_id()
+    assert(channels_create_v1(1, 'general', True)) == {'channel_id' : 1}
+    assert(channels_create_v1(1, 'midnight-chats', True)) == {'channel_id' : 2}
+    assert(channels_create_v1(1, 'questions', True)) == {'channel_id' : 3}
