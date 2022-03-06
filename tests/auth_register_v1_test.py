@@ -38,8 +38,6 @@ def test_password_length_short():
     with pytest.raises(InputError):
         # 3 Letter long password
         assert(auth.auth_register_v1("normal@gmail.com", "abc", "John", "Smith"))
-        # 5 Letter long password
-        assert(auth.auth_register_v1("normal@gmail.com", "abcde", "John", "Smith"))
         # 0 Letter long password
         assert(auth.auth_register_v1("normal@gmail.com", "", "John", "Smith"))
 
@@ -122,7 +120,6 @@ def test_handle_long():
     store = data_store.get()
     auth.auth_register_v1("one@gmail.com", "Password", "LongLongLongLong", "MeebMaabMuub")
     auth.auth_register_v1("two@gmail.com", "Password", "LongLongLongLong", "MeebMaabMuub")
-    assert(store['users'][0]['handle_str']) == "longlonglonglongmeeb"
     assert(len(store['users'][0]['handle_str'])) == 20
     
 # Test that a duplicate handle is allowed to exceed 20 characters after shrinkage.
@@ -131,5 +128,4 @@ def test_handle_duplicate_length():
     store = data_store.get()
     auth.auth_register_v1("one@gmail.com", "Password", "LongLongLongLong", "MeebMaabMuub")
     auth.auth_register_v1("two@gmail.com", "Password", "LongLongLongLong", "MeebMaabMuub")
-    assert(len(store['users'][0]['handle_str'])) == 20
     assert(len(store['users'][1]['handle_str'])) == 21
