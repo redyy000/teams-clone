@@ -91,15 +91,13 @@ def channels_create_v1(auth_user_id, name, is_public):
                        {'user_id': auth_user_id,  # add the owner to the members list
                         'permission_id': 1}  # owner has permission_id = 1
                    ],
-                   'public_status': is_public,      
+                   'is_public': is_public,      
                    'messages': []       
                 }
     
-    # not sure how to implement this part...
-
-    # Check for valid user ID
-    if int(auth_user_id) < 1 or int(auth_user_id) > len(store['users']):
-        raise AccessError("User ID is invalid. Unable to create channel with this ID.")
+    #  Check for valid user ID
+    if isinstance(auth_user_id, int) != True or auth_user_id < 1 or auth_user_id > len(store['users']):
+        raise AccessError(f"User ID {auth_user_id} is invalid. Unable to create channel with this ID.")
     
     #Check for valid channel name, between 1 and 20 characters
     if len(name) == 0 or len(name) > 20:
