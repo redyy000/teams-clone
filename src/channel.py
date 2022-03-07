@@ -246,7 +246,7 @@ def channel_messages_v1(auth_user_id, channel_id, start):
         end = start + 50
     
     return {
-        'messages': [message_list],
+        'messages': message_list,
         'start': start,
         'end': end,
     }
