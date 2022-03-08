@@ -56,8 +56,8 @@ def test_channel_message_success():
     user_id_3 = auth_register_v1("8994@gmail.com", "AIENSW", "Kanye", "West")
     new_channel = channels_create_v1(user_id["auth_user_id"], "7Prime", True)
     channel_invite_v1(user_id["auth_user_id"], new_channel["channel_id"], user_id_2["auth_user_id"])
-    assert channel_messages_v1(user_id["auth_user_id"], new_channel["channel_id"], 0) == {"messages": [[]], "start": 0, "end": -1}
-    assert channel_messages_v1(user_id_2["auth_user_id"], new_channel["channel_id"], 0) == {"messages": [[]], "start": 0, "end": -1}  
+    assert channel_messages_v1(user_id["auth_user_id"], new_channel["channel_id"], 0) == {"messages": [], "start": 0, "end": -1}
+    assert channel_messages_v1(user_id_2["auth_user_id"], new_channel["channel_id"], 0) == {"messages": [], "start": 0, "end": -1}  
     clear_v1()
     user_id = auth_register_v1("123@gmail.com", "12345678", "Number", "Man")
     user_id_2 = auth_register_v1("567@gmail.com", "342984", "Count", "Dracula")
@@ -65,9 +65,9 @@ def test_channel_message_success():
     new_channel = channels_create_v1(user_id["auth_user_id"], "7Prime", True)
     channel_invite_v1(user_id["auth_user_id"], new_channel["channel_id"], user_id_2["auth_user_id"])
     channel_invite_v1(user_id["auth_user_id"], new_channel["channel_id"], user_id_3["auth_user_id"])
-    assert channel_messages_v1(user_id["auth_user_id"], new_channel["channel_id"], 0) == {"messages": [[]], "start": 0, "end": -1}
-    assert channel_messages_v1(user_id_2["auth_user_id"], new_channel["channel_id"], 0) == {"messages": [[]], "start": 0, "end": -1}
-    assert channel_messages_v1(user_id_3["auth_user_id"], new_channel["channel_id"], 0) == {"messages": [[]], "start": 0, "end": -1}
+    assert channel_messages_v1(user_id["auth_user_id"], new_channel["channel_id"], 0) == {"messages": [], "start": 0, "end": -1}
+    assert channel_messages_v1(user_id_2["auth_user_id"], new_channel["channel_id"], 0) == {"messages": [], "start": 0, "end": -1}
+    assert channel_messages_v1(user_id_3["auth_user_id"], new_channel["channel_id"], 0) == {"messages": [], "start": 0, "end": -1}
     clear_v1()
     user_id = auth_register_v1("123@gmail.com", "12345678", "Number", "Man")
     user_id_2 = auth_register_v1("567@gmail.com", "342984", "Count", "Dracula")
@@ -75,8 +75,8 @@ def test_channel_message_success():
     new_channel_2 = channels_create_v1(user_id["auth_user_id"], "Foxtel", True)
     channel_invite_v1(user_id["auth_user_id"], new_channel["channel_id"], user_id_2["auth_user_id"])
     channel_invite_v1(user_id["auth_user_id"], new_channel_2["channel_id"], user_id_2["auth_user_id"])
-    assert channel_messages_v1(user_id_2["auth_user_id"], new_channel["channel_id"], 0) == {"messages": [[]], "start": 0, "end": -1}
-    assert channel_messages_v1(user_id_2["auth_user_id"], new_channel_2["channel_id"], 0) == {"messages": [[]], "start": 0, "end": -1}  
+    assert channel_messages_v1(user_id_2["auth_user_id"], new_channel["channel_id"], 0) == {"messages": [], "start": 0, "end": -1}
+    assert channel_messages_v1(user_id_2["auth_user_id"], new_channel_2["channel_id"], 0) == {"messages": [], "start": 0, "end": -1}  
     
  
 
