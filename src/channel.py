@@ -177,8 +177,8 @@ def channel_details_v1(auth_user_id, channel_id):
     return {
         'name': channels['name'],
         'is_public': channels['is_public'],
-        'owners': owner_details,
-        'members': member_details,
+        'owner_members': owner_details,
+        'all_members': member_details,
     }
 
 
