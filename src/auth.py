@@ -1,8 +1,11 @@
-
 import re
 from src.data_store import data_store
 from src.error import InputError
 
+
+
+
+def auth_login_v1(email, password):
 
 '''
 
@@ -21,8 +24,6 @@ Exceptions:
 Return Value:
     Returns auth_user_id if email and email's password are both valid and correct
 '''
-
-def auth_login_v1(email, password):
     
     store = data_store.get()
 
