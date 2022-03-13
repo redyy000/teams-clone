@@ -431,7 +431,7 @@ def dm_messages_v1_successful_test():
         'end'     :  -1
     }
     
-    assert(dm_messages_v1(token_one, dm_id_one, 0)) = message_return
+    assert(dm_messages_v1(token_one, dm_id_one, 0)) == message_return
     
     
     
