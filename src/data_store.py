@@ -28,6 +28,16 @@ Example usage:
 initial_object = {
     'users': [],
     'channels': [],
+    'dms' : [],
+    'message_ids' : [
+        {
+            # Unique universal message id
+            'message_id' : 0,
+            # Message string
+            'message_string' : ''
+        }
+        
+    ]
 }
 ## YOU SHOULD MODIFY THIS OBJECT ABOVE
 
