@@ -39,7 +39,7 @@ import pytest
 
 # 1. Function Tests
 # 2. HTTP Tests
-
+'''
 dm_data_structure = {
     # Name of dm automatically generated
     'name' : 'string',
@@ -58,9 +58,7 @@ dm_data_structure = {
     'messages' : [
         {
             
-            # Messages_id is index of message list + 1
-            # I.e. message_id of 1 is message_list[0]
-            # message_id of 2 is message_list[1]
+            # Message id is now the global message id
             'message_id' : int,
             
             # U_id of the sender
@@ -74,15 +72,16 @@ dm_data_structure = {
         }
     ]
 }
+'''
 
-
+'''
 # members is a list of owners + normal_member ids
 # name is the DM name, automatically generated
 dm_details_return = {
     'name' :
     'members' : 
 }
-
+'''
 
 # DM Create Tests
 # NOT HTTP TESTS
@@ -93,64 +92,85 @@ def dm_create_v1_succesful_test():
     # TODO 
     # Fix tokens creation
     other.clear_v1() 
-    token_one = auth.auth_register_v2("first@gmail.com", "password", "first", "last")['token']
-    token_two = auth.auth_register_v2("second@gmail.com", "password", "first", "last")['token']
-    token_three = auth.auth_register_v2("third@gmail.com", "password", "first", "last")['token']
-    token_four = auth.auth_register_v2("fourth@gmail.com", "password", "first", "last")['token']
-
+    user_one_info = auth.auth_register_v2("first@gmail.com", "password", "first", "last")
+    user_two_info  = auth.auth_register_v2("first@gmail.com", "password", "first", "last")
+    user_three_info = auth.auth_register_v2("second@gmail.com", "password", "first", "last")
+    
+    u_id_one = user_one_info['auth_user_id']
+    u_id_two = user_two_info['auth_user_id']
+    u_id_three = user_three_info['auth_user_id']
     # Owner is 1
-    assert(dm.dm_create_v1(token_one, [2,3,4])) == {'dm_id' : 1}
+    assert(dm.dm_create_v1(user_one_info['token'], [u_id_two, u_id_three])) == {'dm_id' : 1}
     # Owner is 2
-    assert(dm.dm_create_v1(token_two, [1,3,4])) == {'dm_id' : 2}
+    assert(dm.dm_create_v1(user_two_info['token'], [u_id_one, u_id_three])) == {'dm_id' : 2}
     # Owner is 3
-    assert(dm.dm_create_v1(token_three, [2,4])) == {'dm_id' : 3}
+    assert(dm.dm_create_v1(user_three_info['token'], [u_id_one, u_id_two])) == {'dm_id' : 3}
     
 # Test any of the u_id in u_ids has not been registered yet
 def dm_create_v1_false_member_test():
     other.clear_v1() 
     
-    token_one = auth.auth_register_v2("first@gmail.com", "password", "first", "last")['token']
-   
+    user_one_info = auth.auth_register_v2("first@gmail.com", "password", "first", "last")
+    user_two_info  = auth.auth_register_v2("first@gmail.com", "password", "first", "last")
+    user_three_info = auth.auth_register_v2("second@gmail.com", "password", "first", "last")
+    
+    u_id_one = user_one_info['auth_user_id']
+    u_id_two = user_two_info['auth_user_id']
+    u_id_three = user_three_info['auth_user_id']
+    
+    false_user_id = 99999
     with pytest.raises(InputError):
-        assert(dm.dm_create_v1(token_one, [2]))
-        assert(dm.dm_create_v1(token_one, [2,3,4]))
-        assert(dm.dm_create_v1(token_one, [9999]))
+        assert(dm.dm_create_v1(user_one_info['token'], [false_user_id]))
+        assert(dm.dm_create_v1(user_one_info['token'], [u_id_two, false_user_id]))
+        assert(dm.dm_create_v1(user_one_info['token'], [u_id_two, u_id_three, false_user_id]))
 
 # Test given token does not correlate to a real user
 def dm_create_v1_false_owner_test():
     other.clear_v1() 
     
-    auth.auth_register_v2("first@gmail.com", "password", "first", "last")
-    auth.auth_register_v2("second@gmail.com", "password", "first", "last")
-    auth.auth_register_v2("third@gmail.com", "password", "first", "last")
+    user_one_info = auth.auth_register_v2("first@gmail.com", "password", "first", "last")
+    user_two_info  = auth.auth_register_v2("first@gmail.com", "password", "first", "last")
+    user_three_info = auth.auth_register_v2("second@gmail.com", "password", "first", "last")
+    
+    u_id_one = user_one_info['auth_user_id']
+    u_id_two = user_two_info['auth_user_id']
+    u_id_three = user_three_info['auth_user_id']
+    
     with pytest.raises(InputError):
-        assert(dm.dm_create_v1("FALSE TOKEN", [2,3]))
-        assert(dm.dm_create_v1("FALSE TOKEN", [3]))
+        assert(dm.dm_create_v1("FALSE TOKEN", [u_id_two,u_id_three]))
+        assert(dm.dm_create_v1("FALSE TOKEN", [u_id_three]))
         
 # Test when owner is in the u_id list
 def dm_create_v1_owner_is_member_test():
     other.clear_v1() 
-    token_one = auth.auth_register_v2("first@gmail.com", "password", "first", "last")['token']
-    token_two = auth.auth_register_v2("second@gmail.com", "password", "first", "last")['token']
-    token_three = auth.auth_register_v2("third@gmail.com", "password", "first", "last")['token']
-        
+    user_one_info = auth.auth_register_v2("first@gmail.com", "password", "first", "last")
+    user_two_info  = auth.auth_register_v2("first@gmail.com", "password", "first", "last")
+    user_three_info = auth.auth_register_v2("second@gmail.com", "password", "first", "last")    
+    
+    u_id_one = user_one_info['auth_user_id']
+    u_id_two = user_two_info['auth_user_id']
+    u_id_three = user_three_info['auth_user_id']
+    
     with pytest.raises(InputError):
-        assert(dm.dm_create_v1(token_one, [1]))
-        assert(dm.dm_create_v1(token_one, [1,2]))
-        assert(dm.dm_create_v1(token_one, [1,2,3]))
+        assert(dm.dm_create_v1(user_one_info['token'], [u_id_one]))
+        assert(dm.dm_create_v1(user_one_info['token'], [u_id_one, u_id_two]))
+        assert(dm.dm_create_v1(user_one_info['token'], [u_id_one, u_id_two, u_id_three]))
     
 # Test duplicate u_ids in the passed-in u_ids list
 def dm_create_v1_duplicate_test():
     other.clear_v1()  
     
-    token_one = auth.auth_register_v2("first@gmail.com", "password", "first", "last")['token']
-    token_two = auth.auth_register_v2("second@gmail.com", "password", "first", "last")['token']
-    token_three = auth.auth_register_v2("third@gmail.com", "password", "first", "last")['token']
-        
+    user_one_info = auth.auth_register_v2("first@gmail.com", "password", "first", "last")
+    user_two_info  = auth.auth_register_v2("first@gmail.com", "password", "first", "last")
+    user_three_info = auth.auth_register_v2("second@gmail.com", "password", "first", "last")    
+    
+    u_id_two = user_two_info['auth_user_id']
+    u_id_three = user_three_info['auth_user_id']
+    
     with pytest.raises(InputError):
-        assert(dm.dm_create_v1(token_one, [2,2,2]))
-        assert(dm.dm_create_v1(token_one, [2,3,3]))
-        assert(dm.dm_create_v1(token_one, [2,3,2,3]))
+        assert(dm.dm_create_v1(user_one_info['token'], [u_id_two, u_id_two, u_id_two]))
+        assert(dm.dm_create_v1(user_one_info['token'], [u_id_two,u_id_three,u_id_three]))
+        assert(dm.dm_create_v1(user_one_info['token'], [u_id_two,u_id_three,u_id_two,u_id_three]))
         
 
 # Test u_ids list is completely empty
@@ -162,9 +182,9 @@ def dm_create_v1_empty_list_test():
     
     # Assumption: Creates a DM just with the owner
     
-    token_one = auth.auth_register_v2("first@gmail.com", "password", "first", "last")['token']
+    user_one_info = auth.auth_register_v2("first@gmail.com", "password", "first", "last")
    
-    assert(dm.dm_create_v1(token_one, [])) == {'dm_id' : 1}
+    assert(dm.dm_create_v1(user_one_info['token'], [])) == {'dm_id' : 1}
     
     
     # dm_details to check only user is owner
@@ -176,27 +196,31 @@ def dm_create_v1_empty_list_test():
 # Test success
 def dm_details_v1_success_test():
     other.clear_v1() 
-    token_one = auth.auth_register_v2("first@gmail.com", "password", "first", "last")['token']
-    token_two = auth.auth_register_v2("second@gmail.com", "password", "first", "last")['token']
-    token_three = auth.auth_register_v2("third@gmail.com", "password", "first", "last")['token']
+    user_one_info = auth.auth_register_v2("first@gmail.com", "password", "first", "last")
+    user_two_info  = auth.auth_register_v2("first@gmail.com", "password", "first", "last")
+    user_three_info = auth.auth_register_v2("second@gmail.com", "password", "first", "last")
     
-    dm_id_one = dm.dm_create_v1(token_one, [2,3])['dm_id']
+    u_id_one = user_one_info['auth_user_id']
+    u_id_two = user_two_info['auth_user_id']
+    u_id_three = user_three_info['auth_user_id']
+    
+    dm_id_one = dm.dm_create_v1(user_one_info['token'], [u_id_two,u_id_three])['dm_id']
     
     dm_details_one = {
         'name' : 'aa, bb, cc',
-        'members' : [1,2,3]
+        'members' : [u_id_one,u_id_two,u_id_three]
     }
     
-    assert(dm.dm_details_v1(token_one, dm_id_one)) ==  dm_details_one
+    assert(dm.dm_details_v1(user_one_info['token'], dm_id_one)) ==  dm_details_one
     
     
-    dm_id_two = dm.dm_create_v1(token_two, [1,3])['dm_id']
+    dm_id_two = dm.dm_create_v1(user_two_info['token'], [u_id_one,u_id_three])['dm_id']
     dm_details_two = {
         'name' : 'aa, bb, cc',
-        'members' : [1,2,3]
+        'members' : [u_id_one,u_id_two,u_id_three]
     }
     
-    assert(dm.dm_details_v1(token_one, dm_id_one)) ==  dm_details_two
+    assert(dm.dm_details_v1(user_one_info['token'], dm_id_one)) ==  dm_details_two
     
 
 # DM Leave Tests
@@ -212,67 +236,80 @@ def dm_details_v1_success_test():
 # Test a member successfully leaves
 def dm_leave_v1_successful_member_test():
     other.clear_v1() 
-    token_one = auth.auth_register_v2("first@gmail.com", "password", "first", "last")['token']
-    token_two = auth.auth_register_v2("second@gmail.com", "password", "first", "last")['token']
-    token_three = auth.auth_register_v2("third@gmail.com", "password", "first", "last")['token']
-        
+    user_one_info = auth.auth_register_v2("first@gmail.com", "password", "first", "last")
+    user_two_info  = auth.auth_register_v2("first@gmail.com", "password", "first", "last")
+    user_three_info = auth.auth_register_v2("second@gmail.com", "password", "first", "last")
     
-    dm_id_one = dm.dm_create_v1(token_one, [2,3])['dm_id']
+    u_id_one = user_one_info['auth_user_id']
+    u_id_two = user_two_info['auth_user_id']
+    u_id_three = user_three_info['auth_user_id']    
     
-    dm_leave_v1(token_two, dm_id_one)
+    dm_id_one = dm.dm_create_v1(user_one_info['token'], [u_id_two,u_id_three])['dm_id']
+    
+    dm.dm_leave_v1(user_two_info['token'], dm_id_one)
     
     # Member 2 having left
     dm_details_one = {
         'name' : 'aa, bb, cc',
-        'members' : [1,3]
+        'members' : [u_id_one,u_id_three]
     }
     
-    assert(dm_details_v1(token_one, dm_id_one) == dm_details_one)
+    assert(dm.dm_details_v1(user_one_info['token'], dm_id_one) == dm_details_one)
     
     
     
 # Test an owner successfully leaves
 def dm_leave_v1_successful_owner_test():
     other.clear_v1() 
-    token_one = auth.auth_register_v2("first@gmail.com", "password", "first", "last")['token']
-    token_two = auth.auth_register_v2("second@gmail.com", "password", "first", "last")['token']
-    token_three = auth.auth_register_v2("third@gmail.com", "password", "first", "last")['token']
+    
+    user_one_info = auth.auth_register_v2("first@gmail.com", "password", "first", "last")
+    user_two_info  = auth.auth_register_v2("first@gmail.com", "password", "first", "last")
+    user_three_info = auth.auth_register_v2("second@gmail.com", "password", "first", "last")
+   
+    u_id_one = user_one_info['auth_user_id']
+    u_id_two = user_two_info['auth_user_id']
+    u_id_three = user_three_info['auth_user_id']    
+    
         
     
-    dm_id_one = dm.dm_create_v1(token_one, [2,3])['dm_id']
+    dm_id_one = dm.dm_create_v1(user_one_info['token'], user_two_info['auth_user_id'], user_three_info['auth_user_id'])['dm_id']
     
-    dm_leave_v1(token_one, dm_id_one)
+    dm.dm_leave_v1(user_one_info['token'], dm_id_one)
     
     # Owner 1 having left
     dm_details_one = {
         'name' : 'aa, bb, cc',
-        'members' : [2,3]
+        'members' : [u_id_two,u_id_three]
     }
     
-    assert(dm_details_v1(token_two, dm_id_one) == dm_details_one)
+    assert(dm.dm_details_v1(user_two_info['token'], dm_id_one) == dm_details_one)
 
 # Test dm_id does not exist  
 def dm_leave_v1_false_id_test():
     other.clear_v1() 
-    token_one = auth.auth_register_v2("first@gmail.com", "password", "first", "last")['token']  
+    user_one_info = auth.auth_register_v2("first@gmail.com", "password", "first", "last") 
     dm_id_false = 999999
     
     with pytest.raises(InputError):
-        assert(dm_leave_v1(token_one, dm_id_false))
+        assert(dm.dm_leave_v1(user_one_info['token'], dm_id_false))
         
     
 # Test dm_id is valid but token user is NOT a DM member
 
 def dm_leave_v1_unauthorised_user_test():
     other.clear_v1() 
-    token_one = auth.auth_register_v2("first@gmail.com", "password", "first", "last")['token']
-    token_two = auth.auth_register_v2("second@gmail.com", "password", "first", "last")['token']
-    token_three = auth.auth_register_v2("third@gmail.com", "password", "first", "last")['token']
+    user_one_info = auth.auth_register_v2("first@gmail.com", "password", "first", "last")
+    user_two_info  = auth.auth_register_v2("first@gmail.com", "password", "first", "last")
+    user_three_info = auth.auth_register_v2("second@gmail.com", "password", "first", "last")
     
-    dm_id_one = dm.dm_create_v1(token_one, [2])['dm_id']
+    u_id_one = user_one_info['auth_user_id']
+    u_id_two = user_two_info['auth_user_id']
+    u_id_three = user_three_info['auth_user_id']    
+    
+    dm_id_one = dm.dm_create_v1(user_one_info['token'], [u_id_two])['dm_id']
      
     with pytest.raises(AccessError):
-        assert(dm_leave_v1(token_three, dm_id_one))
+        assert(dm.dm_leave_v1(user_three_info['token'], dm_id_one))
         
         
         
@@ -281,14 +318,19 @@ def dm_leave_v1_unauthorised_user_test():
 def dm_messages_v1_successful_test():
     
     other.clear_v1() 
-    token_one = auth.auth_register_v2("first@gmail.com", "password", "first", "last")['token']
-    token_two = auth.auth_register_v2("second@gmail.com", "password", "first", "last")['token']
-    token_three = auth.auth_register_v2("third@gmail.com", "password", "first", "last")['token']
-    dm_id_one = dm.dm_create_v1(token_one, [2,3])['dm_id']
+    user_one_info = auth.auth_register_v2("first@gmail.com", "password", "first", "last")
+    user_two_info  = auth.auth_register_v2("first@gmail.com", "password", "first", "last")
+    user_three_info = auth.auth_register_v2("second@gmail.com", "password", "first", "last")
     
-    message.message_senddm_v1(token_one, dm_id_one, "First!")
-    message.message_senddm_v1(token_two, dm_id_one, "Lame!")
-    message.message_senddm_v1(token_one, dm_id_one, "Third....!")
+    u_id_one = user_one_info['auth_user_id']
+    u_id_two = user_two_info['auth_user_id']
+    u_id_three = user_three_info['auth_user_id']  
+    
+    dm_id_one = dm.dm_create_v1(user_one_info['token'], [u_id_two,u_id_three])['dm_id']
+    
+    message.message_senddm_v1(user_one_info['token'], dm_id_one, "First!")
+    message.message_senddm_v1(user_two_info['token'], dm_id_one, "Lame!")
+    message.message_senddm_v1(user_one_info['token'], dm_id_one, "Third....!")
     
     message_return = {
         'messages': ["First!",  "Lame!", "Third....!"],
@@ -296,7 +338,7 @@ def dm_messages_v1_successful_test():
         'end'     :  -1
     }
     
-    assert(dm_messages_v1(token_one, dm_id_one, 0)) = message_return
+    assert(dm.dm_messages_v1(user_one_info['token'], dm_id_one, 0)) == message_return
     
     
     
@@ -305,14 +347,19 @@ def dm_messages_v1_successful_test():
 def dm_messages_v1_hundred_twenty_test():
     other.clear_v1() 
     
-    token_one = auth.auth_register_v2("first@gmail.com", "password", "first", "last")['token']
-    token_two = auth.auth_register_v2("second@gmail.com", "password", "first", "last")['token']
-    token_three = auth.auth_register_v2("third@gmail.com", "password", "first", "last")['token']
-    dm_id_one = dm.dm_create_v1(token_one, [2,3])['dm_id']
+    user_one_info = auth.auth_register_v2("first@gmail.com", "password", "first", "last")
+    user_two_info  = auth.auth_register_v2("first@gmail.com", "password", "first", "last")
+    user_three_info = auth.auth_register_v2("second@gmail.com", "password", "first", "last")
+    
+    u_id_one = user_one_info['auth_user_id']
+    u_id_two = user_two_info['auth_user_id']
+    u_id_three = user_three_info['auth_user_id']  
+    
+    dm_id_one = dm.dm_create_v1(user_one_info['token'], [u_id_two,u_id_three])['dm_id']
     
     
     for spam in range(0,120):
-        message.message_senddm_v1(token_one, dm_id_one, "Now this is epic")
+        message.message_senddm_v1(user_one_info['token'], dm_id_one, "Now this is epic")
         
     # Are these starts and ends right?
     message_return_one = {
@@ -321,60 +368,60 @@ def dm_messages_v1_hundred_twenty_test():
         'end'     :  50
     }
     
-    message_return_one = {
+    message_return_two = {
         'messages': ["Now this is epic" * 50],
         'start'   :  50,
         'end'     :  100
     }
     
-    message_return_one = {
+    message_return_three = {
         'messages': ["Now this is epic" * 50],
         'start'   :  100,
         'end'     :  -1
     }
     
-    assert(dm_messages_v1(token_one, dm_id_one, 0)) = message_return_one
-    assert(dm_messages_v1(token_one, dm_id_one, 50)) = message_return_two
-    assert(dm_messages_v1(token_one, dm_id_one, 100)) = message_return_three
+    assert(dm.dm_messages_v1(user_one_info['token'], dm_id_one, 0)) == message_return_one
+    assert(dm.dm_messages_v1(user_one_info['token'], dm_id_one, 50)) == message_return_two
+    assert(dm.dm_messages_v1(user_one_info['token'], dm_id_one, 100)) == message_return_three
 
 # Invalid dm_id
 def dm_messages_v1_dm_false_test():
 
     other.clear_v1() 
-    token_one = auth.auth_register_v2("first@gmail.com", "password", "first", "last")['token']
-    token_two = auth.auth_register_v2("second@gmail.com", "password", "first", "last")['token']
-    token_three = auth.auth_register_v2("third@gmail.com", "password", "first", "last")['token']
+    user_one_info = auth.auth_register_v2("first@gmail.com", "password", "first", "last")
+    user_two_info  = auth.auth_register_v2("first@gmail.com", "password", "first", "last")
+    user_three_info = auth.auth_register_v2("second@gmail.com", "password", "first", "last")
     dm_id_two = 9999
     
     with pytest.raises(InputError):
-        assert(dm.dm_messages_v1(token_one, dm_id_two, 0))
+        assert(dm.dm_messages_v1(user_one_info['token'], dm_id_two, 0))
        
     
 # Invalid start; greater than the total amount of messages
 def dm_messages_v1_start_too_great_test():
     
     other.clear_v1() 
-    token_one = auth.auth_register_v2("first@gmail.com", "password", "first", "last")['token']
-    token_two = auth.auth_register_v2("second@gmail.com", "password", "first", "last")['token']
-    token_three = auth.auth_register_v2("third@gmail.com", "password", "first", "last")['token']
-    dm_id_one = dm.dm_create_v1(token_one, [2,3])['dm_id']
+    user_one_info = auth.auth_register_v2("first@gmail.com", "password", "first", "last")
+    user_two_info  = auth.auth_register_v2("first@gmail.com", "password", "first", "last")
+    user_three_info = auth.auth_register_v2("second@gmail.com", "password", "first", "last")
+    dm_id_one = dm.dm_create_v1(user_one_info['token'], [user_two_info['auth_user_id'],user_three_info['auth_user_id']])['dm_id']
     
     for spam in range(0,37):
-        message.message_senddm_v1(token_one, dm_id_one, "Spam")
+        message.message_senddm_v1(user_one_info['token'], dm_id_one, "Spam")
     
     with pytest.raises(InputError):
-        assert(dm.dm_messages_v1(token_one, dm_id_one, 45))
+        assert(dm.dm_messages_v1(user_one_info['token'], dm_id_one, 45))
        
     
 def dm_messages_v1_unauthorised_user_test():
     other.clear_v1() 
-    token_one = auth.auth_register_v2("first@gmail.com", "password", "first", "last")['token']
-    token_two = auth.auth_register_v2("second@gmail.com", "password", "first", "last")['token']
-    token_three = auth.auth_register_v2("third@gmail.com", "password", "first", "last")['token']
-    dm_id_one = dm.dm_create_v1(token_one, [2])['dm_id']
+    user_one_info = auth.auth_register_v2("first@gmail.com", "password", "first", "last")
+    user_two_info  = auth.auth_register_v2("first@gmail.com", "password", "first", "last")
+    user_three_info = auth.auth_register_v2("second@gmail.com", "password", "first", "last")
+    dm_id_one = dm.dm_create_v1(user_one_info['token'], [user_two_info['auth_user_id']])['dm_id']
     
     with pytest.raises(AccessError):
-        assert(dm.dm_messages_v1(token_three, dm_id_one, 0))
+        assert(dm.dm_messages_v1(user_three_info['token'], dm_id_one, 0))
     
         
     
