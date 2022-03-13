@@ -216,7 +216,7 @@ def dm_leave_v1_successful_member_test():
     token_three = auth.auth_register_v2("third@gmail.com", "password", "first", "last")['token']
         
     
-    dm_id_one = dm.dm_create_v1(token_one, [2,3]) ['dm_id']
+    dm_id_one = dm.dm_create_v1(token_one, [2,3])['dm_id']
     
     dm_leave_v1(token_two, dm_id_one)
     
@@ -238,7 +238,7 @@ def dm_leave_v1_successful_owner_test():
     token_three = auth.auth_register_v2("third@gmail.com", "password", "first", "last")['token']
         
     
-    dm_id_one = dm.dm_create_v1(token_one, [2,3]) ['dm_id']
+    dm_id_one = dm.dm_create_v1(token_one, [2,3])['dm_id']
     
     dm_leave_v1(token_one, dm_id_one)
     
@@ -250,19 +250,14 @@ def dm_leave_v1_successful_owner_test():
     
     assert(dm_details_v1(token_two, dm_id_one) == dm_details_one)
 
-    
-    
-  
 # Test dm_id does not exist  
 def dm_leave_v1_false_id_test():
     other.clear_v1() 
-    token_one = auth.auth_register_v2("first@gmail.com", "password", "first", "last")['token']
-    token_two = auth.auth_register_v2("second@gmail.com", "password", "first", "last")['token']
-    token_three = auth.auth_register_v2("third@gmail.com", "password", "first", "last")['token']
-        
+    token_one = auth.auth_register_v2("first@gmail.com", "password", "first", "last")['token']  
+    dm_id_false = 999999
     
     with pytest.raises(InputError):
-        assert(dm_leave_v1())
+        assert(dm_leave_v1(token_one, dm_id_false))
         
     
 # Test dm_id is valid but token user is NOT a DM member
@@ -272,6 +267,11 @@ def dm_leave_v1_unauthorised_user_test():
     token_one = auth.auth_register_v2("first@gmail.com", "password", "first", "last")['token']
     token_two = auth.auth_register_v2("second@gmail.com", "password", "first", "last")['token']
     token_three = auth.auth_register_v2("third@gmail.com", "password", "first", "last")['token']
+    
+    dm_id_one = dm.dm_create_v1(token_one, [2])['dm_id']
+     
+    with pytest.raises(AccessError):
+        assert(dm_leave_v1(token_three, dm_id_one))
         
     
     
