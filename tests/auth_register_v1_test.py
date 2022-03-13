@@ -2,7 +2,6 @@ import pytest
 from src import auth
 from src.error import InputError
 from src.other import clear_v1
-from src.data_store import data_store
 
 
 
@@ -38,8 +37,6 @@ def test_password_length_short():
     with pytest.raises(InputError):
         # 3 Letter long password
         assert(auth.auth_register_v1("normal@gmail.com", "abc", "John", "Smith"))
-        # 5 Letter long password
-        assert(auth.auth_register_v1("normal@gmail.com", "abcde", "John", "Smith"))
         # 0 Letter long password
         assert(auth.auth_register_v1("normal@gmail.com", "", "John", "Smith"))
 
@@ -69,41 +66,6 @@ def test_name_last_length_short():
     with pytest.raises(InputError):
         assert(auth.auth_register_v1("normal@gmail.com", "abc", "John", ""))
 
-# Test for duplicate handles
-# Not a blackbox test due to being forced to extract data from Datastore
-# Each different group's implementation of Datastore would be impossible to account for.
-def test_handle_duplicate():
-    clear_v1()
-    store = data_store.get()
-
-    auth.auth_register_v1("one@gmail.com", "Password", "John", "Smith")
-    auth.auth_register_v1("two@gmail.com", "Password", "John", "Smith")
-    auth.auth_register_v1("three@gmail.com", "Password", "John", "Smith")
-    auth.auth_register_v1("four@gmail.com", "Password", "John", "Smith")
-    
-    
-    assert(store['users'][0]['handle_str']) == "johnsmith"
-    assert(store['users'][1]['handle_str']) == "johnsmith0"
-    assert(store['users'][2]['handle_str']) == "johnsmith1"
-    assert(store['users'][3]['handle_str']) == "johnsmith2"
-    
-    
-
-# Test a long (20+ chars) handle is shrunk to 20 characters 
-
-def test_handle_long():
-    clear_v1()
-    store = data_store.get()
-    auth.auth_register_v1("one@gmail.com", "Password", "LongLongLongLong", "MeebMaabMuub")
-    auth.auth_register_v1("two@gmail.com", "Password", "LongLongLongLong", "MeebMaabMuub")
-    assert(store['users'][0]['handle_str']) == "longlonglonglongmeeb"
-    assert(len(store['users'][0]['handle_str'])) == 20
-    
-# Test that a duplicate handle is allowed to exceed 20 characters after shrinkage.
-def test_handle_duplicate_length():
-    clear_v1()
-    store = data_store.get()
-    auth.auth_register_v1("one@gmail.com", "Password", "LongLongLongLong", "MeebMaabMuub")
-    auth.auth_register_v1("two@gmail.com", "Password", "LongLongLongLong", "MeebMaabMuub")
-    assert(len(store['users'][0]['handle_str'])) == 20
-    assert(len(store['users'][1]['handle_str'])) == 21
+# Originally there were multiple different handle tests, however it required non-blackbox solutions
+# in order to test outputs. While the outputs were correct, in order to maintain all tests as blackbox tests,
+# they have been removed.
