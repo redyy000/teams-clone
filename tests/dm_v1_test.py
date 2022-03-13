@@ -84,7 +84,6 @@ dm_details_return = {
     'members' : 
 }
 '''
->>>>>>> dm_remove_list_branch
 
 # DM Create Tests
 # NOT HTTP TESTS
