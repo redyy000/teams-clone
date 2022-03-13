@@ -93,9 +93,9 @@ def dm_create_v1_succesful_test():
     # Fix tokens creation
     other.clear_v1() 
     user_one_info = auth.auth_register_v2("first@gmail.com", "password", "first", "last")
-    user_two_info  = auth.auth_register_v2("first@gmail.com", "password", "first", "last")
-    user_three_info = auth.auth_register_v2("second@gmail.com", "password", "first", "last")
-    
+    user_two_info  = auth.auth_register_v2("second@gmail.com", "password", "first", "last")
+    user_three_info = auth.auth_register_v2("third@gmail.com", "password", "first", "last")
+
     u_id_one = user_one_info['auth_user_id']
     u_id_two = user_two_info['auth_user_id']
     u_id_three = user_three_info['auth_user_id']
@@ -111,8 +111,8 @@ def dm_create_v1_false_member_test():
     other.clear_v1() 
     
     user_one_info = auth.auth_register_v2("first@gmail.com", "password", "first", "last")
-    user_two_info  = auth.auth_register_v2("first@gmail.com", "password", "first", "last")
-    user_three_info = auth.auth_register_v2("second@gmail.com", "password", "first", "last")
+    user_two_info  = auth.auth_register_v2("second@gmail.com", "password", "first", "last")
+    user_three_info = auth.auth_register_v2("third@gmail.com", "password", "first", "last")
     
     u_id_one = user_one_info['auth_user_id']
     u_id_two = user_two_info['auth_user_id']
@@ -129,8 +129,8 @@ def dm_create_v1_false_owner_test():
     other.clear_v1() 
     
     user_one_info = auth.auth_register_v2("first@gmail.com", "password", "first", "last")
-    user_two_info  = auth.auth_register_v2("first@gmail.com", "password", "first", "last")
-    user_three_info = auth.auth_register_v2("second@gmail.com", "password", "first", "last")
+    user_two_info  = auth.auth_register_v2("second@gmail.com", "password", "first", "last")
+    user_three_info = auth.auth_register_v2("third@gmail.com", "password", "first", "last")
     
     u_id_one = user_one_info['auth_user_id']
     u_id_two = user_two_info['auth_user_id']
@@ -144,8 +144,8 @@ def dm_create_v1_false_owner_test():
 def dm_create_v1_owner_is_member_test():
     other.clear_v1() 
     user_one_info = auth.auth_register_v2("first@gmail.com", "password", "first", "last")
-    user_two_info  = auth.auth_register_v2("first@gmail.com", "password", "first", "last")
-    user_three_info = auth.auth_register_v2("second@gmail.com", "password", "first", "last")    
+    user_two_info  = auth.auth_register_v2("second@gmail.com", "password", "first", "last")
+    user_three_info = auth.auth_register_v2("third@gmail.com", "password", "first", "last")    
     
     u_id_one = user_one_info['auth_user_id']
     u_id_two = user_two_info['auth_user_id']
@@ -161,8 +161,8 @@ def dm_create_v1_duplicate_test():
     other.clear_v1()  
     
     user_one_info = auth.auth_register_v2("first@gmail.com", "password", "first", "last")
-    user_two_info  = auth.auth_register_v2("first@gmail.com", "password", "first", "last")
-    user_three_info = auth.auth_register_v2("second@gmail.com", "password", "first", "last")    
+    user_two_info  = auth.auth_register_v2("second@gmail.com", "password", "first", "last")
+    user_three_info = auth.auth_register_v2("third@gmail.com", "password", "first", "last")    
     
     u_id_two = user_two_info['auth_user_id']
     u_id_three = user_three_info['auth_user_id']
@@ -197,8 +197,8 @@ def dm_create_v1_empty_list_test():
 def dm_details_v1_success_test():
     other.clear_v1() 
     user_one_info = auth.auth_register_v2("first@gmail.com", "password", "first", "last")
-    user_two_info  = auth.auth_register_v2("first@gmail.com", "password", "first", "last")
-    user_three_info = auth.auth_register_v2("second@gmail.com", "password", "first", "last")
+    user_two_info  = auth.auth_register_v2("second@gmail.com", "password", "first", "last")
+    user_three_info = auth.auth_register_v2("third@gmail.com", "password", "first", "last")
     
     u_id_one = user_one_info['auth_user_id']
     u_id_two = user_two_info['auth_user_id']
@@ -237,8 +237,8 @@ def dm_details_v1_success_test():
 def dm_leave_v1_successful_member_test():
     other.clear_v1() 
     user_one_info = auth.auth_register_v2("first@gmail.com", "password", "first", "last")
-    user_two_info  = auth.auth_register_v2("first@gmail.com", "password", "first", "last")
-    user_three_info = auth.auth_register_v2("second@gmail.com", "password", "first", "last")
+    user_two_info  = auth.auth_register_v2("second@gmail.com", "password", "first", "last")
+    user_three_info = auth.auth_register_v2("third@gmail.com", "password", "first", "last")
     
     u_id_one = user_one_info['auth_user_id']
     u_id_two = user_two_info['auth_user_id']
@@ -263,8 +263,8 @@ def dm_leave_v1_successful_owner_test():
     other.clear_v1() 
     
     user_one_info = auth.auth_register_v2("first@gmail.com", "password", "first", "last")
-    user_two_info  = auth.auth_register_v2("first@gmail.com", "password", "first", "last")
-    user_three_info = auth.auth_register_v2("second@gmail.com", "password", "first", "last")
+    user_two_info  = auth.auth_register_v2("second@gmail.com", "password", "first", "last")
+    user_three_info = auth.auth_register_v2("third@gmail.com", "password", "first", "last")
    
     u_id_one = user_one_info['auth_user_id']
     u_id_two = user_two_info['auth_user_id']
@@ -299,8 +299,8 @@ def dm_leave_v1_false_id_test():
 def dm_leave_v1_unauthorised_user_test():
     other.clear_v1() 
     user_one_info = auth.auth_register_v2("first@gmail.com", "password", "first", "last")
-    user_two_info  = auth.auth_register_v2("first@gmail.com", "password", "first", "last")
-    user_three_info = auth.auth_register_v2("second@gmail.com", "password", "first", "last")
+    user_two_info  = auth.auth_register_v2("second@gmail.com", "password", "first", "last")
+    user_three_info = auth.auth_register_v2("third@gmail.com", "password", "first", "last")
     
     u_id_one = user_one_info['auth_user_id']
     u_id_two = user_two_info['auth_user_id']
@@ -319,8 +319,8 @@ def dm_messages_v1_successful_test():
     
     other.clear_v1() 
     user_one_info = auth.auth_register_v2("first@gmail.com", "password", "first", "last")
-    user_two_info  = auth.auth_register_v2("first@gmail.com", "password", "first", "last")
-    user_three_info = auth.auth_register_v2("second@gmail.com", "password", "first", "last")
+    user_two_info  = auth.auth_register_v2("second@gmail.com", "password", "first", "last")
+    user_three_info = auth.auth_register_v2("third@gmail.com", "password", "first", "last")
     
     u_id_one = user_one_info['auth_user_id']
     u_id_two = user_two_info['auth_user_id']
@@ -348,8 +348,8 @@ def dm_messages_v1_hundred_twenty_test():
     other.clear_v1() 
     
     user_one_info = auth.auth_register_v2("first@gmail.com", "password", "first", "last")
-    user_two_info  = auth.auth_register_v2("first@gmail.com", "password", "first", "last")
-    user_three_info = auth.auth_register_v2("second@gmail.com", "password", "first", "last")
+    user_two_info  = auth.auth_register_v2("second@gmail.com", "password", "first", "last")
+    user_three_info = auth.auth_register_v2("third@gmail.com", "password", "first", "last")
     
     u_id_one = user_one_info['auth_user_id']
     u_id_two = user_two_info['auth_user_id']
@@ -389,8 +389,8 @@ def dm_messages_v1_dm_false_test():
 
     other.clear_v1() 
     user_one_info = auth.auth_register_v2("first@gmail.com", "password", "first", "last")
-    user_two_info  = auth.auth_register_v2("first@gmail.com", "password", "first", "last")
-    user_three_info = auth.auth_register_v2("second@gmail.com", "password", "first", "last")
+    user_two_info  = auth.auth_register_v2("second@gmail.com", "password", "first", "last")
+    user_three_info = auth.auth_register_v2("third@gmail.com", "password", "first", "last")
     dm_id_two = 9999
     
     with pytest.raises(InputError):
@@ -402,8 +402,8 @@ def dm_messages_v1_start_too_great_test():
     
     other.clear_v1() 
     user_one_info = auth.auth_register_v2("first@gmail.com", "password", "first", "last")
-    user_two_info  = auth.auth_register_v2("first@gmail.com", "password", "first", "last")
-    user_three_info = auth.auth_register_v2("second@gmail.com", "password", "first", "last")
+    user_two_info  = auth.auth_register_v2("second@gmail.com", "password", "first", "last")
+    user_three_info = auth.auth_register_v2("third@gmail.com", "password", "first", "last")
     dm_id_one = dm.dm_create_v1(user_one_info['token'], [user_two_info['auth_user_id'],user_three_info['auth_user_id']])['dm_id']
     
     for spam in range(0,37):
@@ -416,8 +416,8 @@ def dm_messages_v1_start_too_great_test():
 def dm_messages_v1_unauthorised_user_test():
     other.clear_v1() 
     user_one_info = auth.auth_register_v2("first@gmail.com", "password", "first", "last")
-    user_two_info  = auth.auth_register_v2("first@gmail.com", "password", "first", "last")
-    user_three_info = auth.auth_register_v2("second@gmail.com", "password", "first", "last")
+    user_two_info  = auth.auth_register_v2("second@gmail.com", "password", "first", "last")
+    user_three_info = auth.auth_register_v2("third@gmail.com", "password", "first", "last")
     dm_id_one = dm.dm_create_v1(user_one_info['token'], [user_two_info['auth_user_id']])['dm_id']
     
     with pytest.raises(AccessError):
