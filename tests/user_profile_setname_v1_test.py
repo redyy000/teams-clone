@@ -94,5 +94,5 @@ def test_setname_successful():
         "user@gmail.com", "password", "FirstName", "LastName")
     user_edited = user_profile_setname_v1(
         "token", "New FirstName", "New LastName")
-    assert user_profile_v1["name_first"] == "New FirstName"
-    assert user_profile_v1["name_last"] == "New LastName2"
+    assert user_profile_v1(user["name_first"]) == "New FirstName"
+    assert user_profile_v1(user["name_last"]) == "New LastName2"
