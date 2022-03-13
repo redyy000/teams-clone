@@ -227,9 +227,37 @@ def dm_leave_v1_successful_member_test():
     }
     
     assert(dm_details_v1(token_one, dm_id_one) == dm_details_one)
+# Test dm_id does not exist
+def dm_details_v1_false_id_test():
+
+    token_one = auth.auth_register_v2(
+        "first@gmail.com", "password", "first", "last")['token']
+    token_two = auth.auth_register_v2(
+        "second@gmail.com", "password", "first", "last")['token']
+    token_two = auth.auth_register_v2(
+        "third@gmail.com", "password", "first", "last")['token']
+
+    dm_id_one = dm.dm_create_v1(token_one, [2, 3])
+    dm_id_two = 9999
+
+    with pytest.raises(InputError):
+        dm.dm_details_v1(token_one, dm_id_two) 
     
-    
-    
+  # Test dm_id exists but authorised user is not a member of the DM  
+def dm_details_v1_unauthorised_user_test():
+
+    token_one = auth.auth_register_v2(
+        "first@gmail.com", "password", "first", "last")['token']
+    token_two = auth.auth_register_v2(
+        "second@gmail.com", "password", "first", "last")['token']
+    token_two = auth.auth_register_v2(
+        "third@gmail.com", "password", "first", "last")['token']
+
+    dm_id_one = dm.dm_create_v1(token_one, [2])
+
+    with pytest.raises(AccessError):
+        dm.dm_details_v1(token_three, dm_id_one)
+
 # Test an owner successfully leaves
 def dm_leave_v1_successful_owner_test():
     other.clear_v1() 
