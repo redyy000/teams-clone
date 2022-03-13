@@ -74,7 +74,7 @@ import pytest
         }
     ]
 }
-'''
+
 
 # members is a list of owners + normal_member ids
 # name is the DM name, automatically generated
@@ -82,7 +82,7 @@ dm_details_return = {
     'name' :
     'members' : 
 }
-
+'''
 
 # DM Create Tests
 # NOT HTTP TESTS
