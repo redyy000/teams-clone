@@ -40,7 +40,7 @@ import pytest
 # 1. Function Tests
 # 2. HTTP Tests
 
-dm_data_structure = {
+'''dm_data_structure = {
     # Name of dm automatically generated
     'name' : 'string',
     
@@ -74,7 +74,7 @@ dm_data_structure = {
         }
     ]
 }
-
+'''
 
 # members is a list of owners + normal_member ids
 # name is the DM name, automatically generated
