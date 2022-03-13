@@ -92,7 +92,6 @@ def test_setname_successful():
     clear_v1()
     user = auth_register_v1(
         "user@gmail.com", "password", "FirstName", "LastName")
-    user_edited = user_profile_setname_v1(
-        "token", "New FirstName", "New LastName")
-    assert user_profile_v1(user["name_first"]) == "New FirstName"
-    assert user_profile_v1(user["name_last"]) == "New LastName2"
+    user_profile_setname_v1(user["token"], "NewFirst", "NewLast")
+    assert user_profile_v1(user["name_first"]) == "NewFirst"
+    assert user_profile_v1(user["name_last"]) == "NewLast"

@@ -70,7 +70,7 @@ def test_email_already_exists():
         # Attempting to change an email with an already used email
         # i.e. change George's email to one used by Bob
         assert user_profile_setemail_v1(
-            user_george["token"], "canwefixit@gmail.com")
+            user_george["token"], user_bob["email"])
 
 
 def test_user_profile_setemail_successful():
@@ -80,7 +80,5 @@ def test_user_profile_setemail_successful():
     clear_v1()
     user = auth_register_v1("user@gmail.com", "password",
                             "FirstName", "LastName")
-    user_edited = auth_register_v1(
-        "edited_user_email@gmail.com", "password", "FirstName", "LastName")
-
-    assert user_profile_v1(user["email"]) == "edited_user_email@gmail.com"
+    user_profile_setemail_v1(user, "newuseremail@gmail.com")
+    assert user_profile_v1(user["email"]) == "newuseremail@gmail.com"
