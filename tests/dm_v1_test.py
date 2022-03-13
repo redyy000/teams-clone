@@ -468,9 +468,9 @@ def dm_messages_v1_hundred_twenty_test():
         'end'     :  -1
     }
     
-    assert(dm_messages_v1(token_one, dm_id_one, 0)) = message_return_one
-    assert(dm_messages_v1(token_one, dm_id_one, 50)) = message_return_two
-    assert(dm_messages_v1(token_one, dm_id_one, 100)) = message_return_three
+    assert(dm_messages_v1(token_one, dm_id_one, 0)) == message_return_one
+    assert(dm_messages_v1(token_one, dm_id_one, 50)) == message_return_two
+    assert(dm_messages_v1(token_one, dm_id_one, 100)) == message_return_three
 
 # Invalid dm_id
 def dm_messages_v1_dm_false_test():
