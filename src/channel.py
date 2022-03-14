@@ -302,3 +302,14 @@ def channel_join_v1(auth_user_id, channel_id):
 
     return {
     }
+
+
+def channel_removeowner_v1(token, channel_id):
+    pass
+
+
+def channel_join_v2(token, channel_id):
+    pass
+
+
+def channel_invite_v2(token, channel_id, u_id)
