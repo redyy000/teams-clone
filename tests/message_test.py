@@ -13,6 +13,8 @@ AccessError when:
     dm_id is valid and the authorised user is not a member of the DM
 '''
 
+# DM ID too large
+
 
 def invalid_dm_id_test():
     other.clear_v1()
@@ -33,6 +35,8 @@ def invalid_dm_id_test():
     with pytest.raises(InputError):
         dm.message_senddm_v1(token_id1, dm_id_two, "Hello World")
 
+# DM ID invalid
+
 
 def negative_dm_id_test():
     other.clear_v1()
@@ -50,6 +54,8 @@ def negative_dm_id_test():
 
     with pytest.raises(InputError):
         dm.message_senddm_v1(token_id1, -1, "Hello World")
+
+# Message length exceeds limit
 
 
 def invalid_large_message_length_test():
@@ -69,6 +75,8 @@ def invalid_large_message_length_test():
     with pytest.raises(InputError):
         dm.message_senddm_v1(user_one_info, dm_id_1, "a" * 1200)
 
+# Empty message error
+
 
 def invalid_large_message_length_test():
     other.clear_v1()
@@ -86,6 +94,8 @@ def invalid_large_message_length_test():
 
     with pytest.raises(InputError):
         dm.message_senddm_v1(token_id1, dm_id_1, "")
+
+# Valid user but user not in dm
 
 
 def invalid_auth_user_test():
@@ -105,3 +115,40 @@ def invalid_auth_user_test():
 
     with pytest.raises(AccessError):
         dm.message_senddm_v1(token_id3, dm_id_1, "Hello World")
+
+# Invalid Token Id Passed In
+
+
+def invalid_token_test():
+    other.clear_v1()
+    user_one_info = auth.auth_register_v2(
+        "first@gmail.com", "password", "first", "last")
+    user_two_info = auth.auth_register_v2(
+        "second@gmail.com", "password", "first", "last")
+    user_three_info = auth.auth_register_v2(
+        "third@gmail.com", "password", "first", "last")
+
+    token_id1 = user_one_info['token']
+    u_id2 = user_two_info['auth_user_id']
+    u_id3 = user_three_info['auth_user_id']
+    dm_id_1 = dm.dm_create_v1(token_id1, [u_id2, u_id3])['dm_id']
+
+    with pytest.raises(AccessError):
+        dm.message_senddm_v1("weird token", dm_id_1, "Hello World")
+
+# Work in Progress
+
+
+def success_test():
+    other.clear_v1()
+    user_one_info = auth.auth_register_v2(
+        "first@gmail.com", "password", "first", "last")
+    user_two_info = auth.auth_register_v2(
+        "second@gmail.com", "password", "first", "last")
+    user_three_info = auth.auth_register_v2(
+        "third@gmail.com", "password", "first", "last")
+
+    token_id1 = user_one_info['token']
+    u_id2 = user_two_info['auth_user_id']
+    u_id3 = user_three_info['auth_user_id']
+    dm_id_1 = dm.dm_create_v1(token_id1, [u_id2, u_id3])['dm_id']

@@ -289,7 +289,7 @@ def channel_join_v1(auth_user_id, channel_id):
     # If channel is valid check
     if is_channelfound == False or isinstance(channel_id, int) != True or channel_id <= 0 or channel_id > len(channel_info):
         raise InputError("Channel ID is invalid. ")
-    elif is_public == False:
+    elif is_public == False and auth_user_id != 1:
         raise AccessError("User is trying to access a private server")
 
     # If all prior checks pass, create a new dictionary and append to members list in datastore
