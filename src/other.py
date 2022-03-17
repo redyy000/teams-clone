@@ -26,7 +26,6 @@ def clear_v1():
     
     Sets data in data.p to a default dictionary of empty lists
     '''
-    store = load_data()
     DATA_STRUCTURE = {
         "users": [],
         "channels": [],
