@@ -1,28 +1,25 @@
-
 import re
 from src.data_store import data_store
 from src.error import InputError
 
 
-'''
-
-Given an email and a password, validate the given inputs and return the appropriate
-auth_user_id, or throw an exception if the inputs are incorrect.
-
-Arguments:
-    email (string)    - Email string that accepts regular expression
-    password (string)    - Password for the email address
-    ...
-
-Exceptions:
-    InputError  - Occurs when password for a given email address is incorrect
-    InputError  - Occurs when a given email does not exist
-
-Return Value:
-    Returns auth_user_id if email and email's password are both valid and correct
-'''
-
 def auth_login_v1(email, password):
+    '''
+    Given an email and a password, validate the given inputs and return the appropriate
+    auth_user_id, or throw an exception if the inputs are incorrect.
+
+    Arguments:
+        email (string)    - Email string that accepts regular expression
+        password (string)    - Password for the email address
+        ...
+
+    Exceptions:
+        InputError  - Occurs when password for a given email address is incorrect
+        InputError  - Occurs when a given email does not exist
+
+    Return Value:
+        Returns auth_user_id if email and email's password are both valid and correct
+    '''
     
     store = data_store.get()
 
