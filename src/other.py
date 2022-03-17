@@ -35,7 +35,7 @@ def clear_v1():
         "tokens": []
     }
     with open("data.p", "wb") as W_FILE:
-        W_FILE.write(pickle.dumps(data))  
+        W_FILE.write(pickle.dumps(DATA_STRUCTURE))  
 
 def load_data():
     '''
