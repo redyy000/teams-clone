@@ -5,6 +5,8 @@ from flask import Flask, request
 from pathlib import Path
 from src.data_store import data_store
 from json import dumps
+
+APP = Flask(__name__) 
     
 BASE_URL = "http://127.0.0.1:{config.port}"
 
@@ -30,8 +32,7 @@ def clear_v1():
         "users": [],
         "channels": [],
         "dms": [],
-        "global_messages": [],
-        "tokens": []
+        "messages": [],
     }
     with open("data.p", "wb") as W_FILE:
         W_FILE.write(pickle.dumps(DATA_STRUCTURE))  
