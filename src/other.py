@@ -1,7 +1,7 @@
 import pickle
 import src.server
 import requests
-from Flask import flask, request
+from flask import Flask, request
 from pathlib import Path
 from src.data_store import data_store
 from json import dumps
