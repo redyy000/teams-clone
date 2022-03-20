@@ -58,4 +58,4 @@ def test_login_password_fail():
     login_response = requests.post(f'{config.url}auth/login/v2', json = {'email' : 'Elden@ring.com',
                                                                          'password' : 'WRONG'})
     
-    assert(login_response.status_code) == 403
+    assert(login_response.status_code) == 400
