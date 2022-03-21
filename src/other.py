@@ -1,6 +1,5 @@
 
 from src.error import InputError, AccessError
-from src.other import secret
 import pickle
 import src.server
 import requests
@@ -10,27 +9,31 @@ from pathlib import Path
 from src.data_store import data_store
 from json import dumps
 
+SECRET = 'RICHARDRYANDANIELMAXTAYLA'
 
-APP = Flask(__name__) 
-    
+
+APP = Flask(__name__)
+
 BASE_URL = "http://127.0.0.1:{config.port}"
+
 
 def store_data(data):
     '''
     Input Types:
     data --> dicionary (may be empty)
-    
+
     Given a set of data, overwrite data.p with new data
     '''
     with open("data.p", "wb") as W_FILE:
         W_FILE.write(pickle.dumps(data))
 
-@APP.route("/clear/v2", methods = ["DELETE"])
+
+@APP.route("/clear/v2", methods=["DELETE"])
 def clear_v1():
     '''
     Input Types:
     None
-    
+
     Sets data in data.p to a default dictionary of empty lists
     '''
     DATA_STRUCTURE = {
@@ -40,13 +43,14 @@ def clear_v1():
         "messages": [],
     }
     with open("data.p", "wb") as W_FILE:
-        W_FILE.write(pickle.dumps(DATA_STRUCTURE))  
+        W_FILE.write(pickle.dumps(DATA_STRUCTURE))
+
 
 def load_data():
     '''
     Input Types:
     None
-    
+
     load_data from data.p as a readable data structure
     '''
     if Path("data.p").exists() == False:
@@ -54,9 +58,7 @@ def load_data():
     with open("data.p", "rb") as FILE:
         return pickle.loads(FILE.read())
 
-    
-    
-    
+
 def token_create(u_id, session_id):
     '''
     Given a u_id and a session_id, generate a unique token
@@ -71,48 +73,43 @@ def token_create(u_id, session_id):
     Return Value:
         token (json)        - Token from unique user id and current session id
     '''
-    
-    if isinstance(u_id, int) is False or isinstance (session_id, int) is False:
+
+    if isinstance(u_id, int) is False or isinstance(session_id, int) is False:
         raise InputError('One or more of the inputted ids are not integers!')
-    
-    return jwt.encode({'u_id' : u_id, 'session_id' : session_id}, secret, algorithms = ['HS256'])
+
+    return jwt.encode({'u_id': u_id, 'session_id': session_id}, SECRET, algorithms=['HS256'])
 
 
-
-def token_decode(token):
+def is_valid_token(token):
     '''
     Given a token, decode and return the token's u_id and session_id in the form of a dictionary
+    Raise an InputError if the decoded token does not correspond to an authorised user
 
     Arguments: 
         token (json)        - Token from unique user id and current session id
 
     Exceptions:
-        InputError: Decoded token's u_id and session_id do not exist in the user database
+        None
 
     Return Value:
         {
             'u_id' : u_id in token, 
             'session_id : session_id in token
         }
+
+        OR 
+
+        False
     '''
-    
-    # Still need to add checks for exceptions
-    
-    datastore = load_data()
-    decoded_token = jwt.decode(token, secret, algorithms="HS256")
-    
-    for user in datastore['users']:
-        if user == decoded_token['u_id']:
-            if decoded_token['session_id'] in user['session_id_list']:
-                return decoded_token
-            
-    raise(InputError('Token u_id/session_id not found in the user datastore'))
-    
-    
-    # return jwt.decode(token, secret, algorithms="HS256")
-    pass
-    
-    
-    
-    
-    
+    data = load_data()
+    try:
+        payload = jwt.decode(token, SECRET, algorithms=['HS256'])
+    except:
+        return False
+    else:
+        user = next(
+            (user for user in data['users'] if user['u_id'] == payload['u_id']), False)
+        if user:
+            if user['session_id_list'].count(payload['session_id']) != 0:
+                return payload
+        return False
