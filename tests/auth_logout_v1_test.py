@@ -2,15 +2,10 @@ import hashlib
 import jwt
 import pytest
 import requests
-from src.error import InputError
-from src import auth
-from src.other import clear_v1
 from src import config
 
 
-
 @pytest.fixture
-
 # Returns a JSON file with status code and data
 def initialise_test():
     '''
@@ -19,11 +14,11 @@ def initialise_test():
     '''
     # Calls clear on the saved data server-side
     requests.delete(f'{config.url}clear/v1')
-    
+
     response = register_user('Elden@ring.com', 'password', 'John', 'Eldenring')
     return response
-    
-    
+
+
 def register_user(email, password, name_first, name_last):
     '''
     Creates and sends a post request 
@@ -40,27 +35,27 @@ def register_user(email, password, name_first, name_last):
     Return Value:
         {'username' : string } dictionary
     '''
-    
-    return requests.post(f'{config.url}auth/register/v2', json = {'email'      : email,
-                                                           'password'   : password,
-                                                           'name_first' : name_first,
-                                                           'name_last'  : name_last})
-    
-    # Should write more....
+
+    return requests.post(f'{config.url}auth/register/v2', json={'email': email,
+                                                                'password': password,
+                                                                'name_first': name_first,
+                                                                'name_last': name_last})
+
+
 def test_logout_success(initialise_test):
-    data = initialise_test.get_json
+    data = initialise_test.json()
     token = data['token']
-    logout_response = requests.post(f'{config.url}auth/logout/v1', json = {'token' : token})
-    
-    assert(logout_response) == 200
-    
-    
-    # No failure cases? 
-    # No real exceptions given in README
-    
+    logout_response = requests.post(
+        f'{config.url}auth/logout/v1', json={'token': token})
+
+    assert(logout_response.status_code) == 200
+
+    # Logout with an invalid token
+
+
 def test_logout_fail(initialise_test):
-    '''
-    data = initialise_test.get_json
-    token = data['token']
-    '''
-    pass
+    # Access Error
+    logout_response = requests.post(
+        f'{config.url}auth/logout/v1', json={'token': 'incredibly fake token'})
+
+    assert(logout_response.status_code) == 403

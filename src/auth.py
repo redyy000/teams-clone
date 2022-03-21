@@ -1,9 +1,9 @@
 import hashlib
 import re
 import jwt
-from src.data_store import data_store
-from src.error import InputError, AccessError
-from src.other import token_create, is_valid_token, load_data, store_data
+from data_store import data_store
+from error import InputError, AccessError
+from other import token_create, is_valid_token, load_data, store_data
 
 
 SECRET = "RICHARDRYANDANIELMAXTAYLA"
@@ -31,7 +31,7 @@ def auth_login_v2(email, password):
     '''
 
     Given an email and a password, validate the given inputs with the server.
-    Return the appropriate auth_user_id 
+    Return the appropriate auth_user_id
     or throw an exception if the inputs are incorrect.
 
     Arguments:
@@ -57,18 +57,19 @@ def auth_login_v2(email, password):
     for user in store['users']:
         if user['email'] == email:
             if user['password'] != hash(password):
-                raise InputError("Incorrect Password!")
+                raise InputError(description="Incorrect Password!")
             else:
                 # Newest session id is equal to the max session id in the user's session id list + 1
-                # This means that if a session id is removed, then that session id number will not be reused.
-                new_session_id = max(user['session_id']) + 1
+                # This means that if a session id is removed,
+                # then that session id number will not be reused.
+                new_session_id = max(user['session_id_list']) + 1
                 # Append the newest session id to the list
                 user['session_id_list'].append(new_session_id)
                 return {
-                    'token': token_create(user['auth_user_id'], new_session_id),
-                    'auth_user_id': user['auth_user_id']
+                    'token': token_create(user['u_id'], new_session_id),
+                    'auth_user_id': user['u_id']
                 }
-    raise InputError("Email does not exist!")
+    raise InputError(description="Email does not exist!")
 
 
 def create_handle_str(store, name_first, name_last):
@@ -140,7 +141,7 @@ def auth_register_v2(email, password, name_first, name_last):
 
 
     RETURN:
-        Returns auth_user_id on successful creation of a new user entry.
+        Returns auth_user_id and token on successful creation of a new user entry.
 
 
     '''
@@ -149,25 +150,26 @@ def auth_register_v2(email, password, name_first, name_last):
     # Determine if email matches regular expression.
     regex = r'^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}$'
     if (re.fullmatch(regex, email)) == None:
-        raise InputError("Email does not match the regular expression!")
+        raise InputError(
+            description="Email does not match the regular expression!")
 
     # Determine if email already exists in users list.
     for user in store['users']:
         if user['email'] == email:
-            raise InputError("Email already exists within system!")
+            raise InputError(description="Email already exists within system!")
 
     # Determine if password length is 6 or more letters long
 
     if len(password) < 6:
-        raise InputError("Password is too short!")
+        raise InputError(description="Password is too short!")
 
     # Determine if name_first and name_last are appropriate lengths (1-50 char)
     # This will test name_first initially; if both first name and last name
     # Are incorrect, then only the first name error will be raised.
     if len(name_first) > 50 or len(name_first) <= 0:
-        raise InputError("First name length is invalid!")
+        raise InputError(description="First name length is invalid!")
     elif len(name_last) > 50 or len(name_last) <= 0:
-        raise InputError("Last name length is invalid!")
+        raise InputError(description="Last name length is invalid!")
 
     # Create auth_user_id
     auth_user_id = len(store['users']) + 1
@@ -186,6 +188,8 @@ def auth_register_v2(email, password, name_first, name_last):
     store['users'].append(user)
     store_data(store)
 
+    print(user)
+
     return {
         'auth_user_id': auth_user_id,
         'token': token_create(user['u_id'], user['session_id_list'][0])
@@ -203,7 +207,7 @@ def auth_logout_v1(token):
 
     EXCEPTIONS:
         InputError - No token is given.
-        InputError - Given token does not have
+        AccessError - Given token is an invalid token
 
     RETURN:
         {}
@@ -213,7 +217,7 @@ def auth_logout_v1(token):
 
     token_decoded = is_valid_token(token)
     if token_decoded == False:
-        raise AccessError('False Token!')
+        raise AccessError(description='False Token!')
 
     data = is_valid_token(token)
     datastore = load_data()
@@ -224,7 +228,7 @@ def auth_logout_v1(token):
                 user['session_id_list'].remove(data['session_id'])
             else:
                 raise InputError(
-                    'Given token does not have a real session id...')
+                    description='Given token does not have a real session id...')
 
     store_data(datastore)
 
