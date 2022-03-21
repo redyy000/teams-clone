@@ -90,23 +90,6 @@ def clear_v1():
         "messages": [],
     }
     with open("data.p", "wb") as W_FILE:
-        W_FILE.write(pickle.dumps(DATA_STRUCTURE))  
-
-@APP.route("/clear/v2", methods = ["DELETE"])
-def clear_v1():
-    '''
-    Input Types:
-    None
-    
-    Sets data in data.p to a default dictionary of empty lists
-    '''
-    DATA_STRUCTURE = {
-        "users": [],
-        "channels": [],
-        "dms": [],
-        "messages": [],
-    }
-    with open("data.p", "wb") as W_FILE:
         W_FILE.write(pickle.dumps(DATA_STRUCTURE))      
 
 #### NO NEED TO MODIFY BELOW THIS POINT
