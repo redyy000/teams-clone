@@ -40,7 +40,6 @@ def defaultHandler(err):
     return response
 
 
-APP = Flask(__name__)
 CORS(APP)
 
 APP.config['TRAP_HTTP_EXCEPTIONS'] = True
@@ -49,11 +48,9 @@ APP.register_error_handler(Exception, defaultHandler)
 # NO NEED TO MODIFY ABOVE THIS POINT, EXCEPT IMPORTS
 
 
-@APP.route('/auth/register/v2', methods=['POST'])
+@APP.route("/auth/register/v2", methods=['POST'])
 def auth_register():
-
-    arguments = request.get_json
-
+    arguments = request.get_json()
     # user_data is of form:
     '''
     user = {
@@ -91,24 +88,27 @@ def clear_v1():
     with open("data.p", "wb") as W_FILE:
         W_FILE.write(pickle.dumps(DATA_STRUCTURE))
 
+    return dumps({})
 
-@APP.route('/auth/login/v2', methods=['POST'])
+
+@APP.route("/auth/login/v2", methods=['POST'])
 def auth_login():
-    arguments = request.get_json
+    arguments = request.get_json()
+    print("LOGIN Arguments are:")
+    print(arguments)
     resp = auth_login_v2(arguments['email'], arguments['password'])
     return dumps(resp)
 
 
-@APP.route('/auth/logout/v1', methods=['POST'])
+@APP.route("/auth/logout/v1", methods=['POST'])
 def auth_logout():
 
     arguments = request.get_json()
-
     resp = auth_logout_v1(arguments['token'])
     return dumps(resp)
 
 
-@APP.route('/user/profile/v1', methods=['GET'])
+@APP.route("/user/profile/v1", methods=['GET'])
 def user_profile_get():
     arguments = request.get_json()
     resp = user_profile_v1(arguments['token'], arguments['u_id'])
