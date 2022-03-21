@@ -1,4 +1,3 @@
-
 from src.error import InputError, AccessError
 import pickle
 import src.server
@@ -26,25 +25,6 @@ def store_data(data):
     '''
     with open("data.p", "wb") as W_FILE:
         W_FILE.write(pickle.dumps(data))
-
-
-@APP.route("/clear/v2", methods=["DELETE"])
-def clear_v1():
-    '''
-    Input Types:
-    None
-
-    Sets data in data.p to a default dictionary of empty lists
-    '''
-    DATA_STRUCTURE = {
-        "users": [],
-        "channels": [],
-        "dms": [],
-        "messages": [],
-    }
-    with open("data.p", "wb") as W_FILE:
-        W_FILE.write(pickle.dumps(DATA_STRUCTURE))
-
 
 def load_data():
     '''
