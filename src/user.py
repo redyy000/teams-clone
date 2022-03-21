@@ -1,7 +1,7 @@
 
-from src.data_store import data_store
-from src.error import InputError, AccessError
-from src.other import token_create, is_valid_token, load_data, store_data
+from data_store import data_store
+from error import InputError, AccessError
+from other import token_create, is_valid_token, load_data, store_data
 import re
 
 
@@ -33,21 +33,24 @@ def user_profile_v1(token, u_id):
 
     token_decoded = is_valid_token(token)
     if token_decoded == False:
-        raise AccessError('False Token!')
+        raise AccessError(description='False Token!')
 
     datastore = load_data()
 
     for user in datastore['users']:
         if user['u_id'] == u_id:
             return {
-                'u_id': u_id,
-                'email': user['email'],
-                'name_first': user['name_first'],
-                'name_last': user['name_last'],
-                'handle_str': user['handle_str']
+
+                'user': {
+                    'u_id': u_id,
+                    'email': user['email'],
+                    'name_first': user['name_first'],
+                    'name_last': user['name_last'],
+                    'handle_str': user['handle_str']
+                }
             }
 
-    raise InputError('Given u_id does not exist!')
+    raise InputError(description='Given u_id does not exist!')
 
 
 def user_profile_setname_v1(token, name_first, name_last):
@@ -72,15 +75,18 @@ def user_profile_setname_v1(token, name_first, name_last):
 
     token_decoded = is_valid_token(token)
     if token_decoded == False:
-        raise AccessError('False Token!')
+        raise AccessError(description='False Token!')
 
     datastore = load_data()
     u_id = token_decoded['u_id']
 
+    if isinstance(name_first, str) == False or isinstance(name_last, str) == False:
+        raise InputError(description="First/Last names must be strings!")
+
     if len(name_first) > 50 or len(name_first) <= 0:
-        raise InputError("First name length is invalid!")
+        raise InputError(description="First name length is invalid!")
     elif len(name_last) > 50 or len(name_last) <= 0:
-        raise InputError("Last name length is invalid!")
+        raise InputError(description="Last name length is invalid!")
 
     for user in datastore['users']:
         if user['u_id'] == u_id:
@@ -113,19 +119,23 @@ def user_profile_setemail_v1(token, email):
 
     token_decoded = is_valid_token(token)
     if token_decoded == False:
-        raise AccessError('False Token!')
+        raise AccessError(description='False Token!')
 
     datastore = load_data()
-    u_id = token_decoded(token)['u_id']
+    u_id = token_decoded['u_id']
 
     # Determine if email matches regular expression.
     regex = r'^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}$'
     if (re.fullmatch(regex, email)) == None:
-        raise InputError("Email does not match the regular expression!")
+        raise InputError(
+            description="Email does not match the regular expression!")
 
     # Check for email already existing
-    if email in datastore['users']['email']:
-        raise InputError("Email already exists and is being used!")
+
+    for user in datastore['users']:
+        if email == user['email']:
+            raise InputError(
+                description="Email already exists and is being used!")
 
     for user in datastore['users']:
         if user['u_id'] == u_id:
@@ -157,19 +167,21 @@ def user_profile_sethandle_v1(token, handle_str):
 
     token_decoded = is_valid_token(token)
     if token_decoded == False:
-        raise AccessError('False Token!')
+        raise AccessError(description='False Token!')
 
     datastore = load_data()
-    u_id = token_decoded(token)['u_id']
+    u_id = token_decoded['u_id']
 
-    if handle_str in datastore['users']['handle_str']:
-        raise InputError("Handle already exists and is being used!")
+    for user in datastore['users']:
+        if handle_str == user['handle_str']:
+            raise InputError(
+                description="Handle already exists and is being used!")
 
     if len(handle_str) < 3 or len(handle_str) > 20:
         raise InputError(
-            "Handle length must be between 3-20 characters inclusive!")
+            description="Handle length must be between 3-20 characters inclusive!")
     elif handle_str.isalnum() == False:
-        raise InputError("Handle must be alphanumeric!")
+        raise InputError(description="Handle must be alphanumeric!")
 
     for user in datastore['users']:
         if user['u_id'] == u_id:
