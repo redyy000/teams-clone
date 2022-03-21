@@ -43,7 +43,6 @@ def test_channels_list2():
 def test_channels_list3():
     #tests invalid user ID
     clear_v1()
-    user_id1 = auth_register_v1('test123@gmail.com', '123password', 'Jonathan', 'Doe')
     with pytest.raises(AccessError):
         assert channels_list_v1(3)
 
@@ -75,7 +74,6 @@ def test_channels_listall2():
 def test_channels_listall3():
     #tests invalid user ID
     clear_v1()
-    user_id1 = auth_register_v1('test123@gmail.com', '123password', 'Jonathan', 'Doe')
     with pytest.raises(AccessError):
         assert channels_listall_v1(3)
 
