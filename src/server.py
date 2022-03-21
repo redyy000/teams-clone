@@ -75,6 +75,23 @@ def user_logout():
     resp = auth_logout_v1(token_decoded)
     return dumps(resp)
 
+@APP.route("/clear/v2", methods = ["DELETE"])
+def clear_v1():
+    '''
+    Input Types:
+    None
+    
+    Sets data in data.p to a default dictionary of empty lists
+    '''
+    DATA_STRUCTURE = {
+        "users": [],
+        "channels": [],
+        "dms": [],
+        "messages": [],
+    }
+    with open("data.p", "wb") as W_FILE:
+        W_FILE.write(pickle.dumps(DATA_STRUCTURE))  
+
 #### NO NEED TO MODIFY BELOW THIS POINT
 
 if __name__ == "__main__":
