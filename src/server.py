@@ -3,7 +3,7 @@
 from urllib import response
 from flask import Flask, request, abort
 from auth import auth_register_v2, auth_login_v2, auth_logout_v1
-from other import token_create, token_decode
+from src.other import token_create, token_decode
 from json import dumps
 import jwt
 
