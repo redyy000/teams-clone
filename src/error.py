@@ -1,5 +1,11 @@
-class AccessError(Exception):
-	pass
+from werkzeug.exceptions import HTTPException
 
-class InputError(Exception):
-	pass
+
+class AccessError(HTTPException):
+    code = 403
+    message = 'Access error occurred'
+
+
+class InputError(HTTPException):
+    code = 400
+    message = 'Input error occurred'
