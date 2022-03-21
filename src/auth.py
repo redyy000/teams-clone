@@ -1,12 +1,59 @@
+import hashlib
 import re
+import jwt
 from src.data_store import data_store
 from src.error import InputError
+from src.other import token_create, token_decode, load_data, store_data
 
 
-def auth_login_v1(email, password):
+
+
+SECRET = "RICHARDRYANDANIELMAXTAYLA"
+
+def token_encode(string):
     '''
-    Given an email and a password, validate the given inputs and return the appropriate
-    auth_user_id, or throw an exception if the inputs are incorrect.
+    Given a string and secret code, encode a token with data
+    Data is stored in the form of a dictionary
+    Encodes u_id 
+
+    Arguments:
+        string (string)    - String to be hashed
+        ...
+
+    Exceptions:
+        None
+
+    Return Value:
+        {'username' : string } dictionary
+    '''
+    return jwt.encode({'username' : string}, SECRET, algorithms = ['HS256'])
+
+
+def hash(string):
+    '''
+    Given a string, hash with the provided secret string.
+    
+
+    Arguments:
+        string (string)    - String to be hashed
+
+    Exceptions:
+        None
+
+    Return Value:
+        hashed_string (string) - Hashed string with SHA256
+    '''
+    
+    return  hashlib.sha256(string.encode()).hexdigest()
+    
+    
+        
+def auth_login_v2(email, password):
+    '''
+
+    Given an email and a password, validate the given inputs with the server.
+    Return the appropriate auth_user_id 
+    or throw an exception if the inputs are incorrect.
 
     Arguments:
         email (string)    - Email string that accepts regular expression
@@ -18,42 +65,55 @@ def auth_login_v1(email, password):
         InputError  - Occurs when a given email does not exist
 
     Return Value:
-        Returns auth_user_id if email and email's password are both valid and correct
+        {
+            'token'   : token_create(user['auth_user_id'], max(user['session_id']) + 1),
+            'auth_user_id' : user['auth_user_id']
+        }
     '''
     
-    store = data_store.get()
-
+    store = load_data()
+    
+    
+    # Hash inputted password with correct secret and encryption cod
+    
     for user in store['users']:
         if user['email'] == email:
-            if user['password'] == password:
-                return {'auth_user_id': user['u_id']}
-            else:
+            if user['password'] != hash(password):
                 raise InputError("Incorrect Password!")
+            else: 
+                # Newest session id is equal to the max session id in the user's session id list + 1
+                # This means that if a session id is removed, then that session id number will not be reused.
+                new_session_id = max(user['session_id']) + 1
+                # Append the newest session id to the list
+                user['session_id_list'].append(new_session_id)
+                return {
+                    'token'   : token_create(user['auth_user_id'], new_session_id),
+                    'auth_user_id' : user['auth_user_id']
+                }
     raise InputError("Email does not exist!")
         
-        
     
-'''
-
-Given a name_first and name_last, create a new handle_str and return it
-All handle_str made are unique to its user, and automatically changed
-If a given handle_str already exists in the Datastore.
-
-Arguments:
-    store (Datastore)    - Data of all saved users
-    name_first (string) - String containing first name, between 1-50 characters inclusive.
-    name_last (string) - String containing last name, between 1-50 characters inclusive.
-
-
-Exceptions:
-   
-
-Return Value:
-    Returns newly created handle_str
-
-'''
 
 def create_handle_str(store, name_first, name_last):
+    '''
+
+    Given a name_first and name_last, create a new handle_str and return it
+    All handle_str made are unique to its user, and automatically changed
+    If a given handle_str already exists in the Datastore.
+
+    Arguments:
+        store (Datastore)    - Data of all saved users
+        name_first (string) - String containing first name, between 1-50 characters inclusive.
+        name_last (string) - String containing last name, between 1-50 characters inclusive.
+
+
+    Exceptions:
+        None    
+
+    Return Value:
+        Returns newly created handle_str
+
+    '''
     # Create handle_str
     concat_str = name_first.lower() + name_last.lower()
     handle_str = ''.join(char for char in concat_str if char.isalnum())
@@ -78,38 +138,36 @@ def create_handle_str(store, name_first, name_last):
         handle_str = temp_handle_str
         
     return handle_str
+
     
-    
-'''
+def auth_register_v2(email, password, name_first, name_last):
+    '''
+    Given an email, password, name_first and name_last, create a new handle_str and auth_user_id
+    Proceed to save this new user as a dictionary containing the given inputs as well as handle_str and auth_user_id
+    Dictionary will enter the DataStore class as part of the dictionary key 'users' list. 
 
 
-Given an email, password, name_first and name_last, create a new handle_str and auth_user_id
-Proceed to save this new user as a dictionary containing the given inputs as well as handle_str and auth_user_id
-Dictionary will enter the DataStore class as part of the dictionary key 'users' list. 
-
-Arguments:
-    email (string)    - Email string that accepts regular expression
-    password (string)    - Password for the email address, 6 or more characters long.
-    name_first (string) - String containing first name, between 1-50 characters inclusive.
-    name_last (string) - String containing last name, between 1-50 characters inclusive.
+    ARGUMENTS:
+        email (string)    - Email string that accepts regular expression
+        password (string)    - Password for the email address, 6 or more characters long.
+        name_first (string) - String containing first name, between 1-50 characters inclusive.
+        name_last (string) - String containing last name, between 1-50 characters inclusive.
     ...
 
-Exceptions:
-    InputError  - Occurs when name_first string is not between 1-50 characters inclusive.
-    InputError  - Occurs when name_last string is not between 1-50 characters inclusive.
-    InputError  - Occurs when email string is not a valid regular expression.
-    InputError  - Occurs when email string matches an already existing entry. 
-    InputError  - Occurs when password is not 6 or more characters long.
-    
+    EXCEPTIONS:
+        InputError  - Occurs when name_first string is not between 1-50 characters inclusive.
+        InputError  - Occurs when name_last string is not between 1-50 characters inclusive.
+        InputError  - Occurs when email string is not a valid regular expression.
+        InputError  - Occurs when email string matches an already existing entry. 
+        InputError  - Occurs when password is not 6 or more characters long.
+        
 
-Return Value:
-    Returns auth_user_id on successful creation of a new user entry.
+    RETURN:
+        Returns auth_user_id on successful creation of a new user entry.
+        
 
-'''
-
-def auth_register_v1(email, password, name_first, name_last):
-    
-    store = data_store.get()
+    ''' 
+    store = load_data()
     
     # Determine if email matches regular expression.
     regex = r'^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}$'
@@ -142,15 +200,53 @@ def auth_register_v1(email, password, name_first, name_last):
     user = {
         'u_id'  : auth_user_id,
         'email' : email,
-        'password'   : password,
+        'password'   : hash(password),
         'name_first' : name_first,
         'name_last'  : name_last,
-        'handle_str' : create_handle_str(store, name_first, name_last)
+        'handle_str' : create_handle_str(store, name_first, name_last),
+        'session_id_list' : [1]
     }
     
     store['users'].append(user)
-    data_store.set(store)
+    store_data(store)
     
     return {
-        'auth_user_id': auth_user_id
+        'auth_user_id': auth_user_id,
+        'token' : token_create(user['u_id'], user['session_id_list'][0])
     }
+    
+    
+def auth_logout_v1(token):
+    '''
+    Given a token, invalidate the token.
+
+
+    ARGUMENTS:
+        Token (jwt)
+    ...
+
+    EXCEPTIONS:
+        InputError - No token is given.
+        InputError - Given token does not have
+
+    RETURN:
+        Nothing.
+    ''' 
+    
+    
+    # Remove the session from the session list
+    
+    data = token_decode(token)
+    datastore = load_data()
+    
+    for user in datastore['users']:
+        if user == data['u_id']:
+            if data['session_id'] in user['session_id_list']:
+                user['session_id_list'].remove(data['session_id'])
+            else:
+                raise InputError('Given token does not have a real session id...')
+                
+    store_data(datastore)
+    
+    return {}
+    
