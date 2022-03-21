@@ -1,5 +1,4 @@
-
-from error import InputError, AccessError
+from src.error import InputError, AccessError
 import pickle
 import requests
 import jwt
@@ -23,7 +22,6 @@ def store_data(data):
     '''
     with open("data.p", "wb") as W_FILE:
         W_FILE.write(pickle.dumps(data))
-
 
 def load_data():
     '''
