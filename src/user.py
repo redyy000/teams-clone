@@ -1,8 +1,6 @@
-
-from data_store import data_store
-from error import InputError, AccessError
-from other import token_create, is_valid_token, load_data, store_data
 import re
+from error import InputError, AccessError
+from other import is_valid_token, load_data, store_data
 
 
 def user_profile_v1(token, u_id):
@@ -90,8 +88,9 @@ def user_profile_setname_v1(token, name_first, name_last):
 
     for user in datastore['users']:
         if user['u_id'] == u_id:
-            user['name_first'] == name_first
-            user['name_last'] == name_last
+
+            user['name_first'] = name_first
+            user['name_last'] = name_last
 
     store_data(datastore)
     return {}

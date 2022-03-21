@@ -21,7 +21,7 @@ user = {
 def post_test_user():
     requests.delete(f"{config.url}/clear/v1")
     '''
-    Creates a test user and posts for use in http testing. 
+    Creates a test user and posts for use in http testing.
     '''
     post_test_user = requests.post(f"{config.url}/auth/register/v2", json={
         'email': 'user@gmail.com',
@@ -70,10 +70,60 @@ def test_user_profile_invalid_token(post_test_user):
 
     response = requests.get(f"{config.url}/user/profile/v1", json={
         'token': 'invalid_token',
-        'email': 'user@gmail.com',
+        'u_id': post_test_user['auth_user_id'],
     })
     # 403 for AccessError
     assert response.status_code == 403
+
+
+def test_user_profile_valid_users(post_test_user):
+
+    george_info = post_george()
+    bob_info = post_bob()
+
+    response1 = requests.get(f"{config.url}/user/profile/v1", json={
+        'token': post_test_user['token'],
+        'u_id': george_info['auth_user_id']
+    })
+
+    assert response1.status_code == 200
+
+    response2 = requests.get(f"{config.url}/user/profile/v1", json={
+        'token': post_test_user['token'],
+        'u_id': bob_info['auth_user_id']
+    })
+
+    assert response2.status_code == 200
+
+
+def test_user_profile_functionality(post_test_user):
+
+    george_info = post_george()
+
+    response1 = requests.get(f"{config.url}/user/profile/v1", json={
+        'token': post_test_user['token'],
+        'u_id': post_test_user['auth_user_id']
+    })
+
+    user_dict = response1.json()['user']
+    assert response1.status_code == 200
+    assert user_dict['email'] == 'user@gmail.com'
+    assert user_dict['name_first'] == 'FirstName'
+    assert user_dict['name_last'] == 'LastName'
+    assert user_dict['handle_str'] == 'firstnamelastname'
+
+    response2 = requests.get(f"{config.url}/user/profile/v1", json={
+        'token': george_info['token'],
+        'u_id': george_info['auth_user_id']
+    })
+
+    george_dict = response2.json()['user']
+    assert response2.status_code == 200
+    assert george_dict['email'] == 'george@gmail.com'
+    assert george_dict['name_first'] == 'George'
+    assert george_dict['name_last'] == 'Monkey'
+    assert george_dict['handle_str'] == 'georgemonkey'
+
 
 # USER SETEMAIL TESTS
 
@@ -145,20 +195,23 @@ def test_user_setemail_already_exists():
 
 
 def test_user_setemail_successful(post_test_user):
-
-    TODO
     '''
     Asserts a successful change of email
     '''
-    # changes user['email']
+
     requests.put(f"{config.url}/user/profile/setemail/v1", json={
         'token': post_test_user['token'],
         'email': 'newuseremail@gmail.com',
     })
 
-    # Illegal
-    # use user/profile/v1 to test functionality
-    assert post_test_user['email'] == 'newuseremail@gmail.com'
+    response = requests.get(f"{config.url}/user/profile/v1", json={
+        'token': post_test_user['token'],
+        'u_id': post_test_user['auth_user_id']
+    })
+
+    user_dict = response.json()['user']
+    assert response.status_code == 200
+    assert user_dict['email'] == 'newuseremail@gmail.com'
 
 # USER SETHANDLE TESTS
 
@@ -233,18 +286,23 @@ def test_user_sethandle_already_exists():
     assert response.status_code == 400
 
 
-def test_user_sethandle_successful():
-
-    TODO
+def test_user_sethandle_successful(post_test_user):
     '''
     Asserts a successful change of handle
     '''
-    requests.delete(f"{config.url}/clear/v1")
-    response = requests.put(f"{config.url}/user/profile/sethandle/v1", json={
+    requests.put(f"{config.url}/user/profile/sethandle/v1", json={
         'token': post_test_user['token'],
         'handle_str': 'coolnewhandle',
     })
-    assert post_test_user['handle_str'] == 'coolnewhandle'
+
+    response = requests.get(f"{config.url}/user/profile/v1", json={
+        'token': post_test_user['token'],
+        'u_id': post_test_user['auth_user_id']
+    })
+
+    user_dict = response.json()['user']
+    assert response.status_code == 200
+    assert user_dict['handle_str'] == 'coolnewhandle'
 
 
 # USER SETNAME TESTS
@@ -351,12 +409,9 @@ def test_user_setname_not_string(post_test_user):
 
 
 def test_user_setname_successful(post_test_user):
-
-    TODO
     '''
     Tests if user_profile_setname_v1
     '''
-    requests.delete(f"{config.url}/clear/v1")
     # changes user's name
     requests.put(f"{config.url}/user/profile/setname/v1", json={
         'token': post_test_user['token'],
@@ -364,5 +419,12 @@ def test_user_setname_successful(post_test_user):
         'name_last': 'New_Last_Name'
     })
 
-    assert post_test_user['name_first'] == 'New_First_Name'
-    assert post_test_user['name_last'] == 'New_Last_Name'
+    response = requests.get(f"{config.url}/user/profile/v1", json={
+        'token': post_test_user['token'],
+        'u_id': post_test_user['auth_user_id']
+    })
+
+    user_dict = response.json()['user']
+    assert response.status_code == 200
+    assert user_dict['name_first'] == 'New_First_Name'
+    assert user_dict['name_last'] == 'New_Last_Name'
