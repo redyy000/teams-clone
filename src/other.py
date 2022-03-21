@@ -13,6 +13,23 @@ SECRET = "RICHARDRYANDANIELMAXTAYLA"
 BASE_URL = "http://127.0.0.1:{config.port}"
 
 
+def clear_v1():
+    '''
+    Input Types:
+    None
+
+    Sets data in data.p to a default dictionary of empty lists
+    '''
+    DATA_STRUCTURE = {
+        "users": [],
+        "channels": [],
+        "dms": [],
+        "messages": [],
+    }
+    with open("data.p", "wb") as W_FILE:
+        W_FILE.write(pickle.dumps(DATA_STRUCTURE))
+
+
 def store_data(data):
     '''
     Input Types:
@@ -22,6 +39,7 @@ def store_data(data):
     '''
     with open("data.p", "wb") as W_FILE:
         W_FILE.write(pickle.dumps(data))
+
 
 def load_data():
     '''
