@@ -1,7 +1,11 @@
 from src.data_store import data_store
 from src.channels import channels_create_v1, channels_list_v1
 from src.error import InputError, AccessError
+from json import dumps, dump, load
+from flask import Flask, request
+from src.other import is_valid_token
 
+SECRET = 'PLACEHOLDER'
 
 '''
 Invites a user with ID u_id to join a channel with ID channel_id. 
