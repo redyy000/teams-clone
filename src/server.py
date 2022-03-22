@@ -12,6 +12,7 @@ from flask import Flask, request, abort
 from flask_cors import CORS
 from src.auth import auth_register_v2, auth_login_v2, auth_logout_v1
 from src.other import clear_v1
+from src.dm import dm_create_v1, dm_details_v1, dm_list_v1, dm_remove_v1, dm_leave_v1
 
 
 APP = Flask(__name__)
@@ -125,6 +126,47 @@ def users_list_all():
     return dumps(resp)
 
 
+@APP.route("/dm/create/v1", methods=['POST'])
+def dm_create():
+    arguments = request.get_json()
+    resp = dm_create_v1(
+        arguments['token'], arguments['u_ids'])
+    return dumps(resp)
+
+
+'''
+
+@APP.route("/dm/list/v1", methods=['GET'])
+def dm_list():
+    arguments = request.get_json()
+    resp = dm_list_v1(
+        arguments['token'])
+    return dumps(resp)
+
+
+@APP.route("/dm/remove/v1", methods=['DELETE'])
+def dm_remove():
+    arguments = request.get_json()
+    resp = dm_remove_v1(
+        arguments['token'], arguments['dm_id'])
+    return dumps(resp)
+
+
+@APP.route("/dm/details/v1", methods=['GET'])
+def dm_details():
+    arguments = request.get_json()
+    resp = dm_details_v1(
+        arguments['token'], arguments['dm_id'])
+    return dumps(resp)
+
+
+@APP.route("/dm/leave/v1", methods=['POST'])
+def dm_leave():
+    arguments = request.get_json()
+    resp = dm_leave_v1(
+        arguments['token'], arguments['dm_id'])
+    return dumps(resp)
+'''
 # NO NEED TO MODIFY BELOW THIS POINT
 if __name__ == "__main__":
     signal.signal(signal.SIGINT, quit_gracefully)  # For coverage
