@@ -37,8 +37,8 @@ def test_channels_list1(init_test):
     }).json()    
     requests.post(f"{config.url}channel/invite/v2", json = {
         "token":init_test,
-        "channel_id": channel_id1['channel_id']", 
-        "u_id": user_id2['auth_user_id'], 
+        "channel_id": channel_id1['channel_id'], 
+        "u_id": user_id2['auth_user_id'],
     })
     response = reqests.get(f"{config.url}channel/list/v2", json = {"token": user_id2['token']})
     assert response.status_code == 200
