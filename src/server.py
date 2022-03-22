@@ -11,9 +11,7 @@ from flask import Flask, request, abort
 from flask_cors import CORS
 from src.auth import auth_register_v2, auth_login_v2, auth_logout_v1
 from src.other import clear_v1
-
-
-APP = Flask(__name__)
+from src.channels import channels_create_v2
 
 
 def quit_gracefully(*args):
@@ -65,12 +63,6 @@ def auth_register():
     return dumps(resp)
 
 
-@APP.route("/clear/v1", methods=["DELETE"])
-def clear():
-    clear_v1()
-    return dumps({})
-
-
 @APP.route("/auth/login/v2", methods=['POST'])
 def auth_login():
     arguments = request.get_json()
@@ -80,11 +72,20 @@ def auth_login():
 
 @APP.route("/auth/logout/v1", methods=['POST'])
 def auth_logout():
-
     arguments = request.get_json()
     resp = auth_logout_v1(arguments['token'])
     return dumps(resp)
+    
+@APP.route("/channels/create/v2", methods = ["POST"])
+def channels_create():
+    arguments = request.get_json()
+    resp = channels_create_v2(arguments["token"], arguments["name"], arguments["is_public"])
+    return dumps(resp)
 
+@APP.route("/clear/v1", methods=["DELETE"])
+def clear():
+    clear_v1()
+    return dumps({})
 
 @APP.route("/user/profile/v1", methods=['GET'])
 def user_profile_get():
