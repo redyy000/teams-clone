@@ -1,9 +1,7 @@
 import hashlib
 import re
-import jwt
-from error import InputError, AccessError
-from other import token_create, is_valid_token, load_data, store_data
-
+from src.error import InputError, AccessError
+from src.other import token_create, is_valid_token, load_data, store_data
 
 SECRET = "RICHARDRYANDANIELMAXTAYLA"
 
