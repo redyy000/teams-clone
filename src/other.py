@@ -1,19 +1,30 @@
-from src.error import InputError, AccessError
+from src.error import InputError
 import pickle
-import src.server
 import requests
 import jwt
-from flask import Flask, request
 from pathlib import Path
-from src.data_store import data_store
-from json import dumps
 
-SECRET = 'RICHARDRYANDANIELMAXTAYLA'
+SECRET = "RICHARDRYANDANIELMAXTAYLA"
 
-
-APP = Flask(__name__)
 
 BASE_URL = "http://127.0.0.1:{config.port}"
+
+
+def clear_v1():
+    '''
+    Input Types:
+    None
+
+    Sets data in data.p to a default dictionary of empty lists
+    '''
+    DATA_STRUCTURE = {
+        "users": [],
+        "channels": [],
+        "dms": [],
+        "messages": [],
+    }
+    with open("data.p", "wb") as W_FILE:
+        W_FILE.write(pickle.dumps(DATA_STRUCTURE))
 
 
 def store_data(data):
@@ -26,6 +37,7 @@ def store_data(data):
     with open("data.p", "wb") as W_FILE:
         W_FILE.write(pickle.dumps(data))
 
+
 def load_data():
     '''
     Input Types:
@@ -34,7 +46,7 @@ def load_data():
     load_data from data.p as a readable data structure
     '''
     if Path("data.p").exists() == False:
-        requests.delete(f"{BASE_URL}/clear/v2")
+        requests.delete(f"{BASE_URL}/clear/v1")
     with open("data.p", "rb") as FILE:
         return pickle.loads(FILE.read())
 
@@ -57,7 +69,7 @@ def token_create(u_id, session_id):
     if isinstance(u_id, int) is False or isinstance(session_id, int) is False:
         raise InputError('One or more of the inputted ids are not integers!')
 
-    return jwt.encode({'u_id': u_id, 'session_id': session_id}, SECRET, algorithms=['HS256'])
+    return jwt.encode({'u_id': u_id, 'session_id': session_id}, SECRET, 'HS256')
 
 
 def is_valid_token(token):
@@ -82,8 +94,9 @@ def is_valid_token(token):
         False
     '''
     data = load_data()
+
     try:
-        payload = jwt.decode(token, SECRET, algorithms=['HS256'])
+        payload = jwt.decode(token, SECRET, 'HS256')
     except:
         return False
     else:

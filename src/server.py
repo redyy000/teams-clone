@@ -1,20 +1,25 @@
 # from pickle import APPEND
 # from socket import AF_PPPOX
+
+import sys
+import signal
+from json import dumps
 from urllib import response
 from flask import Flask, request, abort
-from auth import auth_register_v2, auth_login_v2, auth_logout_v1
-from other import token_create, token_decode
+from flask_cors import CORS
+from src.auth import auth_register_v2, auth_login_v2, auth_logout_v1
+from src.other import clear_v1
 from json import dumps
-import jwt
+from src.config import port
+
 
 APP = Flask(__name__)
 
-# return dumps({}) if empty 
-# must return smth
 
 def quit_gracefully(*args):
     '''For coverage'''
     exit(0)
+
 
 def defaultHandler(err):
     response = err.get_response()
@@ -27,20 +32,19 @@ def defaultHandler(err):
     response.content_type = 'application/json'
     return response
 
+
 APP = Flask(__name__)
 CORS(APP)
 
 APP.config['TRAP_HTTP_EXCEPTIONS'] = True
 APP.register_error_handler(Exception, defaultHandler)
 
-#### NO NEED TO MODIFY ABOVE THIS POINT, EXCEPT IMPORTS
+# NO NEED TO MODIFY ABOVE THIS POINT, EXCEPT IMPORTS
 
-@APP.route('/auth/register/v2', methods = ['POST'])
 
-def user_register():
-    
-    arguments = request.get_json
-    
+@APP.route("/auth/register/v2", methods=['POST'])
+def auth_register():
+    arguments = request.get_json()
     # user_data is of form:
     '''
     user = {
@@ -54,49 +58,36 @@ def user_register():
     }
     '''
     # What happens when auth_register_v2 throws an exception?
-    resp = auth_register_v2(arguments['email'], 
+    resp = auth_register_v2(arguments['email'],
                             arguments['password'],
                             arguments['name_first'],
                             arguments['name_last'])
     return dumps(resp)
 
 
-@APP.route('/auth/login/v2', methods = ['POST'])
-def user_login():
-    arguments = request.get_json
+@APP.route("/clear/v1", methods=["DELETE"])
+def clear():
+    clear_v1()
+    return dumps({})
+
+
+@APP.route("/auth/login/v2", methods=['POST'])
+def auth_login():
+    arguments = request.get_json()
     resp = auth_login_v2(arguments['email'], arguments['password'])
     return dumps(resp)
 
-    
-@APP.route('/auth/logout/v1', methods = ['POST'])
-def user_logout():
-    token = request.get_json()
-    token_decoded = token_decode(token)
-    resp = auth_logout_v1(token_decoded)
+
+@APP.route("/auth/logout/v1", methods=['POST'])
+def auth_logout():
+
+    arguments = request.get_json()
+    resp = auth_logout_v1(arguments['token'])
     return dumps(resp)
 
-@APP.route("/clear/v2", methods = ["DELETE"])
-def clear_v1():
-    '''
-    Input Types:
-    None
-    
-    Sets data in data.p to a default dictionary of empty lists
-    '''
-    DATA_STRUCTURE = {
-        "users": [],
-        "channels": [],
-        "dms": [],
-        "messages": [],
-    }
-    with open("data.p", "wb") as W_FILE:
-        W_FILE.write(pickle.dumps(DATA_STRUCTURE))      
 
-#### NO NEED TO MODIFY BELOW THIS POINT
+# NO NEED TO MODIFY BELOW THIS POINT
 
 if __name__ == "__main__":
-    signal.signal(signal.SIGINT, quit_gracefully) # For coverage
-    APP.run(port=config.port) # Do not edit this port
-
-
-    
+    signal.signal(signal.SIGINT, quit_gracefully)  # For coverage
+    APP.run(port=port)  # Do not edit this port
