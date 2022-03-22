@@ -213,6 +213,24 @@ def test_user_setemail_successful(post_test_user):
     assert response.status_code == 200
     assert user_dict['email'] == 'newuseremail@gmail.com'
 
+    bob_info = post_bob()
+
+    response_bob = requests.put(f"{config.url}/user/profile/setemail/v1", json={
+        'token': bob_info['token'],
+        'email': 'bobbert@jobbery.com'
+    })
+
+    bob_profile_response = requests.get(f"{config.url}/user/profile/v1", json={
+        'token': bob_info['token'],
+        'u_id': bob_info['auth_user_id']
+    })
+
+    bob_dict = bob_profile_response.json()['user']
+    assert response_bob.status_code == 200
+    assert bob_profile_response.status_code == 200
+    assert bob_dict['email'] == 'bobbert@jobbery.com'
+
+
 # USER SETHANDLE TESTS
 
 
@@ -280,7 +298,7 @@ def test_user_sethandle_already_exists():
     # i.e. change George's handle to Bob's
     response = requests.put(f"{config.url}/user/profile/sethandle/v1", json={
         'token': george_data['token'],
-        'handle_str': 'canwefixit@gmail.com'
+        'handle_str': 'bobbuilder'
     })
     # 400 for InputError
     assert response.status_code == 400
@@ -303,6 +321,22 @@ def test_user_sethandle_successful(post_test_user):
     user_dict = response.json()['user']
     assert response.status_code == 200
     assert user_dict['handle_str'] == 'coolnewhandle'
+
+    bob_info = post_bob()
+    response_bob = requests.put(f"{config.url}/user/profile/sethandle/v1", json={
+        'token': bob_info['token'],
+        'handle_str': 'bobberino'
+    })
+
+    bob_profile_response = requests.get(f"{config.url}/user/profile/v1", json={
+        'token': bob_info['token'],
+        'u_id': bob_info['auth_user_id']
+    })
+
+    bob_dict = bob_profile_response.json()['user']
+    assert response_bob.status_code == 200
+    assert bob_profile_response.status_code == 200
+    assert bob_dict['handle_str'] == 'bobberino'
 
 
 # USER SETNAME TESTS
@@ -412,6 +446,9 @@ def test_user_setname_successful(post_test_user):
     '''
     Tests if user_profile_setname_v1
     '''
+
+    bob_info = post_bob()
+
     # changes user's name
     requests.put(f"{config.url}/user/profile/setname/v1", json={
         'token': post_test_user['token'],
@@ -428,3 +465,19 @@ def test_user_setname_successful(post_test_user):
     assert response.status_code == 200
     assert user_dict['name_first'] == 'New_First_Name'
     assert user_dict['name_last'] == 'New_Last_Name'
+
+    response_bob = requests.put(f"{config.url}/user/profile/setname/v1", json={
+        'token': bob_info['token'],
+        'name_first': 'bobert',
+        'name_last': 'bighteone'
+    })
+
+    bob_profile_response = requests.get(f"{config.url}/user/profile/v1", json={
+        'token': bob_info['token'],
+        'u_id': bob_info['auth_user_id']
+    })
+
+    bob_dict = bob_profile_response.json()['user']
+    assert response_bob.status_code == 200
+    assert bob_dict['name_first'] == 'bobert'
+    assert bob_dict['name_last'] == 'bighteone'

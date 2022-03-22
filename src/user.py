@@ -1,6 +1,6 @@
 import re
-from error import InputError, AccessError
-from other import is_valid_token, load_data, store_data
+from src.error import InputError, AccessError
+from src.other import is_valid_token, load_data, store_data
 
 
 def user_profile_v1(token, u_id):
@@ -47,8 +47,6 @@ def user_profile_v1(token, u_id):
                     'handle_str': user['handle_str']
                 }
             }
-
-    raise InputError(description='Given u_id does not exist!')
 
 
 def user_profile_setname_v1(token, name_first, name_last):

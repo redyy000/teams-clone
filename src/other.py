@@ -1,4 +1,4 @@
-from error import InputError
+from src.error import InputError
 import pickle
 import requests
 import jwt

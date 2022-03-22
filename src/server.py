@@ -7,11 +7,11 @@ from json import dumps
 from urllib import response
 from flask import Flask, request, abort
 from flask_cors import CORS
-from auth import auth_register_v2, auth_login_v2, auth_logout_v1
-from other import clear_v1
-from user import user_profile_v1, user_profile_setemail_v1, user_profile_sethandle_v1, user_profile_setname_v1
+from src.auth import auth_register_v2, auth_login_v2, auth_logout_v1
+from src.other import clear_v1
+from src.user import user_profile_v1, user_profile_setemail_v1, user_profile_sethandle_v1, user_profile_setname_v1
+from src.config import port
 from json import dumps
-import config
 
 
 APP = Flask(__name__)
@@ -75,8 +75,6 @@ def clear():
 @APP.route("/auth/login/v2", methods=['POST'])
 def auth_login():
     arguments = request.get_json()
-    print("LOGIN Arguments are:")
-    print(arguments)
     resp = auth_login_v2(arguments['email'], arguments['password'])
     return dumps(resp)
 
@@ -122,4 +120,4 @@ def user_profile_setname():
 # NO NEED TO MODIFY BELOW THIS POINT
 if __name__ == "__main__":
     signal.signal(signal.SIGINT, quit_gracefully)  # For coverage
-    APP.run(port=config.port)  # Do not edit this port
+    APP.run(port=port)  # Do not edit this port
