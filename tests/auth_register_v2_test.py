@@ -1,6 +1,3 @@
-import hashlib
-import jwt
-from src.error import InputError, AccessError
 from src import config
 import pytest
 import requests
@@ -59,6 +56,24 @@ def test_register_v2_success():
     '''
 
 
+def test_register_v2_long_handle():
+
+    requests.delete(f'{config.url}clear/v1')
+    response = register_user('Elden@ring.com', 'password',
+                             'John', 'SekiroDarkEldenBloodRingSoulsBorne')
+    assert response.status_code == 200
+
+
+def test_register_v2_duplicate_handle():
+    requests.delete(f'{config.url}clear/v1')
+    response1 = register_user('Elden@ring.com', 'password',
+                              'John', 'John')
+    response2 = register_user('Soul@dark.com', 'password',
+                              'John', 'John')
+    assert response1.status_code == 200
+    assert response2.status_code == 200
+
+
 def test_register_v2_invalid_email():
     requests.delete(f'{config.url}clear/v1')
     response = register_user('0010101010', 'password', 'John', 'Eldenring')
@@ -68,7 +83,9 @@ def test_register_v2_invalid_email():
 def test_register_v2_existing_email():
     requests.delete(f'{config.url}clear/v1')
     register_user('john@elden.com', 'password', 'John', 'Eldenring')
-    response = register_user('john@elden.com', 'password', 'James', 'Darksoul')
+    register_user('james@elden.com', 'password', 'James', 'Eldenring')
+    response = register_user(
+        'james@elden.com', 'password', 'James', 'Darksoul')
 
     assert response.status_code == 400
 
@@ -94,8 +111,8 @@ def test_register_v2_name_first_short():
 
 def test_register_v2_name_last_long():
     requests.delete(f'{config.url}clear/v1')
-    response = register_user("normal@gmail.com", "abc", "John",
-                             "mgubpezlxzrktxamqbrgizwdptqveadaykuffmplqnqiousnsrf")
+    response = register_user("normal@gmail.com", "abcohgeiou", "John",
+                             "mgubpezlxzrktxamqbrgizwdptqveadaykuffmplqnqiousnsrfhuhthatsweird")
     assert response.status_code == 400
 
 

@@ -53,6 +53,44 @@ def test_logout_success(initialise_test):
     # Logout with an invalid token
 
 
+def test_logout_success_multiple(initialise_test):
+
+    register_user('Elden@ring.com', 'password', 'John', 'Eldenring')
+    user2 = register_user('John@ring.com', 'password', 'John', 'Eldenring')
+
+    user0_token = initialise_test.json()['token']
+    logout_response1 = requests.post(
+        f'{config.url}auth/logout/v1', json={'token': user0_token})
+
+    assert(logout_response1.status_code) == 200
+
+    logout_response2 = requests.post(
+        f'{config.url}auth/logout/v1', json={'token': user2.json()['token']})
+
+    assert(logout_response2.status_code) == 200
+
+
+def test_logout_login_success(initialise_test):
+
+    login1 = requests.post(f'{config.url}auth/login/v2', json={'email': 'Elden@ring.com',
+                                                               'password': 'password'})
+
+    login2 = requests.post(f'{config.url}auth/login/v2', json={'email': 'Elden@ring.com',
+                                                               'password': 'password'})
+
+    # Logout of login2
+    logout_response2 = requests.post(
+        f'{config.url}auth/logout/v1', json={'token': login2.json()['token']})
+
+    assert logout_response2.status_code == 200
+
+    # Logout of login1
+    logout_response1 = requests.post(
+        f'{config.url}auth/logout/v1', json={'token': login1.json()['token']})
+
+    assert logout_response1.status_code == 200
+
+
 def test_logout_fail(initialise_test):
     # Access Error
     logout_response = requests.post(

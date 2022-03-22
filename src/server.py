@@ -7,11 +7,10 @@ from json import dumps
 from urllib import response
 from flask import Flask, request, abort
 from flask_cors import CORS
-from auth import auth_register_v2, auth_login_v2, auth_logout_v1
-from other import clear_v1
-from user import user_profile_v1
+from src.auth import auth_register_v2, auth_login_v2, auth_logout_v1
+from src.other import clear_v1
 from json import dumps
-import config
+from src.config import port
 
 
 APP = Flask(__name__)
@@ -67,7 +66,7 @@ def auth_register():
 
 
 @APP.route("/clear/v1", methods=["DELETE"])
-def clear_v1():
+def clear():
     clear_v1()
     return dumps({})
 
@@ -75,8 +74,6 @@ def clear_v1():
 @APP.route("/auth/login/v2", methods=['POST'])
 def auth_login():
     arguments = request.get_json()
-    print("LOGIN Arguments are:")
-    print(arguments)
     resp = auth_login_v2(arguments['email'], arguments['password'])
     return dumps(resp)
 
@@ -89,15 +86,8 @@ def auth_logout():
     return dumps(resp)
 
 
-@APP.route("/user/profile/v1", methods=['GET'])
-def user_profile_get():
-    arguments = request.get_json()
-    resp = user_profile_v1(arguments['token'], arguments['u_id'])
-    return dumps(resp)
-
-
 # NO NEED TO MODIFY BELOW THIS POINT
 
 if __name__ == "__main__":
     signal.signal(signal.SIGINT, quit_gracefully)  # For coverage
-    APP.run(port=config.port)  # Do not edit this port
+    APP.run(port=port)  # Do not edit this port

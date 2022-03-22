@@ -1,11 +1,8 @@
-from src.error import InputError, AccessError
+from src.error import InputError
 import pickle
 import requests
 import jwt
-from flask import Flask, request
 from pathlib import Path
-from data_store import data_store
-from json import dumps
 
 SECRET = "RICHARDRYANDANIELMAXTAYLA"
 
@@ -97,8 +94,9 @@ def is_valid_token(token):
         False
     '''
     data = load_data()
+
     try:
-        payload = jwt.decode(token, SECRET, algorithms=['HS256'])
+        payload = jwt.decode(token, SECRET, 'HS256')
     except:
         return False
     else:
