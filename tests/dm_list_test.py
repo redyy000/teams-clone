@@ -40,6 +40,10 @@ dm_data_structure = {
 
 @pytest.fixture
 def post_test_user():
+    return test_user()
+
+
+def test_user():
     requests.delete(f"{config.url}/clear/v1")
     '''
     Creates a test user and posts for use in http testing.
@@ -56,15 +60,15 @@ def post_test_user():
 
 @pytest.fixture
 def post_dm_create():
-    post_info = post_test_user()
+    post_info = test_user()
     george_info = post_george()
     bob_info = post_bob()
     requests.post(f'{config.url}dm/create/v1', json={
-        'token': post_test_user['token'],
+        'token': post_info['token'],
         'u_ids': [bob_info['auth_user_id'], george_info['auth_user_id']]
     })
 
-    return post_info.json()
+    return post_info
 
 
 def post_george():
@@ -112,6 +116,10 @@ def test_dm_list_successful(post_dm_create):
     assert dm_list_response.status_code == 200
 
 # Could be blackboxed....
+# Assumes list of dm_ids...
+
+# WRONG
+# List of dictionaries, where each dictionary contains types { dm_id, name }
 
 
 def test_dm_list_multiple_dms(post_test_user):
@@ -128,9 +136,21 @@ def test_dm_list_multiple_dms(post_test_user):
         'token': post_test_user['token']
     })
 
-    assert(dm1_response.status_code) == 200
+    assert dm1_response.status_code == 200
     assert dm1_response.json() == {
-        'dms': [1, 2, 3]
+        'dms': [{
+            'dm_id': 1,
+            'name': 'bobbuilder, firstnamelastname, georgemonkey'
+        },
+            {
+            'dm_id': 2,
+            'name': 'bobbuilder, firstnamelastname'
+        },
+            {
+            'dm_id': 3,
+            'name': 'firstnamelastname, georgemonkey'
+        }
+        ]
     }
 
     dm2_response = requests.get(f'{config.url}dm/list/v1', json={
@@ -138,8 +158,16 @@ def test_dm_list_multiple_dms(post_test_user):
     })
 
     assert(dm2_response.status_code) == 200
-    assert dm1_response.json() == {
-        'dms': [1, 2]
+    assert dm2_response.json() == {
+        'dms': [{
+            'dm_id': 1,
+            'name': 'bobbuilder, firstnamelastname, georgemonkey'
+        },
+            {
+            'dm_id': 2,
+            'name': 'bobbuilder, firstnamelastname'
+        },
+        ]
     }
 
     dm3_response = requests.get(f'{config.url}dm/list/v1', json={
@@ -147,8 +175,16 @@ def test_dm_list_multiple_dms(post_test_user):
     })
 
     assert(dm3_response.status_code) == 200
-    assert dm1_response.json() == {
-        'dms': [1, 3]
+    assert dm3_response.json() == {
+        'dms': [{
+            'dm_id': 1,
+            'name': 'bobbuilder, firstnamelastname, georgemonkey'
+        },
+            {
+            'dm_id': 3,
+            'name': 'firstnamelastname, georgemonkey'
+        }
+        ]
     }
 
 
@@ -159,6 +195,8 @@ def test_dm_list_invalid_token(post_dm_create):
     })
 
     assert dm_list_response.status_code == 403
+
+# Empty case??
 
 
 def test_dm_list_no_dms(post_dm_create):
@@ -175,4 +213,4 @@ def test_dm_list_no_dms(post_dm_create):
     })
 
     assert dm_list_response.status_code == 200
-    assert dm_list_response.json() == {}
+    assert dm_list_response.json() == []

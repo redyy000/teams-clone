@@ -31,7 +31,7 @@ dm_data_structure = {
 
             # Actual string of message
             'message' : 'string',
-            
+
             # Time sent
             'time_sent' : datetime.datetime.now()
         }
@@ -62,7 +62,7 @@ def dm_name_generate(u_ids):
     # Create a list of user handles
     datastore = load_data()
     handle_str_list = [user['handle_str']
-                       for user in datastore['users']]
+                       for user in datastore['users'] if user['u_id'] in u_ids]
     handle_str_list.sort()
     name = ', '.join([handle for handle in handle_str_list])
     #  The name should be an alphabetically-sorted, comma-and-space-separated list of user handles, e.g. 'ahandle1, bhandle2, chandle3'.
@@ -119,6 +119,7 @@ def dm_create_v1(token, u_ids):
         # Don't think so
         'owner': owner_id,
         'normal_members': u_ids,
+        'all_members': all_member_id_list,
         'messages': []
     }
 
@@ -126,6 +127,43 @@ def dm_create_v1(token, u_ids):
     store_data(datastore)
     return {
         'dm_id': dm_id
+    }
+
+
+def dm_list_v1(token):
+    '''
+    Given a token,
+    Return the list of DMs that the token id is a member of.
+    Arguments:
+        Token (token), user token
+
+    Exceptions:
+        AccessError - Invalid Token
+
+    Return Value:
+
+        List of { dm_id, name } dictionaries
+
+    '''
+
+    token_decoded = is_valid_token(token)
+    if token_decoded == False:
+        raise AccessError(description='False Token!')
+
+    user_id = token_decoded['u_id']
+    datastore = load_data()
+
+    dm_list = []
+    for dm in datastore['dms']:
+        if user_id in dm['all_members']:
+            print(dm['name'])
+            dm_list.append({
+                'dm_id': dm['dm_id'],
+                'name': dm['name']
+            })
+
+    return {
+        'dms': dm_list
     }
 
 
@@ -138,10 +176,6 @@ def dm_details_v1():
 
 
 def message_senddm_v1():
-    pass
-
-
-def dm_list_v1():
     pass
 
 
