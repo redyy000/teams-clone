@@ -3,6 +3,71 @@ from src.error import InputError
 from src.error import AccessError
 from src.other import load_data, store_data, is_valid_token
 
+def channels_list_v1(auth_user_id):
+    '''
+    Provide a list of all channels (and their associated details) that the authorised user is part of.
+
+    Arguments:
+        auth_user_id (integer)  - an authorisation hash of the user
+
+    Exceptions:
+        AccessError     - Occurs when auth_user_id is invalid.
+
+    Return Value:
+        'channels'      - A list of dictionaries containing channel ID's and names for each channel they are a part of 
+
+    '''    
+    store = data_store.get()
+    if isinstance(auth_user_id, int) != True or auth_user_id <= 0 or auth_user_id > len(store['users']):
+        raise AccessError(
+            f"User ID {auth_user_id} is invalid. Unable to access any details with this ID.")
+    channel_details = []
+    # For each channel in the list of channels
+    for channel in store['channels']:
+        # If user is in the channel
+        for member in channel['all_members']:
+            if auth_user_id == member['user_id']:
+                channel_info = {
+                    'channel_id': channel['channel_id'],
+                    'name': channel['name']
+                }
+                channel_details.append(channel_info)
+        data_store.set(store)
+    return {
+        'channels': channel_details
+    }
+
+def channels_listall_v1(auth_user_id):
+    '''
+    Provide a list of all channels, including private channels, (and their associated details)
+
+    Arguments:
+        auth_user_id (integer)  - an authorisation hash of the user
+
+    Exceptions:
+        AccessError     - Occurs when auth_user_id is invalid.
+
+    Return Value:
+        'channels'      - A list of dictionaries containing channel ID's and names for each channel that exists 
+
+    '''
+    store = data_store.get()
+    if isinstance(auth_user_id, int) != True or auth_user_id <= 0 or auth_user_id > len(store['users']):
+        raise AccessError(
+            f"User ID {auth_user_id} is invalid. Unable to access any details with this ID.")
+    channel_details = []
+    # For each channel in the list of channels
+    for channel in store['channels']:
+        channel_info = {
+            'channel_id': channel['channel_id'],
+            'name': channel['name']
+        }
+        channel_details.append(channel_info)
+        data_store.set(store)
+    return {
+        'channels': channel_details
+    }
+
 def channels_create_v2(token, name, is_public):
     '''
     Function to create a named channel either private or public
@@ -41,7 +106,6 @@ def channels_create_v2(token, name, is_public):
                    'is_public': is_public,
                    'messages': []
                    }
-
 
 
     # Check for valid channel name, between 1 and 20 characters
