@@ -106,7 +106,7 @@ def test_channels_list2(init_test):
     })       
     requests.post(f"{config.url}channel/invite/v2", json = {
         "token":user_id4['token'],
-        "channel_id": channel_id3['channel_id']", 
+        "channel_id": channel_id3['channel_id'], 
         "u_id": user_id5['auth_user_id'], 
     })     
     response = reqests.get(f"{config.url}channel/list/v2", json = {"token": init_test) 
