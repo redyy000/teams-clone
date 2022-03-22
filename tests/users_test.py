@@ -3,7 +3,7 @@ import requests
 from src import config
 
 
-# User All Tests
+# Users All Tests
 # USER PROFILE DATA STRUCTURE
 '''
 user = {
@@ -83,8 +83,6 @@ def test_users_all_success_functionality(post_test_user):
 
     user_list = list_response.json()['users']
 
-    # How to check the list???
-
     for user_data in user_list:
         if user_data['user']['handle_str'] == 'bobbuilder':
             assert user_data['user']['email'] == 'canwefixit@gmail.com'
@@ -111,4 +109,4 @@ def test_users_all_invalid_token(post_test_user):
         'token': 'invalid token'
     })
 
-    assert list_response.status_code == 400
+    assert list_response.status_code == 403
