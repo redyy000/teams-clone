@@ -42,12 +42,12 @@ def channels_list_v2(auth_user_id):
         'channels': channel_details
     }
 
-def channels_listall_v2(auth_user_id):
+def channels_listall_v2(token):
     '''
     Provide a list of all channels, including private channels, (and their associated details)
 
     Arguments:
-        auth_user_id (integer)  - an authorisation hash of the user
+        token           - A JWT.
 
     Exceptions:
         AccessError     - Occurs when auth_user_id is invalid.
@@ -56,10 +56,10 @@ def channels_listall_v2(auth_user_id):
         'channels'      - A list of dictionaries containing channel ID's and names for each channel that exists 
 
     '''
-    store = data_store.get()
-    if isinstance(auth_user_id, int) != True or auth_user_id <= 0 or auth_user_id > len(store['users']):
-        raise AccessError(
-            f"User ID {auth_user_id} is invalid. Unable to access any details with this ID.")
+    token_decoded = is_valid_token(token)
+    if token_decoded == False:
+        raise AccessError(description='False Token!')
+    store = load_data()
     channel_details = []
     # For each channel in the list of channels
     for channel in store['channels']:
@@ -68,7 +68,6 @@ def channels_listall_v2(auth_user_id):
             'name': channel['name']
         }
         channel_details.append(channel_info)
-        data_store.set(store)
     return {
         'channels': channel_details
     }
