@@ -109,19 +109,19 @@ def test_channels_list2(init_test):
         "channel_id": channel_id3['channel_id'], 
         "u_id": user_id5['auth_user_id'], 
     })     
-    response = reqests.get(f"{config.url}channel/list/v2", json = {"token": init_test) 
+    response = reqests.get(f"{config.url}channel/list/v2", json = {"token": init_test})
     assert response.status_code == 200
     assert response.json()["channels"] == [{'channel_id': 1, 'name': 'General'}, {'channel_id': 2, 'name': 'Hidden'}]
-    response = reqests.get(f"{config.url}channel/list/v2", json = {"token": user_id2['token']) 
+    response = reqests.get(f"{config.url}channel/list/v2", json = {"token": user_id2['token']})
     assert response.status_code == 200
     assert response.json()["channels"] == [{'channel_id': 2, 'name': 'Hidden'}]
-    response = reqests.get(f"{config.url}channel/list/v2", json = {"token": user_id3['token'])      
+    response = reqests.get(f"{config.url}channel/list/v2", json = {"token": user_id3['token']})     
     assert response.status_code == 200
     assert response.json()["channels"] == []
-    response = reqests.get(f"{config.url}channel/list/v2", json = {"token": user_id4['token'])
+    response = reqests.get(f"{config.url}channel/list/v2", json = {"token": user_id4['token']})
     assert response.status_code == 200
     assert response.json()["channels"] == [{'channel_id': 2, 'name': 'Hidden'}, {'channel_id': 3, 'name': 'John and Joanne'}, {'channel_id': 4, 'name': 'John PRIVATE'}]   
-    response = reqests.get(f"{config.url}channel/list/v2", json = {"token": user_id5['token'])   
+    response = reqests.get(f"{config.url}channel/list/v2", json = {"token": user_id5['token']})   
     assert response.status_code == 200 
     assert response.json()["channels"] == [{'channel_id': 3, 'name': 'John and Joanne'}]
 
@@ -138,7 +138,7 @@ def test_channels_list3(init_test):
         "name": "General", 
         "is_public": True, 
     }).json() 
-    response = reqests.get(f"{config.url}channel/list/v2", json = {"token": 3)
+    response = reqests.get(f"{config.url}channel/list/v2", json = {"token": 3})
     assert response.status_code == 403
         
 # Listall Functions:        
@@ -161,7 +161,7 @@ def test_channels_listall1(init_test):
         "channel_id": channel_id2['channel_id'], 
         "u_id": user_id2['auth_user_id'], 
     })    
-    response = reqests.get(f"{config.url}channel/listall/v2", json = {"token": user_id2['token'])    
+    response = reqests.get(f"{config.url}channel/listall/v2", json = {"token": user_id2['token']})    
     assert response == 200
     assert response.json()["channels"] == [{'channel_id': 1, 'name': 'test_channel'}]
 
@@ -226,7 +226,7 @@ def test_channels_listall2(init_test):
         "channel_id": channel_id3['channel_id'], 
         "u_id": user_id5['auth_user_id'], 
     })     
-    response = reqests.get(f"{config.url}channel/listall/v2", json = {"token": user_id1['token'])   
+    response = reqests.get(f"{config.url}channel/listall/v2", json = {"token": user_id1['token']})   
     assert response.status_code == 200
     assert response.json()["channels"] == [{'channel_id': 1, 'name': 'General'}, {'channel_id': 2, 'name': 'Hidden'}, {'channel_id': 3, 'name': 'John and Joanne'}, {'channel_id': 4, 'name': 'John PRIVATE'}]
 
@@ -243,7 +243,7 @@ def test_channels_listall3(init_test):
         "name": "General", 
         "is_public": True, 
     }).json() 
-    response = reqests.get(f"{config.url}channel/listall/v2", json = {"token": 3)     
+    response = reqests.get(f"{config.url}channel/listall/v2", json = {"token": 3})     
     assert response.status_code == 403
 
 def test_channels_listall4(init_test):
@@ -254,7 +254,7 @@ def test_channels_listall4(init_test):
         "name_first": "Jane", 
         "name_last": "Doe" 
     }).json()
-    response = reqests.get(f"{config.url}channel/listall/v2", json = {"token": init_test)   
+    response = reqests.get(f"{config.url}channel/listall/v2", json = {"token": init_test})   
     assert response.status_code == 200
     assert response.get_json()["channels"] == []
 
