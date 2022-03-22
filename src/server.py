@@ -122,6 +122,11 @@ def user_profile_setname():
         arguments['token'], arguments['name_first'], arguments['name_last'])
     return dumps(resp)
 
+@APP.route("/channels/listall/v2", methods=['GET'])
+def channels_listall():
+    token = request.args.get('token')
+    returnvalue = channels_listall_v2(token)
+    return dumps(returnvalue)
 
 # NO NEED TO MODIFY BELOW THIS POINT
 if __name__ == "__main__":
