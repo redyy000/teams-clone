@@ -84,23 +84,23 @@ def test_users_all_success_functionality(post_test_user):
     user_list = list_response.json()['users']
 
     for user_data in user_list:
-        if user_data['user']['handle_str'] == 'bobbuilder':
-            assert user_data['user']['email'] == 'canwefixit@gmail.com'
-            assert user_data['user']['name_first'] == 'Bob'
-            assert user_data['user']['name_last'] == 'Builder'
-            assert user_data['user']['u_id'] == bob_info['auth_user_id']
+        if user_data['handle_str'] == 'bobbuilder':
+            assert user_data['email'] == 'canwefixit@gmail.com'
+            assert user_data['name_first'] == 'Bob'
+            assert user_data['name_last'] == 'Builder'
+            assert user_data['u_id'] == bob_info['auth_user_id']
 
-        elif user_data['user']['handle_str'] == 'georgemonkey':
-            assert user_data['user']['email'] == 'george@gmail.com'
-            assert user_data['user']['name_first'] == 'George'
-            assert user_data['user']['name_last'] == 'Monkey'
-            assert user_data['user']['u_id'] == george_info['auth_user_id']
+        elif user_data['handle_str'] == 'georgemonkey':
+            assert user_data['email'] == 'george@gmail.com'
+            assert user_data['name_first'] == 'George'
+            assert user_data['name_last'] == 'Monkey'
+            assert user_data['u_id'] == george_info['auth_user_id']
 
-        elif user_data['user']['handle_str'] == 'firstnamelastname':
-            assert user_data['user']['email'] == 'user@gmail.com'
-            assert user_data['user']['name_first'] == 'FirstName'
-            assert user_data['user']['name_last'] == 'LastName'
-            assert user_data['user']['u_id'] == post_test_user['auth_user_id']
+        elif user_data['handle_str'] == 'firstnamelastname':
+            assert user_data['email'] == 'user@gmail.com'
+            assert user_data['name_first'] == 'FirstName'
+            assert user_data['name_last'] == 'LastName'
+            assert user_data['u_id'] == post_test_user['auth_user_id']
 
 
 def test_users_all_invalid_token(post_test_user):
