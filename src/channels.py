@@ -3,7 +3,7 @@ from src.error import InputError
 from src.error import AccessError
 from src.other import load_data, store_data, is_valid_token
 
-def channels_list_v1(auth_user_id):
+def channels_list_v2(auth_user_id):
     '''
     Provide a list of all channels (and their associated details) that the authorised user is part of.
 
@@ -17,10 +17,15 @@ def channels_list_v1(auth_user_id):
         'channels'      - A list of dictionaries containing channel ID's and names for each channel they are a part of 
 
     '''    
-    store = data_store.get()
-    if isinstance(auth_user_id, int) != True or auth_user_id <= 0 or auth_user_id > len(store['users']):
-        raise AccessError(
-            f"User ID {auth_user_id} is invalid. Unable to access any details with this ID.")
+    store = load_data()
+    
+    token_decoded = is_valid_token(token)
+    if token_decoded == False:
+        raise AccessError(description = 
+            f"User ID {auth_user_id} is invalid. Unable to access any details with this ID.")  
+            
+    auth_user_id = token_decoded["u_id"]    
+
     channel_details = []
     # For each channel in the list of channels
     for channel in store['channels']:
@@ -32,12 +37,12 @@ def channels_list_v1(auth_user_id):
                     'name': channel['name']
                 }
                 channel_details.append(channel_info)
-        data_store.set(store)
+        store_data(store)
     return {
         'channels': channel_details
     }
 
-def channels_listall_v1(auth_user_id):
+def channels_listall_v2(auth_user_id):
     '''
     Provide a list of all channels, including private channels, (and their associated details)
 

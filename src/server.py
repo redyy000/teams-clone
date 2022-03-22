@@ -11,7 +11,7 @@ from flask import Flask, request, abort
 from flask_cors import CORS
 from src.auth import auth_register_v2, auth_login_v2, auth_logout_v1
 from src.other import clear_v1
-from src.channels import channels_create_v2
+from src.channels import channels_create_v2, channels_list_v2, channels_listall_v2
 
 
 def quit_gracefully(*args):
@@ -80,6 +80,12 @@ def auth_logout():
 def channels_create():
     arguments = request.get_json()
     resp = channels_create_v2(arguments["token"], arguments["name"], arguments["is_public"])
+    return dumps(resp)
+    
+@APP.route("/channels/list/v2", methods = ["GET"])
+def channels_list():
+    arguments = request.get_json()
+    resp = channels_list_v2(arguments["token"])
     return dumps(resp)
 
 @APP.route("/clear/v1", methods=["DELETE"])
