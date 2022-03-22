@@ -75,7 +75,7 @@ def user_logout():
     resp = auth_logout_v1(token_decoded)
     return dumps(resp)
 
-@APP.route("/clear/v2", methods = ["DELETE"])
+@APP.route("/clear/v1", methods = ["DELETE"])
 def clear_v1():
     '''
     Input Types:
