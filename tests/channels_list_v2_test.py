@@ -96,7 +96,7 @@ def test_channels_list2(init_test):
     }).json()    
     requests.post(f"{config.url}channel/invite/v2", json = {
         "token":init_test,
-        "channel_id": channel_id2['channel_id']", 
+        "channel_id": channel_id2['channel_id'], 
         "u_id": user_id2['auth_user_id'], 
     })    
     requests.post(f"{config.url}channel/invite/v2", json = {
@@ -158,7 +158,7 @@ def test_channels_listall1(init_test):
     }).json() 
     requests.post(f"{config.url}channel/invite/v2", json = {
         "token":init_test,
-        "channel_id": channel_id2['channel_id']", 
+        "channel_id": channel_id2['channel_id'], 
         "u_id": user_id2['auth_user_id'], 
     })    
     response = reqests.get(f"{config.url}channel/listall/v2", json = {"token": user_id2['token'])    
