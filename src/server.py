@@ -3,6 +3,7 @@
 
 from src.config import port
 from src.user import user_profile_v1, user_profile_setemail_v1, user_profile_sethandle_v1, user_profile_setname_v1
+from src.users import users_list_all_v1
 import sys
 import signal
 from json import dumps
@@ -114,6 +115,14 @@ def user_profile_setname():
     arguments = request.get_json()
     resp = user_profile_setname_v1(
         arguments['token'], arguments['name_first'], arguments['name_last'])
+    return dumps(resp)
+
+
+@APP.route("/users/all/v1", methods=['GET'])
+def users_list_all():
+    arguments = request.get_json()
+    resp = users_list_all_v1(
+        arguments['token'])
     return dumps(resp)
 
 
