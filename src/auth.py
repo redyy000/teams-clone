@@ -62,6 +62,7 @@ def auth_login_v2(email, password):
                 new_session_id = max(user['session_id_list']) + 1
                 # Append the newest session id to the list
                 user['session_id_list'].append(new_session_id)
+                store_data(store)
                 return {
                     'token': token_create(user['u_id'], new_session_id),
                     'auth_user_id': user['u_id']
@@ -165,7 +166,8 @@ def auth_register_v2(email, password, name_first, name_last):
     # Are incorrect, then only the first name error will be raised.
     if len(name_first) > 50 or len(name_first) <= 0:
         raise InputError(description="First name length is invalid!")
-    elif len(name_last) > 50 or len(name_last) <= 0:
+
+    if len(name_last) > 50 or len(name_last) <= 0:
         raise InputError(description="Last name length is invalid!")
 
     # Create auth_user_id
@@ -220,13 +222,8 @@ def auth_logout_v1(token):
     datastore = load_data()
 
     for user in datastore['users']:
-        if user == data['u_id']:
-            if data['session_id'] in user['session_id_list']:
-                user['session_id_list'].remove(data['session_id'])
-            else:
-                raise InputError(
-                    description='Given token does not have a real session id...')
-
+        if user['u_id'] == data['u_id']:
+            user['session_id_list'].remove(data['session_id'])
     store_data(datastore)
 
     return {}

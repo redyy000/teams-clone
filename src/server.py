@@ -1,6 +1,8 @@
 # from pickle import APPEND
 # from socket import AF_PPPOX
 
+from src.config import port
+from src.user import user_profile_v1, user_profile_setemail_v1, user_profile_sethandle_v1, user_profile_setname_v1
 import sys
 import signal
 from json import dumps
@@ -9,9 +11,6 @@ from flask import Flask, request, abort
 from flask_cors import CORS
 from src.auth import auth_register_v2, auth_login_v2, auth_logout_v1
 from src.other import clear_v1
-from src.user import user_profile_v1, user_profile_setemail_v1, user_profile_sethandle_v1, user_profile_setname_v1
-from src.config import port
-from json import dumps
 
 
 APP = Flask(__name__)
