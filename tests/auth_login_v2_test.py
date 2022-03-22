@@ -2,8 +2,6 @@ import pytest
 import requests
 from src import config
 
-''''''
-
 
 @pytest.fixture
 # Returns a JSON file with status code and data
