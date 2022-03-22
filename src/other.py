@@ -67,7 +67,8 @@ def token_create(u_id, session_id):
     '''
 
     if isinstance(u_id, int) is False or isinstance(session_id, int) is False:
-        raise InputError('One or more of the inputted ids are not integers!')
+        raise InputError(
+            description='One or more of the inputted ids are not integers!')
 
     return jwt.encode({'u_id': u_id, 'session_id': session_id}, SECRET, 'HS256')
 

@@ -1,6 +1,8 @@
 # from pickle import APPEND
 # from socket import AF_PPPOX
 
+from src.config import port
+from src.user import user_profile_v1, user_profile_setemail_v1, user_profile_sethandle_v1, user_profile_setname_v1
 import sys
 import signal
 from json import dumps
@@ -9,8 +11,6 @@ from flask import Flask, request, abort
 from flask_cors import CORS
 from src.auth import auth_register_v2, auth_login_v2, auth_logout_v1
 from src.other import clear_v1
-from json import dumps
-from src.config import port
 
 
 APP = Flask(__name__)
@@ -86,8 +86,37 @@ def auth_logout():
     return dumps(resp)
 
 
-# NO NEED TO MODIFY BELOW THIS POINT
+@APP.route("/user/profile/v1", methods=['GET'])
+def user_profile_get():
+    arguments = request.get_json()
+    resp = user_profile_v1(arguments['token'], arguments['u_id'])
+    return dumps(resp)
 
+
+@APP.route("/user/profile/setemail/v1", methods=['PUT'])
+def user_profile_setemail():
+    arguments = request.get_json()
+    resp = user_profile_setemail_v1(arguments['token'], arguments['email'])
+    return dumps(resp)
+
+
+@APP.route("/user/profile/sethandle/v1", methods=['PUT'])
+def user_profile_sethandle():
+    arguments = request.get_json()
+    resp = user_profile_sethandle_v1(
+        arguments['token'], arguments['handle_str'])
+    return dumps(resp)
+
+
+@APP.route("/user/profile/setname/v1", methods=['PUT'])
+def user_profile_setname():
+    arguments = request.get_json()
+    resp = user_profile_setname_v1(
+        arguments['token'], arguments['name_first'], arguments['name_last'])
+    return dumps(resp)
+
+
+# NO NEED TO MODIFY BELOW THIS POINT
 if __name__ == "__main__":
     signal.signal(signal.SIGINT, quit_gracefully)  # For coverage
     APP.run(port=port)  # Do not edit this port
