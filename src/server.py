@@ -9,7 +9,7 @@ from flask import Flask, request, abort
 from flask_cors import CORS
 from auth import auth_register_v2, auth_login_v2, auth_logout_v1
 from other import clear_v1
-from user import user_profile_v1
+from user import user_profile_v1, user_profile_setemail_v1, user_profile_sethandle_v1, user_profile_setname_v1
 from json import dumps
 import config
 
@@ -67,7 +67,7 @@ def auth_register():
 
 
 @APP.route("/clear/v1", methods=["DELETE"])
-def clear_v1():
+def clear():
     clear_v1()
     return dumps({})
 
@@ -96,8 +96,30 @@ def user_profile_get():
     return dumps(resp)
 
 
-# NO NEED TO MODIFY BELOW THIS POINT
+@APP.route("/user/profile/setemail/v1", methods=['PUT'])
+def user_profile_setemail():
+    arguments = request.get_json()
+    resp = user_profile_setemail_v1(arguments['token'], arguments['email'])
+    return dumps(resp)
 
+
+@APP.route("/user/profile/sethandle/v1", methods=['PUT'])
+def user_profile_sethandle():
+    arguments = request.get_json()
+    resp = user_profile_sethandle_v1(
+        arguments['token'], arguments['handle_str'])
+    return dumps(resp)
+
+
+@APP.route("/user/profile/setname/v1", methods=['PUT'])
+def user_profile_setname():
+    arguments = request.get_json()
+    resp = user_profile_setname_v1(
+        arguments['token'], arguments['name_first'], arguments['name_last'])
+    return dumps(resp)
+
+
+# NO NEED TO MODIFY BELOW THIS POINT
 if __name__ == "__main__":
     signal.signal(signal.SIGINT, quit_gracefully)  # For coverage
     APP.run(port=config.port)  # Do not edit this port
