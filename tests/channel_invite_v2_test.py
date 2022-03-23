@@ -7,7 +7,7 @@ import json
 @pytest.fixture
 def setup_users():
     requests.delete(f'{config.url}clear/v1')
-
+    userlist = []
     response1 = requests.post(f'{config.url}auth/register/v2', json={'email': "dlin@gmail.com",
                                                                      'password': "password",
                                                                      'name_first': "daniel",
@@ -26,12 +26,15 @@ def setup_users():
     user1_info = json.loads(response1.json())
     user2_info = json.loads(response2.json())
     user3_info = json.load(response3.json())
-    return user1_info, user2_info, user3_info
+    userlist.extend(user1_info, user2_info, user3_info)
+    return userlist
 
 
-def test_invalid_channel_id():
+def test_invalid_channel_id(setup_users):
 
-    user1, user2, user3 = setup_users()
+    user1 = setup_users[0]
+    user2 = setup_users[1]
+    user3 = setup_users[2]
     requests.post(f'{config.url}/channels/create/v2', json={
         'token': user1['token'],
         'name': "Public",
@@ -47,8 +50,10 @@ def test_invalid_channel_id():
     assert response.status_code == 400
 
 
-def test_invalid_uid():
-    user1, user2, user3 = setup_users()
+def test_invalid_uid(setup_users):
+    user1 = setup_users[0]
+    user2 = setup_users[1]
+    user3 = setup_users[2]
     channel1 = requests.post(f'{config.url}/channels/create/v2', json={
         'token': user1['token'],
         'name': "Public",
@@ -64,8 +69,10 @@ def test_invalid_uid():
     assert response.status_code == 400
 
 
-def test_already_a_member():
-    user1, user2, user3 = setup_users()
+def test_already_a_member(setup_users):
+    user1 = setup_users[0]
+    user2 = setup_users[1]
+    user3 = setup_users[2]
 
     channel1 = requests.post(f'{config.url}/channels/create/v2', json={
         'token': user1['token'],
@@ -88,8 +95,10 @@ def test_already_a_member():
     assert response.status_code == 400
 
 
-def test_unauthorised():
-    user1, user2, user3 = setup_users()
+def test_unauthorised(setup_users):
+    user1 = setup_users[0]
+    user2 = setup_users[1]
+    user3 = setup_users[2]
 
     channel1 = requests.post(f'{config.url}/channels/create/v2', json={
         'token': user1['token'],
@@ -106,8 +115,10 @@ def test_unauthorised():
     assert response.status_code == 403
 
 
-def test_invalid_token():
-    user1, user2, user3 = setup_users()
+def test_invalid_token(setup_users):
+    user1 = setup_users[0]
+    user2 = setup_users[1]
+    user3 = setup_users[2]
 
     channel1 = requests.post(f'{config.url}/channels/create/v2', json={
         'token': user1['token'],
@@ -123,8 +134,10 @@ def test_invalid_token():
     assert response.status_code == 403
 
 
-def test_successful_invite():
-    user1, user2, user3 = setup_users()
+def test_successful_invite(setup_users):
+    user1 = setup_users[0]
+    user2 = setup_users[1]
+    user3 = setup_users[2]
     channel1 = requests.post(f'{config.url}/channels/create/v2', json={
         'token': user1['token'],
         'name': "Public",
@@ -144,9 +157,9 @@ def test_successful_invite():
     })
 
     assert requests.get(f'{config.url}channels/list/v2', params={
-        user2['token']}).json() == {'channels': [{"channel_id": channel1["channel_id"], "name": "Public"}]}
+        'token': user2['token']}).json() == {'channels': [{"channel_id": channel1["channel_id"], "name": "Public"}]}
 
     assert requests.get(f'{config.url}channels/list/v2', params={
-        user3['token']}).json() == {'channels': [{"channel_id": channel1["channel_id"], "name": "Public"}]}
+        'token': user3['token']}).json() == {'channels': [{"channel_id": channel1["channel_id"], "name": "Public"}]}
 
     assert response.status_code == 200 and response2.status_code == 200
