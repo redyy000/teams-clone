@@ -156,7 +156,6 @@ def dm_list_v1(token):
     dm_list = []
     for dm in datastore['dms']:
         if user_id in dm['all_members']:
-            print(dm['name'])
             dm_list.append({
                 'dm_id': dm['dm_id'],
                 'name': dm['name']
@@ -248,15 +247,14 @@ def dm_details_v1(token, dm_id):
     # Test DM ID Exists
     dm_exist = False
     for dm in datastore['dms']:
-        if int(dm['dm_id']) == int(dm_id):
+        if dm['dm_id'] == dm_id:
             dm_exist = True
     if dm_exist == False:
         raise InputError(description='Given dm does not exist')
 
     return_dict = {}
     for dm in datastore['dms']:
-        if int(dm['dm_id']) == int(dm_id):
-            print('dm_id matches!')
+        if dm['dm_id'] == dm_id:
             if user_id not in dm['all_members']:
                 raise AccessError(
                     description='User is not a member of the DM!')
@@ -287,7 +285,6 @@ def dm_leave_v1(token, dm_id):
         {}
 
     '''
-    dm_id = int(dm_id)
     token_decoded = is_valid_token(token)
     if token_decoded == False:
         raise AccessError(description='False Token!')
@@ -297,14 +294,14 @@ def dm_leave_v1(token, dm_id):
     # Test DM ID Exists
     dm_exist = False
     for dm in datastore['dms']:
-        if int(dm['dm_id']) == dm_id:
+        if dm['dm_id'] == dm_id:
             dm_exist = True
     if dm_exist == False:
         raise InputError(description='Given dm does not exist')
 
     user_exist = False
     for dm in datastore['dms']:
-        if int(dm['dm_id']) == dm_id:
+        if dm['dm_id'] == dm_id:
             if user_id in dm['all_members']:
                 dm['all_members'].remove(user_id)
                 user_exist = True
@@ -320,3 +317,39 @@ def dm_leave_v1(token, dm_id):
         raise AccessError(description='DM exists, however user is not in DM')
 
     return {}
+
+
+'''
+def dm_messages_v1(token, dm_id, start):
+    
+    Given a token, dm_id and start id
+    Return up to 50 messages from index start and index start + 50,
+    Where 0 is the most recent message.
+    Returns a new index which is the value of start + 50, or if the least recent message has been returned,
+    Returns -1.
+    Arguments:
+        Token (token), user token
+        Dm_id (int), id of the dm's whose messages are returned
+        start (int), index of which to start sending messages. 
+
+    Exceptions:
+        AccessError - Invalid Token
+        AccessError - dm_is is valid but user is not a member of the dm
+        InputError -  dm_id is invalid
+        InputError -  start is higher than total number of messages
+
+
+    Return Value:
+
+        {messages, start, end}
+        
+    token_decoded = is_valid_token(token)
+    if token_decoded == False:
+        raise AccessError(description='False Token!')
+    user_id = token_decoded['u_id']
+    datastore = load_data()
+
+    return {
+
+    }
+'''

@@ -154,6 +154,21 @@ def test_dm_leave_invalid_dm_id(post_test_user, fixture_bob, fixture_george):
     assert dm_details.status_code == 400
 
 
+def test_dm_leave_invalid_dm_id_string(post_test_user, fixture_bob, fixture_george):
+
+    requests.post(f'{config.url}dm/create/v1', json={
+        'token': post_test_user['token'],
+        'u_ids': [fixture_bob['auth_user_id'], fixture_george['auth_user_id']]
+    })
+
+    dm_details = requests.post(f'{config.url}dm/leave/v1', json={
+        'token': post_test_user['token'],
+        'dm_id': 'awoooga'
+    })
+
+    assert dm_details.status_code == 400
+
+
 def test_dm_leave_non_member(post_test_user, fixture_bob, fixture_george):
 
     dm_id = requests.post(f'{config.url}dm/create/v1', json={
