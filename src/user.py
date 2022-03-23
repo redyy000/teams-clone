@@ -36,11 +36,11 @@ def user_profile_v1(token, u_id):
     datastore = load_data()
 
     for user in datastore['users']:
-        if user['u_id'] == u_id:
+        if int(user['u_id']) == int(u_id):
             return {
 
                 'user': {
-                    'u_id': u_id,
+                    'u_id': int(u_id),
                     'email': user['email'],
                     'name_first': user['name_first'],
                     'name_last': user['name_last'],

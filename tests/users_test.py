@@ -65,7 +65,7 @@ def test_users_all_success_code(post_test_user):
     post_bob()
     post_george()
 
-    list_response = requests.get(f"{config.url}/users/all/v1", json={
+    list_response = requests.get(f"{config.url}/users/all/v1", params={
         'token': post_test_user['token']
     })
 
@@ -77,7 +77,7 @@ def test_users_all_success_functionality(post_test_user):
     bob_info = post_bob()
     george_info = post_george()
 
-    list_response = requests.get(f"{config.url}/users/all/v1", json={
+    list_response = requests.get(f"{config.url}/users/all/v1", params={
         'token': post_test_user['token']
     })
 
@@ -105,7 +105,7 @@ def test_users_all_success_functionality(post_test_user):
 
 def test_users_all_invalid_token(post_test_user):
 
-    list_response = requests.get(f"{config.url}/users/all/v1", json={
+    list_response = requests.get(f"{config.url}/users/all/v1", params={
         'token': 'invalid token'
     })
 
