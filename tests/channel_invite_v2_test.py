@@ -131,6 +131,12 @@ def test_successful_invite(setup_users):
         'channel_id': channel1['channel_id'],
         'u_id': setup_users[1]['auth_user_id']
     })
+ 
+    response = requests.post(f'{config.url}channel/invite/v2', json={
+        'token': setup_users[0]['token'],
+        'channel_id': channel1['channel_id'],
+        'u_id': setup_users[2]['auth_user_id']
+    })
 
     response = requests.get(f'{config.url}channels/list/v2', params={"token": setup_users[1]['token']}) 
     assert response.status_code == 200

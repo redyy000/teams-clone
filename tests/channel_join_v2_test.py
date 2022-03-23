@@ -89,6 +89,11 @@ def test_successful_join(setup_users):
         'name': "Public",
         'is_public': True
     }).json()
+    requests.post(f'{config.url}channels/create/v2', json={
+        'token': setup_users[0]['token'],
+        'name': "GITLAB",
+        'is_public': True
+    }).json()
     requests.post(f'{config.url}channel/join/v2', json={
         'token': setup_users[1]['token'],
         'channel_id': channel1['channel_id']

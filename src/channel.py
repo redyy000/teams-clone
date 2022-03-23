@@ -119,12 +119,9 @@ def channel_messages_v2(token, channel_id, start):
 
     # check channel_id invalid
     channels_list = store["channels"]
-    for c in channels_list:
-        if channel_id == c["channel_id"]:
-            valid_chanel = True
     
     if isinstance(channel_id, int) == False or channel_id > len(channels_list) \
-        or channel_id or valid_chanel == False <= 0:        
+         or channel_id <= 0:        
             raise InputError(description = f"Channel_id {type(channel_id)} is not valid!")
 
     # get channel and messages list from data_store

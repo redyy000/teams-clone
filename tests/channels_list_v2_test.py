@@ -75,6 +75,11 @@ def test_channels_list2(init_test):
         "name_first": "Joanne", 
         "name_last": "Citizen" 
     }).json()    
+    requests.post(f"{config.url}channels/create/v2", json = {
+        "token":init_test,
+        "name": "General", 
+        "is_public": True, 
+    }).json() 
     channel_id2 = requests.post(f"{config.url}channels/create/v2", json = {
         "token":init_test,
         "name": "Hidden", 
@@ -84,7 +89,12 @@ def test_channels_list2(init_test):
         "token":user_id4['token'],
         "name": "John and Joanne", 
         "is_public": True, 
-    }).json()  
+    }).json()
+    requests.post(f"{config.url}channels/create/v2", json = {
+        "token":user_id4['token'],
+        "name": "John PRIVATE", 
+        "is_public": False, 
+    }).json()    
     requests.post(f"{config.url}channel/invite/v2", json = {
         "token":init_test,
         "channel_id": channel_id2['channel_id'], 
@@ -118,6 +128,17 @@ def test_channels_list2(init_test):
 
 def test_channels_list3(init_test):
     #tests invalid user ID
+    requests.post(f"{config.url}auth/register/v2", json = {
+        "email":"anothertest@gmail.com",
+        "password": "securepassword", 
+        "name_first": "Jane", 
+        "name_last": "Doe" 
+    }).json() 
+    requests.post(f"{config.url}channels/create/v2", json = {
+        "token":init_test,
+        "name": "General", 
+        "is_public": True, 
+    }).json() 
     response = requests.get(f"{config.url}channels/list/v2", params = {"token": 3})
     assert response.status_code == 403
         
@@ -143,7 +164,7 @@ def test_channels_listall1(init_test):
     })    
     response = requests.get(f"{config.url}channels/listall/v2", params = {"token": user_id2['token']})    
     assert response.status_code == 200
-    assert response.json()["channels"] == [{'channel_id': 1, 'name': 'test_channel'}]
+    assert response.json()["channels"] == [{'channel_id': 1, 'name': 'General'}]
 
 def test_channels_listall2(init_test):
     #long channels_listall test
@@ -151,6 +172,12 @@ def test_channels_listall2(init_test):
         "email":"anothertest@gmail.com",
         "password": "securepassword", 
         "name_first": "Jane", 
+        "name_last": "Doe" 
+    }).json() 
+    requests.post(f"{config.url}auth/register/v2", json = {
+        "email":"realemail@gmail.com",
+        "password": "safepassword", 
+        "name_first": "Jeremy", 
         "name_last": "Doe" 
     }).json() 
     user_id4 = requests.post(f"{config.url}auth/register/v2", json = {
@@ -165,6 +192,11 @@ def test_channels_listall2(init_test):
         "name_first": "Joanne", 
         "name_last": "Citizen" 
     }).json()    
+    requests.post(f"{config.url}channels/create/v2", json = {
+        "token":init_test,
+        "name": "General", 
+        "is_public": True, 
+    }).json() 
     channel_id2 = requests.post(f"{config.url}channels/create/v2", json = {
         "token":init_test,
         "name": "Hidden", 
@@ -174,6 +206,11 @@ def test_channels_listall2(init_test):
         "token":user_id4['token'],
         "name": "John and Joanne", 
         "is_public": True, 
+    }).json()
+    requests.post(f"{config.url}channels/create/v2", json = {
+        "token":user_id4['token'],
+        "name": "John PRIVATE", 
+        "is_public": False, 
     }).json()    
     requests.post(f"{config.url}channel/invite/v2", json = {
         "token":init_test,
@@ -196,11 +233,28 @@ def test_channels_listall2(init_test):
 
 def test_channels_listall3(init_test):
     #tests invalid user ID
+    requests.post(f"{config.url}auth/register/v2", json = {
+        "email":"anothertest@gmail.com",
+        "password": "securepassword", 
+        "name_first": "Jane", 
+        "name_last": "Doe" 
+    }).json() 
+    requests.post(f"{config.url}channels/create/v2", json = {
+        "token":init_test,
+        "name": "General", 
+        "is_public": True, 
+    }).json() 
     response = requests.get(f"{config.url}channels/listall/v2", params = {"token": 3})     
     assert response.status_code == 403
 
 def test_channels_listall4(init_test):
     #tests for 0 channels
+    requests.post(f"{config.url}auth/register/v2", json = {
+        "email":"anothertest@gmail.com",
+        "password": "securepassword", 
+        "name_first": "Jane", 
+        "name_last": "Doe" 
+    }).json()
     response = requests.get(f"{config.url}channels/listall/v2", params = {"token": init_test})   
     assert response.status_code == 200
     assert response.json()["channels"] == []

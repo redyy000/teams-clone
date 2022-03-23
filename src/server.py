@@ -96,7 +96,6 @@ def channel_messages():
 @APP.route("/channels/list/v2", methods=["GET"])
 def channels_list():
     token = request.args.get('token')
-    print(token)
     resp = channels_list_v2(token)
     return dumps(resp)    
     
