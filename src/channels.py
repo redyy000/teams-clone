@@ -30,7 +30,7 @@ def channels_create_v2(token, name, is_public):
 
     auth_user_id = token_decoded["u_id"]
 
-    channel_id = len(data['channels']) + 1
+    channel_id = int(len(data['channels']) + 1)
 
     new_channel = {'channel_id': channel_id,
                    'name': name,
