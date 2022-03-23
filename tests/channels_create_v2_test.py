@@ -117,4 +117,3 @@ def test_channels_success(auth_user_id):
     response_data = response.json()
     assert response_data["channel_id"] == 3
     
-

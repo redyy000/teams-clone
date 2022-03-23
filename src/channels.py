@@ -2,7 +2,8 @@ from src.data_store import data_store
 from src.error import InputError, AccessError
 from src.other import load_data, store_data, is_valid_token
 
-def channels_list_v1(auth_user_id):
+
+def channels_list_v2(token):
     '''
     Provide a list of all channels (and their associated details) that the authorised user is part of.
 
@@ -15,11 +16,16 @@ def channels_list_v1(auth_user_id):
     Return Value:
         'channels'      - A list of dictionaries containing channel ID's and names for each channel they are a part of 
 
-    '''    
-    store = data_store.get()
-    if isinstance(auth_user_id, int) != True or auth_user_id <= 0 or auth_user_id > len(store['users']):
+    '''
+    store = load_data()
+
+    token_decoded = is_valid_token(token)
+    if token_decoded == False:
         raise AccessError(
-            f"User ID {auth_user_id} is invalid. Unable to access any details with this ID.")
+            description=f"User ID {token} is invalid. Unable to access any details with this ID.")
+
+    auth_user_id = token_decoded["u_id"]
+
     channel_details = []
     # For each channel in the list of channels
     for channel in store['channels']:
@@ -31,18 +37,18 @@ def channels_list_v1(auth_user_id):
                     'name': channel['name']
                 }
                 channel_details.append(channel_info)
-        data_store.set(store)
+        store_data(store)
     return {
         'channels': channel_details
     }
 
 
-def channels_listall_v1(auth_user_id):
+def channels_listall_v2(token):
     '''
     Provide a list of all channels, including private channels, (and their associated details)
 
     Arguments:
-        auth_user_id (integer)  - an authorisation hash of the user
+        token           - A JWT.
 
     Exceptions:
         AccessError     - Occurs when auth_user_id is invalid.
@@ -51,10 +57,11 @@ def channels_listall_v1(auth_user_id):
         'channels'      - A list of dictionaries containing channel ID's and names for each channel that exists 
 
     '''
+    token_decoded = is_valid_token(token)
+    if token_decoded == False:
+        raise AccessError(description='False Token!')
+        
     store = load_data()
-    if isinstance(auth_user_id, int) != True or auth_user_id <= 0 or auth_user_id > len(store['users']):
-        raise AccessError(
-            f"User ID {auth_user_id} is invalid. Unable to access any details with this ID.")
     channel_details = []
     # For each channel in the list of channels
     for channel in store['channels']:
@@ -66,6 +73,7 @@ def channels_listall_v1(auth_user_id):
     return {
         'channels': channel_details
     }
+
 
 def channels_create_v2(token, name, is_public):
     '''
@@ -81,17 +89,19 @@ def channels_create_v2(token, name, is_public):
         InputError   -  Occurs when public status return is invalid. 
     Return Value:
         a dictionary {channel_id}
-        
+
     '''
-    # Check token is valid   
+    # Check token is valid
+    data = load_data()
+
+    #  Check for valid user ID i.e. token
     token_decoded = is_valid_token(token)
     if token_decoded == False:
-        raise AccessError(description='False Token!')
-    datastore = load_data()
+        raise AccessError(description="Invalid Token")
 
     auth_user_id = token_decoded["u_id"]
 
-    channel_id = len(datastore['channels']) + 1
+    channel_id = int(len(data['channels']) + 1)
 
     new_channel = {'channel_id': channel_id,
                    'name': name,
@@ -104,44 +114,26 @@ def channels_create_v2(token, name, is_public):
                    'messages': []
                    }
 
-
     # Check for valid channel name, between 1 and 20 characters
     if len(name) == 0 or len(name) > 20:
-        raise InputError(description = 
-            "No channel name is entered or channel name is longer than 20 characters.")
-            
+        raise InputError(
+            description="No channel name is entered or channel name is longer than 20 characters.")
+
     # Check for duplicate channel names
-    for channel in datastore['channels']:
-            if channel['name'] == new_channel['name']:
-                raise InputError(description = 
-                    "This channel name already exists, please create a new channel name or request to join this channel.")
+    for channel in data['channels']:
+        if channel['name'] == new_channel['name']:
+            raise InputError(
+                description="This channel name already exists, please create a new channel name or request to join this channel.")
 
     # Check is_public returns boolean
     if type(is_public) != bool:
-        raise InputError(description = 
-            "Something went wrong, unable to determine if channel is public or private.")
+        raise InputError(
+            description="Something went wrong, unable to determine if channel is public or private.")
 
     # Append the new channel to the list of channels
     datastore['channels'].append(new_channel)
     store_data(datastore)
 
     return {
-        'channel_id': channel_id,
-    }
-
-def channels_listall_v2(token):
-    token_decoded = is_valid_token(token)
-    if token_decoded == False:
-        raise AccessError(description='False Token!')
-    store = load_data()
-    channel_details = []
-    # For each channel in the list of channels
-    for channel in store['channels']:
-        channel_info = {
-            'channel_id': channel['channel_id'],
-            'name': channel['name']
-        }
-        channel_details.append(channel_info)
-    return {
-        'channels': channel_details
+        'channel_id': int(channel_id),
     }

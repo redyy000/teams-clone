@@ -26,7 +26,7 @@ def users_list_all_v1(token):
         raise AccessError('False Token!')
 
     datastore = load_data()
-    user_list = [user_profile_v1(token, user['u_id'])
+    user_list = [user_profile_v1(token, user['u_id'])['user']
                  for user in datastore['users']]
 
     return {

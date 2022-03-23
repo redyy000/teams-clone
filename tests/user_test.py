@@ -68,7 +68,7 @@ def test_user_profile_invalid_token(post_test_user):
     Tests if user token is valid i.e. if user exists
     '''
 
-    response = requests.get(f"{config.url}/user/profile/v1", json={
+    response = requests.get(f"{config.url}/user/profile/v1", params={
         'token': 'invalid_token',
         'u_id': post_test_user['auth_user_id'],
     })
@@ -81,14 +81,14 @@ def test_user_profile_valid_users(post_test_user):
     george_info = post_george()
     bob_info = post_bob()
 
-    response1 = requests.get(f"{config.url}/user/profile/v1", json={
+    response1 = requests.get(f"{config.url}/user/profile/v1", params={
         'token': post_test_user['token'],
         'u_id': george_info['auth_user_id']
     })
 
     assert response1.status_code == 200
 
-    response2 = requests.get(f"{config.url}/user/profile/v1", json={
+    response2 = requests.get(f"{config.url}/user/profile/v1", params={
         'token': post_test_user['token'],
         'u_id': bob_info['auth_user_id']
     })
@@ -100,7 +100,7 @@ def test_user_profile_functionality(post_test_user):
 
     george_info = post_george()
 
-    response1 = requests.get(f"{config.url}/user/profile/v1", json={
+    response1 = requests.get(f"{config.url}/user/profile/v1", params={
         'token': post_test_user['token'],
         'u_id': post_test_user['auth_user_id']
     })
@@ -112,7 +112,7 @@ def test_user_profile_functionality(post_test_user):
     assert user_dict['name_last'] == 'LastName'
     assert user_dict['handle_str'] == 'firstnamelastname'
 
-    response2 = requests.get(f"{config.url}/user/profile/v1", json={
+    response2 = requests.get(f"{config.url}/user/profile/v1", params={
         'token': george_info['token'],
         'u_id': george_info['auth_user_id']
     })
@@ -204,7 +204,7 @@ def test_user_setemail_successful(post_test_user):
         'email': 'newuseremail@gmail.com',
     })
 
-    response = requests.get(f"{config.url}/user/profile/v1", json={
+    response = requests.get(f"{config.url}/user/profile/v1", params={
         'token': post_test_user['token'],
         'u_id': post_test_user['auth_user_id']
     })
@@ -220,7 +220,7 @@ def test_user_setemail_successful(post_test_user):
         'email': 'bobbert@jobbery.com'
     })
 
-    bob_profile_response = requests.get(f"{config.url}/user/profile/v1", json={
+    bob_profile_response = requests.get(f"{config.url}/user/profile/v1", params={
         'token': bob_info['token'],
         'u_id': bob_info['auth_user_id']
     })
@@ -313,7 +313,7 @@ def test_user_sethandle_successful(post_test_user):
         'handle_str': 'coolnewhandle',
     })
 
-    response = requests.get(f"{config.url}/user/profile/v1", json={
+    response = requests.get(f"{config.url}/user/profile/v1", params={
         'token': post_test_user['token'],
         'u_id': post_test_user['auth_user_id']
     })
@@ -328,7 +328,7 @@ def test_user_sethandle_successful(post_test_user):
         'handle_str': 'bobberino'
     })
 
-    bob_profile_response = requests.get(f"{config.url}/user/profile/v1", json={
+    bob_profile_response = requests.get(f"{config.url}/user/profile/v1", params={
         'token': bob_info['token'],
         'u_id': bob_info['auth_user_id']
     })
@@ -456,7 +456,7 @@ def test_user_setname_successful(post_test_user):
         'name_last': 'New_Last_Name'
     })
 
-    response = requests.get(f"{config.url}/user/profile/v1", json={
+    response = requests.get(f"{config.url}/user/profile/v1", params={
         'token': post_test_user['token'],
         'u_id': post_test_user['auth_user_id']
     })
@@ -472,7 +472,7 @@ def test_user_setname_successful(post_test_user):
         'name_last': 'bighteone'
     })
 
-    bob_profile_response = requests.get(f"{config.url}/user/profile/v1", json={
+    bob_profile_response = requests.get(f"{config.url}/user/profile/v1", params={
         'token': bob_info['token'],
         'u_id': bob_info['auth_user_id']
     })
