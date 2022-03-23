@@ -79,12 +79,6 @@ def auth_logout():
     arguments = request.get_json()
     resp = auth_logout_v1(arguments['token'])
     return dumps(resp)
-    
-@APP.route("/channels/create/v2", methods = ["POST"])
-def channels_create():
-    arguments = request.get_json()
-    resp = channels_create_v2(arguments["token"], arguments["name"], arguments["is_public"])
-    return dumps(resp)
 
 @APP.route("/clear/v1", methods=["DELETE"])
 def clear():
