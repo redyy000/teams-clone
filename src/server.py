@@ -67,12 +67,6 @@ def auth_register():
     return dumps(resp)
 
 
-@APP.route("/clear/v1", methods=["DELETE"])
-def clear():
-    clear_v1()
-    return dumps({})
-
-
 @APP.route("/auth/login/v2", methods=['POST'])
 def auth_login():
     arguments = request.get_json()
@@ -82,11 +76,20 @@ def auth_login():
 
 @APP.route("/auth/logout/v1", methods=['POST'])
 def auth_logout():
-
     arguments = request.get_json()
     resp = auth_logout_v1(arguments['token'])
     return dumps(resp)
+    
+@APP.route("/channels/create/v2", methods = ["POST"])
+def channels_create():
+    arguments = request.get_json()
+    resp = channels_create_v2(arguments["token"], arguments["name"], arguments["is_public"])
+    return dumps(resp)
 
+@APP.route("/clear/v1", methods=["DELETE"])
+def clear():
+    clear_v1()
+    return dumps({})
 
 @APP.route("/user/profile/v1", methods=['GET'])
 def user_profile_get():
