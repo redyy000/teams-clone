@@ -194,7 +194,7 @@ def channel_details_v2(token, channel_id):
                     is_member = True
     if is_member == False:
         raise AccessError(
-            f"User ID {u_id} is not a member of channel (Channel ID {channel_id}).")
+            f"User ID {auth_user_id} is not a member of channel (Channel ID {channel_id}).")
 
     # Collect details
     for channels in store['channels']:

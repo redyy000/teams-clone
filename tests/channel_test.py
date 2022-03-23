@@ -68,10 +68,9 @@ def test_channel_addowner_v1_simple_success(initialise_member):
                                                                     'name_last': 'Doe'})
     assert register2.status_code == 200
     u_id2 = register2.json()['auth_user_id']
-    invite = requests.post(f"{config.url}channel/invite/v2", json={'token': token,
+    requests.post(f"{config.url}channel/invite/v2", json={'token': token,
                                                                    'channel_id': channel_id,
                                                                    'user_id': u_id2})
-    assert invite.status_code == 200
     addowner = requests.post(f"{config.url}channel/addowner/v1", json= {'token': token,
                                                                         'channel_id': channel_id,
                                                                         'user_id': u_id2})
