@@ -2,41 +2,6 @@ import pytest
 import requests
 from src import config
 
-'''
-dm_data_structure = {
-    # Name of dm automatically generated
-    'name' : 'string',
-
-
-    # List of normal member u_ids
-    # Normal members == NOT owners
-    'normal_members' : [],
-
-
-    # List of owner u_ids
-    # Original creator is first
-    'owner' : [],
-
-    # List of message dictionaries
-    'messages' : [
-        {
-
-            # Message id is now the global message id
-            'message_id' : int,
-
-            # U_id of the sender
-            'sender_id' : int(u_id),
-
-            # Actual string of message
-            'message' : 'string',
-
-            # Import time function
-            'time_sent' : float(???)
-        }
-    ]
-}
-'''
-
 
 @pytest.fixture
 def post_test_user():
@@ -95,6 +60,30 @@ def test_dm_create_successful(post_test_user):
     })
 
     assert dm_response.status_code == 200
+
+
+def test_dm_create_functionality(post_test_user):
+
+    bob_info = post_bob()
+    george_info = post_george()
+
+    dm_response = requests.post(f'{config.url}dm/create/v1', json={
+        'token': post_test_user['token'],
+        'u_ids': [bob_info['auth_user_id'], george_info['auth_user_id']]
+    })
+
+    dm_details = requests.get(f'{config.url}dm/details/v1', params={
+        'token': post_test_user['token'],
+        'dm_id': dm_response.json()['dm_id']
+    })
+
+    assert dm_response.status_code == 200
+    assert dm_details.status_code == 200
+    assert dm_details.json()[
+        'name'] == 'bobbuilder, firstnamelastname, georgemonkey'
+    assert bob_info['auth_user_id'] in dm_details.json()['members']
+    assert post_test_user['auth_user_id'] in dm_details.json()['members']
+    assert george_info['auth_user_id'] in dm_details.json()['members']
 
 
 def test_dm_create_invalid_token(post_test_user):

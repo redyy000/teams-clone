@@ -3,42 +3,6 @@ import requests
 from src import config
 
 
-'''
-dm_data_structure = {
-    # Name of dm automatically generated
-    'name' : 'string',
-
-
-    # List of normal member u_ids
-    # Normal members == NOT owners
-    'normal_members' : [],
-
-
-    # List of owner u_ids
-    # Original creator is first
-    'owner' : [],
-
-    # List of message dictionaries
-    'messages' : [
-        {
-
-            # Message id is now the global message id
-            'message_id' : int,
-
-            # U_id of the sender
-            'sender_id' : int(u_id),
-
-            # Actual string of message
-            'message' : 'string',
-
-            # Import time function
-            'time_sent' : float(???)
-        }
-    ]
-}
-'''
-
-
 @pytest.fixture
 def post_test_user():
     requests.delete(f"{config.url}/clear/v1")
@@ -115,10 +79,45 @@ def test_dm_leave_success(post_test_user, fixture_bob, fixture_george):
 
     dm_details = requests.post(f'{config.url}dm/leave/v1', json={
         'token': post_test_user['token'],
-        'dm_id': dm_id
+        'dm_id': dm_id.json()['dm_id']
     })
 
     assert dm_details.status_code == 200
+
+
+def test_dm_leave_success_normal_member(post_test_user, fixture_bob, fixture_george):
+
+    dm_id = requests.post(f'{config.url}dm/create/v1', json={
+        'token': post_test_user['token'],
+        'u_ids': [fixture_bob['auth_user_id'], fixture_george['auth_user_id']]
+    })
+
+    dm_details = requests.post(f'{config.url}dm/leave/v1', json={
+        'token': fixture_bob['token'],
+        'dm_id': dm_id.json()['dm_id']
+    })
+
+    assert dm_details.status_code == 200
+
+
+def test_dm_leave_multiple_dms(post_test_user, fixture_bob, fixture_george):
+
+    requests.post(f'{config.url}dm/create/v1', json={
+        'token': post_test_user['token'],
+        'u_ids': [fixture_bob['auth_user_id'], fixture_george['auth_user_id']]
+    })
+
+    dm_id = requests.post(f'{config.url}dm/create/v1', json={
+        'token': fixture_bob['token'],
+        'u_ids': [fixture_george['auth_user_id']]
+    })
+
+    dm_details = requests.post(f'{config.url}dm/leave/v1', json={
+        'token': post_test_user['token'],
+        'dm_id': dm_id.json()['dm_id']
+    })
+
+    assert dm_details.status_code == 403
 
 
 def test_dm_leave_invalid_token(post_test_user, fixture_bob, fixture_george):
@@ -130,7 +129,7 @@ def test_dm_leave_invalid_token(post_test_user, fixture_bob, fixture_george):
 
     dm_details = requests.post(f'{config.url}dm/leave/v1', json={
         'token': 'inogneoieohgoiheohgohoehogheo',
-        'dm_id': dm_id
+        'dm_id': dm_id.json()['dm_id']
     })
 
     assert dm_details.status_code == 403
@@ -160,7 +159,7 @@ def test_dm_leave_non_member(post_test_user, fixture_bob, fixture_george):
 
     dm_details = requests.post(f'{config.url}dm/leave/v1', json={
         'token': fixture_george['token'],
-        'dm_id': dm_id
+        'dm_id': dm_id.json()['dm_id']
     })
 
     assert dm_details.status_code == 403

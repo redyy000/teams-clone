@@ -3,44 +3,12 @@ import requests
 from src import config
 
 
-'''
-dm_data_structure = {
-    # Name of dm automatically generated
-    'name' : 'string',
-
-
-    # List of normal member u_ids
-    # Normal members == NOT owners
-    'normal_members' : [],
-
-
-    # List of owner u_ids
-    # Original creator is first
-    'owner' : [],
-
-    # List of message dictionaries
-    'messages' : [
-        {
-
-            # Message id is now the global message id
-            'message_id' : int,
-
-            # U_id of the sender
-            'sender_id' : int(u_id),
-
-            # Actual string of message
-            'message' : 'string',
-
-            # Import time function
-            'time_sent' : float(???)
-        }
-    ]
-}
-'''
-
-
 @pytest.fixture
 def post_test_user():
+    return test_user()
+
+
+def test_user():
     requests.delete(f"{config.url}/clear/v1")
     '''
     Creates a test user and posts for use in http testing.
@@ -57,15 +25,15 @@ def post_test_user():
 
 @pytest.fixture
 def post_dm_create():
-    post_info = post_test_user()
+    post_info = test_user()
     george_info = post_george()
     bob_info = post_bob()
     requests.post(f'{config.url}dm/create/v1', json={
-        'token': post_test_user['token'],
+        'token': post_info['token'],
         'u_ids': [bob_info['auth_user_id'], george_info['auth_user_id']]
     })
 
-    return post_info.json()
+    return post_info
 
 
 @pytest.fixture
@@ -112,13 +80,38 @@ def test_dm_details_success(post_test_user, fixture_bob, fixture_george):
         'token': post_test_user['token'],
         'u_ids': [fixture_bob['auth_user_id'], fixture_george['auth_user_id']]
     })
-
-    dm_details = requests.get(f'{config.url}dm/details/v1', json={
+    dm_details = requests.get(f'{config.url}/dm/details/v1', params={
         'token': post_test_user['token'],
-        'dm_id': dm_id
+        'dm_id': dm_id.json()['dm_id']
+    })
+    assert dm_details.status_code == 200
+
+
+def test_dm_details_multiple(post_test_user, fixture_bob, fixture_george):
+
+    dm_id1 = requests.post(f'{config.url}dm/create/v1', json={
+        'token': post_test_user['token'],
+        'u_ids': [fixture_bob['auth_user_id'], fixture_george['auth_user_id']]
     })
 
-    assert dm_details.status_code == 200
+    dm_id2 = requests.post(f'{config.url}dm/create/v1', json={
+        'token': post_test_user['token'],
+        'u_ids': [fixture_bob['auth_user_id'], fixture_george['auth_user_id']]
+    })
+
+    dm_details1 = requests.get(f'{config.url}/dm/details/v1', params={
+        'token': post_test_user['token'],
+        'dm_id': dm_id1.json()['dm_id']
+    })
+
+    assert dm_details1.status_code == 200
+
+    dm_details2 = requests.get(f'{config.url}/dm/details/v1', params={
+        'token': post_test_user['token'],
+        'dm_id': dm_id2.json()['dm_id']
+    })
+
+    assert dm_details2.status_code == 200
 
 
 def test_dm_details_invalid_token(post_test_user, fixture_bob, fixture_george):
@@ -128,9 +121,9 @@ def test_dm_details_invalid_token(post_test_user, fixture_bob, fixture_george):
         'u_ids': [fixture_bob['auth_user_id'], fixture_george['auth_user_id']]
     })
 
-    dm_details = requests.get(f'{config.url}dm/details/v1', json={
+    dm_details = requests.get(f'{config.url}dm/details/v1', params={
         'token': 'invalid token',
-        'dm_id': dm_id
+        'dm_id': dm_id.json()['dm_id']
     })
 
     assert dm_details.status_code == 403
@@ -143,7 +136,7 @@ def test_dm_details_invalid_dm_id(post_test_user, fixture_bob, fixture_george):
         'u_ids': [fixture_bob['auth_user_id'], fixture_george['auth_user_id']]
     })
 
-    dm_details = requests.get(f'{config.url}dm/details/v1', json={
+    dm_details = requests.get(f'{config.url}dm/details/v1', params={
         'token': post_test_user['token'],
         'dm_id': 99999999
     })
@@ -158,9 +151,9 @@ def test_dm_details_non_dm_member(post_test_user, fixture_bob, fixture_george):
         'u_ids': [fixture_bob['auth_user_id']]
     })
 
-    dm_details = requests.get(f'{config.url}dm/details/v1', json={
+    dm_details = requests.get(f'{config.url}dm/details/v1', params={
         'token': fixture_george['token'],
-        'dm_id': dm_id
+        'dm_id': dm_id.json()['dm_id']
     })
 
     assert dm_details.status_code == 403

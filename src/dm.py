@@ -17,7 +17,10 @@ dm_data_structure = {
 
     # List of owner u_ids
     # Original creator is first
-    'owner' : [],
+    'owners' : [],
+    
+    # List of all member ids
+    'all_members' : []
 
     # List of message dictionaries
     'messages' : [
@@ -97,8 +100,8 @@ def dm_create_v1(token, u_ids):
     datastore = load_data()
     # Generate the name of the dm.
     owner_id = token_decoded['u_id']
-    all_member_id_list = u_ids
-    all_member_id_list.append(owner_id)
+
+    all_member_id_list = u_ids + [owner_id]
 
     # Check for non-existant u_ids
     existing_u_id_list = [user['u_id'] for user in datastore['users']]
@@ -111,13 +114,10 @@ def dm_create_v1(token, u_ids):
         raise InputError(description='Duplicate u_ids in your dms!!!')
 
     dm_id = len(datastore['dms']) + 1
-
     dm = {
         'name': dm_name_generate(all_member_id_list),
         'dm_id': dm_id,
-        # Can we have multiple owners of a DM?
-        # Don't think so
-        'owner': owner_id,
+        'owners': [owner_id],
         'normal_members': u_ids,
         'all_members': all_member_id_list,
         'messages': []
@@ -167,17 +167,156 @@ def dm_list_v1(token):
     }
 
 
-def dm_remove_v1():
-    pass
+def dm_remove_v1(token, dm_id):
+    '''
+    Given a token and dm_id,
+    Remove a DM so that there are no more members.
+    Arguments:
+        Token (token), user token
+        Dm_id (int), id of the dm to be removed
+
+    Exceptions:
+        AccessError - Invalid Token
+        AccessError - dm_id is valid but user is not the owner
+        AccessError - dm_is is valid but user is not a member of the dm
+        InputError -  dm_id is invalid
 
 
-def dm_details_v1():
-    pass
+    Return Value:
+
+        {}
+
+    '''
+
+    token_decoded = is_valid_token(token)
+    if token_decoded == False:
+        raise AccessError(description='False Token!')
+
+    datastore = load_data()
+    user_id = token_decoded['u_id']
+
+    for dm in datastore['dms']:
+        if dm['dm_id'] == dm_id:
+
+            # If user_id is not a member of the dm...
+            # All non-owners are obviously not normal members or members at all.
+            if user_id not in dm['all_members']:
+                raise AccessError(
+                    description='User is not a member of the DM!')
+            # If user_id is not the owner of the dm...
+
+            if user_id not in dm['owners']:
+                raise AccessError(description='User is not the owner!')
+
+            # DM is fully removed.
+
+            datastore['dms'].remove(dm)
+
+            store_data(datastore)
+            return {}
+    # If given dm_id does not exist
+    raise InputError(description='Given dm does not exist')
 
 
-def message_senddm_v1():
-    pass
+def dm_details_v1(token, dm_id):
+    '''
+    Given a token and dm_id,
+    Return basic information about the DM.
+    {name, members}
+    Arguments:
+        Token (token), user token
+        Dm_id (int), id of the dm to be removed
+
+    Exceptions:
+        AccessError - Invalid Token
+        AccessError - dm_is is valid but user is not a member of the dm
+        InputError -  dm_id is invalid
 
 
-def dm_leave_v1():
-    pass
+    Return Value:
+
+        { name, members }
+
+    '''
+    token_decoded = is_valid_token(token)
+    if token_decoded == False:
+        raise AccessError(description='False Token!')
+    user_id = token_decoded['u_id']
+
+    datastore = load_data()
+
+    # Test DM ID Exists
+    dm_exist = False
+    for dm in datastore['dms']:
+        if int(dm['dm_id']) == int(dm_id):
+            dm_exist = True
+    if dm_exist == False:
+        raise InputError(description='Given dm does not exist')
+
+    return_dict = {}
+    for dm in datastore['dms']:
+        if int(dm['dm_id']) == int(dm_id):
+            print('dm_id matches!')
+            if user_id not in dm['all_members']:
+                raise AccessError(
+                    description='User is not a member of the DM!')
+
+            return_dict = {
+                'name': dm['name'],
+                'members': dm['all_members']
+            }
+    return return_dict
+
+
+def dm_leave_v1(token, dm_id):
+    '''
+    Given a token and dm_id,
+    Make the token's user leave the dm.
+    Return {}
+    Arguments:
+        Token (token), user token
+        Dm_id (int), id of the dm to leave from
+
+    Exceptions:
+        AccessError - Invalid Token
+        AccessError - dm_is is valid but user is not a member of the dm
+        InputError -  dm_id is invalid
+
+    Return Value:
+
+        {}
+
+    '''
+    dm_id = int(dm_id)
+    token_decoded = is_valid_token(token)
+    if token_decoded == False:
+        raise AccessError(description='False Token!')
+    user_id = token_decoded['u_id']
+    datastore = load_data()
+
+    # Test DM ID Exists
+    dm_exist = False
+    for dm in datastore['dms']:
+        if int(dm['dm_id']) == dm_id:
+            dm_exist = True
+    if dm_exist == False:
+        raise InputError(description='Given dm does not exist')
+
+    user_exist = False
+    for dm in datastore['dms']:
+        if int(dm['dm_id']) == dm_id:
+            if user_id in dm['all_members']:
+                dm['all_members'].remove(user_id)
+                user_exist = True
+            if user_id in dm['owners']:
+                dm['owners'].remove(user_id)
+                user_exist = True
+            if user_id in dm['normal_members']:
+                dm['normal_members'].remove(user_id)
+                user_exist = True
+            store_data(datastore)
+
+    if user_exist == False:
+        raise AccessError(description='DM exists, however user is not in DM')
+
+    return {}

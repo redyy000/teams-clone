@@ -90,7 +90,7 @@ def auth_logout():
 
 @APP.route("/user/profile/v1", methods=['GET'])
 def user_profile_get():
-    arguments = request.get_json()
+    arguments = request.args
     resp = user_profile_v1(arguments['token'], arguments['u_id'])
     return dumps(resp)
 
@@ -120,7 +120,7 @@ def user_profile_setname():
 
 @APP.route("/users/all/v1", methods=['GET'])
 def users_list_all():
-    arguments = request.get_json()
+    arguments = request.args
     resp = users_list_all_v1(
         arguments['token'])
     return dumps(resp)
@@ -136,13 +136,11 @@ def dm_create():
 
 @APP.route("/dm/list/v1", methods=['GET'])
 def dm_list():
-    arguments = request.get_json()
+    arguments = request.args
     resp = dm_list_v1(
         arguments['token'])
     return dumps(resp)
 
-
-'''
 
 @APP.route("/dm/remove/v1", methods=['DELETE'])
 def dm_remove():
@@ -154,7 +152,7 @@ def dm_remove():
 
 @APP.route("/dm/details/v1", methods=['GET'])
 def dm_details():
-    arguments = request.get_json()
+    arguments = request.args
     resp = dm_details_v1(
         arguments['token'], arguments['dm_id'])
     return dumps(resp)
@@ -166,7 +164,8 @@ def dm_leave():
     resp = dm_leave_v1(
         arguments['token'], arguments['dm_id'])
     return dumps(resp)
-'''
+
+
 # NO NEED TO MODIFY BELOW THIS POINT
 if __name__ == "__main__":
     signal.signal(signal.SIGINT, quit_gracefully)  # For coverage

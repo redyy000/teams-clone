@@ -2,41 +2,6 @@ import pytest
 import requests
 from src import config
 
-'''
-dm_data_structure = {
-    # Name of dm automatically generated
-    'name' : 'string',
-
-
-    # List of normal member u_ids
-    # Normal members == NOT owners
-    'normal_members' : [],
-
-
-    # List of owner u_ids
-    # Original creator is first
-    'owner' : [],
-
-    # List of message dictionaries
-    'messages' : [
-        {
-
-            # Message id is now the global message id
-            'message_id' : int,
-
-            # U_id of the sender
-            'sender_id' : int(u_id),
-
-            # Actual string of message
-            'message' : 'string',
-
-            # Import time function
-            'time_sent' : float(???)
-        }
-    ]
-}
-'''
-
 
 @pytest.fixture
 def post_test_user():
@@ -109,7 +74,7 @@ def create_dm(token, u_ids):
 
 def test_dm_list_successful(post_dm_create):
 
-    dm_list_response = requests.get(f'{config.url}dm/list/v1', json={
+    dm_list_response = requests.get(f'{config.url}dm/list/v1', params={
         'token': post_dm_create['token']
     })
 
@@ -132,7 +97,7 @@ def test_dm_list_multiple_dms(post_test_user):
     create_dm(post_test_user['token'], [bob_info['auth_user_id']])
     create_dm(post_test_user['token'], [george_info['auth_user_id']])
 
-    dm1_response = requests.get(f'{config.url}dm/list/v1', json={
+    dm1_response = requests.get(f'{config.url}dm/list/v1', params={
         'token': post_test_user['token']
     })
 
@@ -153,7 +118,7 @@ def test_dm_list_multiple_dms(post_test_user):
         ]
     }
 
-    dm2_response = requests.get(f'{config.url}dm/list/v1', json={
+    dm2_response = requests.get(f'{config.url}dm/list/v1', params={
         'token': bob_info['token']
     })
 
@@ -170,7 +135,7 @@ def test_dm_list_multiple_dms(post_test_user):
         ]
     }
 
-    dm3_response = requests.get(f'{config.url}dm/list/v1', json={
+    dm3_response = requests.get(f'{config.url}dm/list/v1', params={
         'token': george_info['token']
     })
 
@@ -190,7 +155,7 @@ def test_dm_list_multiple_dms(post_test_user):
 
 def test_dm_list_invalid_token(post_dm_create):
 
-    dm_list_response = requests.get(f'{config.url}dm/list/v1', json={
+    dm_list_response = requests.get(f'{config.url}dm/list/v1', params={
         'token': 'false token'
     })
 
@@ -208,9 +173,9 @@ def test_dm_list_no_dms(post_dm_create):
         'name_last': 'isverylong',
     }).json()
 
-    dm_list_response = requests.get(f'{config.url}dm/list/v1', json={
+    dm_list_response = requests.get(f'{config.url}dm/list/v1', params={
         'token': lonely_info['token']
     })
 
     assert dm_list_response.status_code == 200
-    assert dm_list_response.json() == []
+    assert dm_list_response.json() == {'dms': []}
