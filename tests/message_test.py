@@ -1,8 +1,4 @@
 import pytest
-from src.error import InputError, AccessError
-from src import dm
-from src import other
-from src import auth
 from src import config
 import requests
 import json
