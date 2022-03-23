@@ -7,7 +7,7 @@ import json
 @pytest.fixture
 def setup_users():
     requests.delete(f'{config.url}clear/v1')
-
+    userlist = []
     response1 = requests.post(f'{config.url}auth/register/v2', json={'email': "dlin@gmail.com",
                                                                      'password': "password",
                                                                      'name_first': "daniel",
@@ -26,12 +26,15 @@ def setup_users():
     user1_info = json.loads(response1.json())
     user2_info = json.loads(response2.json())
     user3_info = json.load(response3.json())
-    return user1_info, user2_info, user3_info
+    userlist.extend(user1_info, user2_info, user3_info)
+    return userlist
 
 
-def test_invalid_channel_id():
+def test_invalid_channel_id(setup_users):
 
-    user1, user2, user3 = setup_users()
+    user1 = setup_users[0]
+    user2 = setup_users[1]
+    user3 = setup_users[2]
     requests.post(f'{config.url}/channels/create/v2', json={
         'token': user1['token'],
         'name': "Public",
@@ -46,8 +49,10 @@ def test_invalid_channel_id():
     assert response.status_code == 400
 
 
-def test_already_joined():
-    user1, user2, user3 = setup_users()
+def test_already_joined(setup_users):
+    user1 = setup_users[0]
+    user2 = setup_users[1]
+    user3 = setup_users[2]
 
     channel1 = requests.post(f'{config.url}/channels/create/v2', json={
         'token': user1['token'],
@@ -68,8 +73,10 @@ def test_already_joined():
     assert response.status_code == 400
 
 
-def test_private_channel():
-    user1, user2, user3 = setup_users()
+def test_private_channel(setup_users):
+    user1 = setup_users[0]
+    user2 = setup_users[1]
+    user3 = setup_users[2]
 
     channel1 = requests.post(f'{config.url}/channels/create/v2', json={
         'token': user1['token'],
@@ -85,8 +92,10 @@ def test_private_channel():
     assert response.status_code == 403
 
 
-def test_successful_join():
-    user1, user2, user3 = setup_users()
+def test_successful_join(setup_users):
+    user1 = setup_users[0]
+    user2 = setup_users[1]
+    user3 = setup_users[2]
 
     channel1 = requests.post(f'{config.url}/channels/create/v2', json={
         'token': user1['token'],
@@ -115,8 +124,10 @@ def test_successful_join():
         user3['token']}).json() == {'channels': [{"channel_id": channel1["channel_id"], "name": "Public"}]}
 
 
-def test_invalid_token():
-    user1, user2, user3 = setup_users()
+def test_invalid_token(setup_users):
+    user1 = setup_users[0]
+    user2 = setup_users[1]
+    user3 = setup_users[2]
 
     channel1 = requests.post(f'{config.url}/channels/create/v2', json={
         'token': user1['token'],

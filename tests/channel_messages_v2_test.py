@@ -7,7 +7,7 @@ import json
 @pytest.fixture
 def setup_users():
     requests.delete(f'{config.url}clear/v1')
-
+    userlist = []
     response1 = requests.post(f'{config.url}auth/register/v2', json={'email': "dlin@gmail.com",
                                                                      'password': "password",
                                                                      'name_first': "daniel",
@@ -26,7 +26,8 @@ def setup_users():
     user1_info = json.loads(response1.json())
     user2_info = json.loads(response2.json())
     user3_info = json.load(response3.json())
-    return user1_info, user2_info, user3_info
+    userlist.extend(user1_info, user2_info, user3_info)
+    return userlist
 
 
 def test_channel_id_invalid():
