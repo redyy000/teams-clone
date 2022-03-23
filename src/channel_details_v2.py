@@ -1,6 +1,6 @@
 from src.data_store import data_store
 from src.error import InputError, AccessError
-from src.other import is_valid_token, is_valid_user_id
+from src.other import is_valid_token, is_valid_user
 
 
 def channel_details_v2(token, channel_id):
@@ -26,8 +26,9 @@ def channel_details_v2(token, channel_id):
             f"User token {token} is invalid.")
 
     # Check auth_user_id
-    auth_user_id = token_data['user_id']
-    if is_valid_user_id(auth_user_id) == False:
+    auth_user_id = token_data['u_id']
+
+    if is_valid_user(auth_user_id) == False:
         raise AccessError(
             description=f"Auth_user_id: {auth_user_id} is invalid.Unable to access any details with this ID. ")
 
@@ -47,16 +48,16 @@ def channel_details_v2(token, channel_id):
 
     # Add users and owners to the owner_ids and member_ids empty lists we've created
     for member in channels['all_members']:
-        member_id.append(member['user_id'])
+        member_id.append(member['u_id'])
         if member['permission_id'] == 1:
-            owner_id.append(member['user_id'])
+            owner_id.append(member['u_id'])
 
     owner_details = []
     member_details = []
 
     for user in store['users']:
         for member in channels['all_members']:
-            if user['u_id'] == member['user_id']:
+            if user['u_id'] == member['u_id']:
                 user_dict = {
                     'u_id': user['u_id'],
                     'email': user['email'],

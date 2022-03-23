@@ -13,6 +13,7 @@ from flask_cors import CORS
 from src.auth import auth_register_v2, auth_login_v2, auth_logout_v1
 from src.other import clear_v1
 from src.channels import channels_create_v2
+from src.channel import channel_details_v2
 
 
 def quit_gracefully(*args):
@@ -80,9 +81,10 @@ def auth_logout():
 
 @APP.route("/channel/details/v2", methods=['GET'])
 def channel_details():
-    token = request.args.get('token')
-    channel_id = request.args.get('channel_id')
-    return dumps(channel_details_v1(token, channel_id))
+    arguments = request.args
+    token = arguments['token']
+    channel_id = arguments['channel_id']
+    return dumps(channel_details_v2(token, channel_id))
 
 
 @APP.route("/channels/create/v2", methods=["POST"])
