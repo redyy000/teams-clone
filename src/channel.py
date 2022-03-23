@@ -3,9 +3,9 @@ from src.channels import channels_create_v1, channels_list_v1
 from src.error import InputError, AccessError
 from json import dumps, dump, load
 from flask import Flask, request
-from src.other import is_valid_token
+from src.other import store_data, load_data
 
-SECRET = 'PLACEHOLDER'
+SECRET = "RICHARDRYANDANIELMAXTAYLA"
 
 '''
 Invites a user with ID u_id to join a channel with ID channel_id. 
@@ -27,7 +27,7 @@ Return Type:
 
 
 def channel_invite_v1(auth_user_id, channel_id, u_id):
-    store = data_store.get()
+    store = load_data()
     channel_info = store['channels']
     user_info = store['users']
 
@@ -81,7 +81,7 @@ def channel_invite_v1(auth_user_id, channel_id, u_id):
         if channels['channel_id'] == channel_id:
             channels['all_members'].append(new_member)
 
-    data_store.set(store)
+    store_data(store)
     return {
     }
 
@@ -103,8 +103,7 @@ def channel_invite_v1(auth_user_id, channel_id, u_id):
 
 
 def channel_details_v1(auth_user_id, channel_id):
-    store = data_store.get()
-
+    store = load_data()
     is_channelfound = False
     isPublic = False
 
@@ -164,7 +163,7 @@ def channel_details_v1(auth_user_id, channel_id):
                     member_details.append(user_dict)
                 elif member['permission_id'] == 2:
                     member_details.append(user_dict)
-    data_store.set(store)
+    store_data(store)
 
     return {
         'name': channels['name'],
@@ -203,7 +202,7 @@ Return Value:
 
 
 def channel_messages_v1(auth_user_id, channel_id, start):
-    store = data_store.get()
+    store = load_data()
 
     # check channel_id invalid
     channels_list = store["channels"]
@@ -261,7 +260,7 @@ def channel_messages_v1(auth_user_id, channel_id, start):
 
 def channel_join_v1(auth_user_id, channel_id):
 
-    store = data_store.get()
+    store = load_data()
     channel_info = store['channels']
     user_info = store['users']
 
@@ -302,7 +301,7 @@ def channel_join_v1(auth_user_id, channel_id):
         if channels['channel_id'] == channel_id:
             channels['all_members'].append(new_member)
 
-    data_store.set(store)
+    store_data(store)
 
     return {
     }
