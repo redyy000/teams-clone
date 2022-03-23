@@ -15,6 +15,8 @@ from src.other import clear_v1
 from src.dm import dm_create_v1, dm_details_v1, dm_list_v1, dm_remove_v1, dm_leave_v1
 from src.channels import channels_create_v2
 
+# dm_messages_v1
+
 
 APP = Flask(__name__)
 
@@ -88,8 +90,9 @@ def clear():
 
 @APP.route("/user/profile/v1", methods=['GET'])
 def user_profile_get():
-    arguments = request.args
-    resp = user_profile_v1(arguments['token'], arguments['u_id'])
+    token = request.args.get('token', type=str)
+    u_id = request.args.get('u_id', type=int)
+    resp = user_profile_v1(token, u_id)
     return dumps(resp)
 
 
@@ -118,9 +121,9 @@ def user_profile_setname():
 
 @APP.route("/users/all/v1", methods=['GET'])
 def users_list_all():
-    arguments = request.args
+    token = request.args.get('token', type=str)
     resp = users_list_all_v1(
-        arguments['token'])
+        token)
     return dumps(resp)
 
 
@@ -134,9 +137,9 @@ def dm_create():
 
 @APP.route("/dm/list/v1", methods=['GET'])
 def dm_list():
-    arguments = request.args
+    token = request.args.get('token', type=str)
     resp = dm_list_v1(
-        arguments['token'])
+        token)
     return dumps(resp)
 
 
@@ -150,9 +153,10 @@ def dm_remove():
 
 @APP.route("/dm/details/v1", methods=['GET'])
 def dm_details():
-    arguments = request.args
+    token = request.args.get('token', type=str)
+    dm_id = request.args.get('dm_id', type=int)
     resp = dm_details_v1(
-        arguments['token'], arguments['dm_id'])
+        token, dm_id)
     return dumps(resp)
 
         
@@ -171,6 +175,17 @@ def dm_leave():
         arguments['token'], arguments['dm_id'])
     return dumps(resp)
 
+
+'''
+@APP.route("/dm/messages/v1", methods=['GET'])
+def dm_messages():
+    token = request.args.get('token', type=str)
+    dm_id = request.args.get('dm_id', type=int)
+    start = request.args.get('start', type=int)
+    resp = dm_messages_v1(
+        token, dm_id, start)
+    return dumps(resp)
+'''
 
 # NO NEED TO MODIFY BELOW THIS POINT
 if __name__ == "__main__":
