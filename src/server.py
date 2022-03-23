@@ -13,6 +13,7 @@ from flask_cors import CORS
 from src.auth import auth_register_v2, auth_login_v2, auth_logout_v1
 from src.other import clear_v1
 from src.dm import dm_create_v1, dm_details_v1, dm_list_v1, dm_remove_v1, dm_leave_v1
+from src.channels import channels_create_v2
 
 # dm_messages_v1
 
@@ -69,12 +70,6 @@ def auth_register():
     return dumps(resp)
 
 
-@APP.route("/clear/v1", methods=["DELETE"])
-def clear():
-    clear_v1()
-    return dumps({})
-
-
 @APP.route("/auth/login/v2", methods=['POST'])
 def auth_login():
     arguments = request.get_json()
@@ -84,11 +79,14 @@ def auth_login():
 
 @APP.route("/auth/logout/v1", methods=['POST'])
 def auth_logout():
-
     arguments = request.get_json()
     resp = auth_logout_v1(arguments['token'])
     return dumps(resp)
 
+@APP.route("/clear/v1", methods=["DELETE"])
+def clear():
+    clear_v1()
+    return dumps({})
 
 @APP.route("/user/profile/v1", methods=['GET'])
 def user_profile_get():
@@ -160,6 +158,14 @@ def dm_details():
     resp = dm_details_v1(
         token, dm_id)
     return dumps(resp)
+
+        
+@APP.route("/channels/create/v2", methods = ["POST"])
+def channels_create():
+    arguments = request.get_json()
+    resp = channels_create_v2(arguments["token"], arguments["name"], arguments["is_public"])
+    return dumps(resp)
+
 
 
 @APP.route("/dm/leave/v1", methods=['POST'])
