@@ -84,8 +84,8 @@ def channels_create():
     
 @APP.route("/channels/list/v2", methods = ["GET"])
 def channels_list():
-    arguments = request.get_json()
-    resp = channels_list_v2(arguments["token"])
+    token = request.args.get('token')
+    resp = channels_list_v2(token)
     return dumps(resp)
 
 @APP.route("/clear/v1", methods=["DELETE"])
