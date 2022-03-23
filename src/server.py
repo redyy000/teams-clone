@@ -154,6 +154,14 @@ def dm_details():
         arguments['token'], arguments['dm_id'])
     return dumps(resp)
 
+        
+@APP.route("/channels/create/v2", methods = ["POST"])
+def channels_create():
+    arguments = request.get_json()
+    resp = channels_create_v2(arguments["token"], arguments["name"], arguments["is_public"])
+    return dumps(resp)
+
+
 
 @APP.route("/dm/leave/v1", methods=['POST'])
 def dm_leave():
