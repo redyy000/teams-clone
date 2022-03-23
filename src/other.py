@@ -21,7 +21,7 @@ def clear_v1():
         "users": [],
         "channels": [],
         "dms": [],
-        "messages": [],
+        "global_messages": [],
     }
     with open("data.p", "wb") as W_FILE:
         W_FILE.write(pickle.dumps(DATA_STRUCTURE))
