@@ -5,6 +5,10 @@ from src import config
 
 @pytest.fixture
 def post_test_user():
+    return test_user()
+
+
+def test_user():
     requests.delete(f"{config.url}/clear/v1")
     '''
     Creates a test user and posts for use in http testing.
@@ -21,15 +25,15 @@ def post_test_user():
 
 @pytest.fixture
 def post_dm_create():
-    post_info = post_test_user()
+    post_info = test_user()
     george_info = post_george()
     bob_info = post_bob()
     requests.post(f'{config.url}dm/create/v1', json={
-        'token': post_test_user['token'],
+        'token': post_info['token'],
         'u_ids': [bob_info['auth_user_id'], george_info['auth_user_id']]
     })
 
-    return post_info.json()
+    return post_info
 
 
 @pytest.fixture
