@@ -12,7 +12,11 @@ from flask import Flask, request, abort
 from flask_cors import CORS
 from src.auth import auth_register_v2, auth_login_v2, auth_logout_v1
 from src.other import clear_v1
+from src.dm import dm_create_v1, dm_details_v1, dm_list_v1, dm_remove_v1, dm_leave_v1
 from src.channels import channels_create_v2
+
+
+APP = Flask(__name__)
 
 
 def quit_gracefully(*args):
@@ -76,12 +80,6 @@ def auth_logout():
     arguments = request.get_json()
     resp = auth_logout_v1(arguments['token'])
     return dumps(resp)
-    
-@APP.route("/channels/create/v2", methods = ["POST"])
-def channels_create():
-    arguments = request.get_json()
-    resp = channels_create_v2(arguments["token"], arguments["name"], arguments["is_public"])
-    return dumps(resp)
 
 @APP.route("/clear/v1", methods=["DELETE"])
 def clear():
@@ -90,7 +88,7 @@ def clear():
 
 @APP.route("/user/profile/v1", methods=['GET'])
 def user_profile_get():
-    arguments = request.get_json()
+    arguments = request.args
     resp = user_profile_v1(arguments['token'], arguments['u_id'])
     return dumps(resp)
 
@@ -120,9 +118,57 @@ def user_profile_setname():
 
 @APP.route("/users/all/v1", methods=['GET'])
 def users_list_all():
-    arguments = request.get_json()
+    arguments = request.args
     resp = users_list_all_v1(
         arguments['token'])
+    return dumps(resp)
+
+
+@APP.route("/dm/create/v1", methods=['POST'])
+def dm_create():
+    arguments = request.get_json()
+    resp = dm_create_v1(
+        arguments['token'], arguments['u_ids'])
+    return dumps(resp)
+
+
+@APP.route("/dm/list/v1", methods=['GET'])
+def dm_list():
+    arguments = request.args
+    resp = dm_list_v1(
+        arguments['token'])
+    return dumps(resp)
+
+
+@APP.route("/dm/remove/v1", methods=['DELETE'])
+def dm_remove():
+    arguments = request.get_json()
+    resp = dm_remove_v1(
+        arguments['token'], arguments['dm_id'])
+    return dumps(resp)
+
+
+@APP.route("/dm/details/v1", methods=['GET'])
+def dm_details():
+    arguments = request.args
+    resp = dm_details_v1(
+        arguments['token'], arguments['dm_id'])
+    return dumps(resp)
+
+        
+@APP.route("/channels/create/v2", methods = ["POST"])
+def channels_create():
+    arguments = request.get_json()
+    resp = channels_create_v2(arguments["token"], arguments["name"], arguments["is_public"])
+    return dumps(resp)
+
+
+
+@APP.route("/dm/leave/v1", methods=['POST'])
+def dm_leave():
+    arguments = request.get_json()
+    resp = dm_leave_v1(
+        arguments['token'], arguments['dm_id'])
     return dumps(resp)
 
 
