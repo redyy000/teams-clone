@@ -37,7 +37,7 @@ def test_channel_leave_v1_simple_success(initialise_member):
     user2 = register.json()
     u_id2 = user2['auth_user_id']
     token2 = user2['token']
-    invite = requests.post(f"{config.url}channel/invite/v2", json={'token': token,
+    requests.post(f"{config.url}channel/invite/v2", json={'token': token,
                                                                    'channel_id': channel_id,
                                                                    'user_id': u_id2})
 

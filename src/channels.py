@@ -87,8 +87,6 @@ def channels_create_v2(token, name, is_public):
     token_decoded = is_valid_token(token)
     if token_decoded == False:
         raise AccessError(description='False Token!')
-
-    data = is_valid_token(token)
     datastore = load_data()
 
     auth_user_id = token_decoded["u_id"]
