@@ -10,8 +10,9 @@ from urllib import response
 from flask import Flask, request, abort
 from flask_cors import CORS
 from src.auth import auth_register_v2, auth_login_v2, auth_logout_v1
-from src.other import clear_v1
-from src.channels import channels_create_v2
+from src.other import clear_v1, is_valid_token
+from src.channels import channels_create_v2, channels_listall_v2
+from src.channel import channel_leave_v1, channel_addowner_v1, channel_invite_v2, channel_details_v2
 
 
 def quit_gracefully(*args):
@@ -93,13 +94,18 @@ def user_profile_get():
     resp = user_profile_v1(arguments['token'], arguments['u_id'])
     return dumps(resp)
 
+@APP.route("/channel/invite/v2", methods=['POST'])
+def channel_invite():
+    payload = request.get_json()
+    token = payload['token']
+    channel_invite_v2(token, payload['channel_id'], payload['user_id'])
+    return dumps({})    
 
 @APP.route("/user/profile/setemail/v1", methods=['PUT'])
 def user_profile_setemail():
     arguments = request.get_json()
     resp = user_profile_setemail_v1(arguments['token'], arguments['email'])
     return dumps(resp)
-
 
 @APP.route("/user/profile/sethandle/v1", methods=['PUT'])
 def user_profile_sethandle():
@@ -116,8 +122,30 @@ def user_profile_setname():
         arguments['token'], arguments['name_first'], arguments['name_last'])
     return dumps(resp)
 
+@APP.route("/channels/listall/v2", methods=['GET'])
+def channels_listall():
+    token = request.args.get('token')
+    returnvalue = channels_listall_v2(token)
+    return dumps(returnvalue)
+
+@APP.route("/channel/leave/v1", methods=['POST'])
+def channel_leave():
+    payload = request.get_json()
+    token = payload['token']
+    channel_leave_v1(token, payload['channel_id'])
+    return dumps({})
+
+@APP.route("/channel/addowner/v1", methods=['POST'])
+def channel_addowner():
+    payload = request.get_json()
+    token = payload['token']
+    channel_id = payload['channel_id']
+    u_id = payload['user_id']
+    channel_addowner_v1(token, channel_id, u_id)
+    return dumps({})
 
 # NO NEED TO MODIFY BELOW THIS POINT
 if __name__ == "__main__":
     signal.signal(signal.SIGINT, quit_gracefully)  # For coverage
     APP.run(port=port)  # Do not edit this port
+
