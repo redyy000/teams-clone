@@ -34,10 +34,10 @@ def user_profile_v1(token, u_id):
         raise AccessError(description='False Token!')
 
     datastore = load_data()
-
+    return_dict = {}
     for user in datastore['users']:
         if int(user['u_id']) == int(u_id):
-            return {
+            return_dict = {
 
                 'user': {
                     'u_id': int(u_id),
@@ -47,6 +47,8 @@ def user_profile_v1(token, u_id):
                     'handle_str': user['handle_str']
                 }
             }
+
+    return return_dict
 
 
 def user_profile_setname_v1(token, name_first, name_last):
