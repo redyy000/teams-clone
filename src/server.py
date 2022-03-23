@@ -107,6 +107,13 @@ def user_profile_setemail():
     resp = user_profile_setemail_v1(arguments['token'], arguments['email'])
     return dumps(resp)
 
+@APP.route("/channel/details/v2", methods=["GET"])
+def channel_details():
+    token = request.args.get('token')
+    channel_id = request.args.get('channel_id', type = int)
+    returnvalue = channel_details_v2(token, channel_id)
+    return dumps(returnvalue)
+
 @APP.route("/user/profile/sethandle/v1", methods=['PUT'])
 def user_profile_sethandle():
     arguments = request.get_json()
