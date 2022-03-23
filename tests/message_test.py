@@ -72,7 +72,7 @@ def negative_dm_id_test(setup_users):
         'u_ids': [u_id2, u_id3]})
 
     response = requests.post(f'{config.url}message/senddm/v1', json={
-        token': token_id1,
+        'token': token_id1,
         'dm_id': -1,
         'message': "Hello World"})
 
