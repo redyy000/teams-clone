@@ -15,6 +15,8 @@ from src.other import clear_v1
 from src.channels import channels_create_v2, channels_list_v2, channels_listall_v2
 from src.channel import channel_details_v2, channel_invite_v2, channel_join_v2, channel_messages_v2, channel_leave_v1, channel_addowner_v1
 from src.dm import dm_create_v1, dm_details_v1, dm_list_v1, dm_remove_v1, dm_leave_v1, message_senddm_v1, dm_messages_v1
+from src.admin import admin_userpermission_change_v1
+# admin_user_remove_v1
 
 
 # dm_messages_v1
@@ -84,40 +86,47 @@ def auth_logout():
     arguments = request.get_json()
     resp = auth_logout_v1(arguments['token'])
     return dumps(resp)
-    
-@APP.route("/channels/create/v2", methods = ["POST"])
+
+
+@APP.route("/channels/create/v2", methods=["POST"])
 def channels_create():
     arguments = request.get_json()
-    resp = channels_create_v2(arguments["token"], arguments["name"], arguments["is_public"])
+    resp = channels_create_v2(
+        arguments["token"], arguments["name"], arguments["is_public"])
     return dumps(resp)
+
 
 @APP.route("/channel/messages/v2", methods=['GET'])
 def channel_messages():
     token = request.args.get('token', )
-    channel_id = request.args.get('channel_id', type = int)
-    start = request.args.get('start', type = int)
+    channel_id = request.args.get('channel_id', type=int)
+    start = request.args.get('start', type=int)
     returnvalue = channel_messages_v2(token, channel_id, start)
-    return dumps(returnvalue)  
+    return dumps(returnvalue)
+
 
 @APP.route("/channel/details/v2", methods=["GET"])
 def channel_details():
     token = request.args.get('token')
-    channel_id = request.args.get('channel_id', type = int)
+    channel_id = request.args.get('channel_id', type=int)
     returnvalue = channel_details_v2(token, channel_id)
     return dumps(returnvalue)
-    
+
+
 @APP.route("/channels/list/v2", methods=["GET"])
 def channels_list():
     token = request.args.get('token')
     resp = channels_list_v2(token)
-    return dumps(resp)    
-    
+    return dumps(resp)
+
+
 @APP.route("/channels/listall/v2", methods=['GET'])
 def channels_listall():
     token = request.args.get('token')
     returnvalue = channels_listall_v2(token)
-    return dumps(returnvalue)   
-    
+    return dumps(returnvalue)
+
+
 @APP.route("/channel/join/v2", methods=['POST'])
 def channel_join():
     payload = request.get_json()
@@ -131,7 +140,8 @@ def channel_invite():
     payload = request.get_json()
     token = payload['token']
     channel_invite_v2(token, payload['channel_id'], payload['u_id'])
-    return dumps({})    
+    return dumps({})
+
 
 @APP.route("/channel/leave/v1", methods=['POST'])
 def channel_leave():
@@ -139,6 +149,7 @@ def channel_leave():
     token = payload['token']
     channel_leave_v1(token, payload['channel_id'])
     return dumps({})
+
 
 @APP.route("/channel/addowner/v1", methods=['POST'])
 def channel_addowner():
@@ -149,10 +160,12 @@ def channel_addowner():
     channel_addowner_v1(token, channel_id, u_id)
     return dumps({})
 
+
 @APP.route("/clear/v1", methods=["DELETE"])
 def clear():
     clear_v1()
     return dumps({})
+
 
 @APP.route("/user/profile/v1", methods=['GET'])
 def user_profile_get():
@@ -225,6 +238,7 @@ def dm_details():
         token, dm_id)
     return dumps(resp)
 
+
 @APP.route("/dm/leave/v1", methods=['POST'])
 def dm_leave():
     arguments = request.get_json()
@@ -252,6 +266,25 @@ def dm_messages():
         token, dm_id, start)
     return dumps(resp)
 
+
+@APP.route("/admin/userpermission/change/v1", methods=['POST'])
+def admin_permission_change():
+    arguments = request.get_json()
+    resp = admin_userpermission_change_v1(
+        arguments['token'], arguments['u_id'], arguments['permission_id'])
+
+    return dumps(resp)
+
+
+'''
+@APP.route("/admin/user/remove/v1", methods=['DELETE'])
+def admin_user_remove():
+    arguments = request.get_json()
+    resp = admin_user_remove_v1(
+        arguments['token'], arguments['u_id'])
+
+    return dumps(resp)
+'''
 
 # NO NEED TO MODIFY BELOW THIS POINT
 if __name__ == "__main__":
