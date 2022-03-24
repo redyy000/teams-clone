@@ -108,6 +108,16 @@ def test_dm_create_empty_u_ids(post_test_user):
 
     assert dm_response.status_code == 200
 
+    dm_details = requests.get(f'{config.url}dm/details/v1', params={
+        'token': post_test_user['token'],
+        'dm_id': dm_response.json()['dm_id']
+    })
+
+    assert dm_details.status_code == 200
+    assert dm_details.json()[
+        'name'] == 'firstnamelastname'
+    assert post_test_user['auth_user_id'] in dm_details.json()['members']
+
 
 def test_dm_create_invalid_u_id(post_test_user):
 
