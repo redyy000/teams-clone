@@ -86,6 +86,12 @@ def test_dm_details_success(post_test_user, fixture_bob, fixture_george):
     })
     assert dm_details.status_code == 200
 
+    assert dm_details.json()[
+        'name'] == 'bobbuilder, firstnamelastname, georgemonkey'
+    assert fixture_bob['auth_user_id'] in dm_details.json()['members']
+    assert post_test_user['auth_user_id'] in dm_details.json()['members']
+    assert fixture_george['auth_user_id'] in dm_details.json()['members']
+
 
 def test_dm_details_multiple(post_test_user, fixture_bob, fixture_george):
 
@@ -96,7 +102,7 @@ def test_dm_details_multiple(post_test_user, fixture_bob, fixture_george):
 
     dm_id2 = requests.post(f'{config.url}dm/create/v1', json={
         'token': post_test_user['token'],
-        'u_ids': [fixture_bob['auth_user_id'], fixture_george['auth_user_id']]
+        'u_ids': [fixture_bob['auth_user_id']]
     })
 
     dm_details1 = requests.get(f'{config.url}/dm/details/v1', params={
@@ -105,6 +111,11 @@ def test_dm_details_multiple(post_test_user, fixture_bob, fixture_george):
     })
 
     assert dm_details1.status_code == 200
+    assert dm_details1.json()[
+        'name'] == 'bobbuilder, firstnamelastname, georgemonkey'
+    assert fixture_bob['auth_user_id'] in dm_details1.json()['members']
+    assert post_test_user['auth_user_id'] in dm_details1.json()['members']
+    assert fixture_george['auth_user_id'] in dm_details1.json()['members']
 
     dm_details2 = requests.get(f'{config.url}/dm/details/v1', params={
         'token': post_test_user['token'],
@@ -112,6 +123,12 @@ def test_dm_details_multiple(post_test_user, fixture_bob, fixture_george):
     })
 
     assert dm_details2.status_code == 200
+
+    assert dm_details2.json()[
+        'name'] == 'bobbuilder, firstnamelastname'
+    assert fixture_bob['auth_user_id'] in dm_details2.json()['members']
+    assert post_test_user['auth_user_id'] in dm_details2.json()['members']
+    assert fixture_george['auth_user_id'] not in dm_details2.json()['members']
 
 
 def test_dm_details_invalid_token(post_test_user, fixture_bob, fixture_george):
