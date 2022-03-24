@@ -4,13 +4,9 @@ import json
 from src import config
 from src.user import user_profile_v1
 from src.channels import channels_create_v2
+from src.channel import channel_invite_v2
 from src.auth import auth_register_v2
 from src import channel_details_v2
-
-
-# @pytest.fixture
-# def clear_v1():
-#     requests.delete(f'{config.url}clear/v1')
 
 
 @pytest.fixture
@@ -45,60 +41,82 @@ def user2():
     return user_data2['token']
 
 
-# @pytest.fixture
-# def channel1(user1):
-#     '''
-#     Create a new channel for use in testing.
-#     user1 is an owner.
-#     Clears data.
-#     '''
-#     requests.delete(f'{config.url}clear/v1')
-#     new_channel = requests.post(f"{config.url}channels/create/v2", json={
-#         "token": user1,
-#         "name": "New Channel",
-#         "is_public": True
-#     })
-#     channel_data = new_channel.json()
-#     return channel_data['channel_id']
-
-
-def test_channel_details_v2_success(user1):
+def test_channel_details_v2_success():
     '''
     Test to check correct response of a channel/details/v2 request
     '''
+    requests.delete(f'{config.url}clear/v1')
+    user_data1 = requests.post(f"{config.url}/auth/register/v2", json={
+        'email': 'user1@gmail.com',
+        'password': 'testpassword',
+        'name_first': 'FirstName',
+        'name_last': 'LastName',
+    }).json()
+
+    user_data2 = requests.post(f"{config.url}/auth/register/v2", json={
+        'email': 'userrandom@gmail.com',
+        'password': 'testpasswordwhatever',
+        'name_first': 'FirstName2',
+        'name_last': 'LastName2',
+    }).json()
+
     new_channel1 = requests.post(f"{config.url}channels/create/v2", json={
-        "token": user1,
+        "token": user_data1['token'],
         "name": "New Channel",
+        "is_public": True
+    }).json()
+
+    requests.post(f'{config.url}channel/invite/v2', json={
+        'token': user_data1['token'],
+        'channel_id': new_channel1['channel_id'],
+        'u_id': user_data2['auth_user_id']
+    })
+
+    requests.post(f"{config.url}channels/create/v2", json={
+        "token": user_data1['token'],
+        "name": "New Channel2",
         "is_public": True
     })
 
     response1 = requests.get(f'{config.url}channel/details/v2',
-                             params={'token': user1, 'channel_id': new_channel1})
+                             params={'token': user_data1['token'], 'channel_id': new_channel1['channel_id']})
+
+    assert response1.status_code == 200
+
     response = response1.json()
+
     assert response == {
         'name': 'New Channel',
         'is_public': True,
         'owner_members': [{
-            'u_id': user1['auth_user_id'],
-            'email':user1['email'],
-            'name_first':user1['name_first'],
-            'name_last': user1['name_last'],
-            'handle_str': user1['handle_str'],
+            'u_id': user_data1['auth_user_id'],
+            'email':'user1@gmail.com',
+            'name_first': 'FirstName',
+            'name_last': 'LastName',
+            'handle_str': 'firstnamelastname',
         }],
         'all_members': [{
-            'u_id': user1['auth_user_id'],
-            'email':user1['email'],
-            'name_first':user1['name_first'],
-            'name_last': user1['name_last'],
-            'handle_str': user1['handle_str'],
-        }]
+            'u_id': user_data1['auth_user_id'],
+            'email':'user1@gmail.com',
+            'name_first': 'FirstName',
+            'name_last': 'LastName',
+            'handle_str': 'firstnamelastname',
+        }, {
+            'u_id': user_data2['auth_user_id'],
+            'email': 'userrandom@gmail.com',
+            'name_first': 'FirstName2',
+            'name_last': 'LastName2',
+            'handle_str': 'firstname2lastname2',
+
+        }
+        ]
+
     }
-    assert response.status_code == 200
 
 
 def test_channel_details_v2_invalid_channel_id(user1):
-    invalid_channel = requests.get(f'{config.url}channel/detailsv2', params={'token': user1,
-                                                                             'channel_id': 7})
+    invalid_channel = requests.get(f'{config.url}channel/details/v2', params={'token': user1,
+                                                                              'channel_id': 7})
     assert invalid_channel.status_code == 400
 
 
