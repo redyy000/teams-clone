@@ -41,7 +41,7 @@ def test_channel_leave_v1_success(initialise_member):
                                                           'channel_id': channel_id,
                                                           'u_id': u_id2})
 
-    leave = requests.post(f"{config.url}channel/leave/v1", json= {'token': token,
+    requests.post(f"{config.url}channel/leave/v1", json= {'token': token,
                                                                   'channel_id': channel_id})
     details = requests.get(f'{config.url}channel/details/v2', params= {'token': token2,
                                                                        'channel_id': channel_id})

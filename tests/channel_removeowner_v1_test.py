@@ -135,10 +135,10 @@ def test_channel_removeowner_v1_success(initialise_member):
     requests.post(f"{config.url}channel/invite/v2", json={'token': token,
                                                           'channel_id': channel_id,
                                                           'u_id': u_id2})
-    addowner = requests.post(f"{config.url}channel/addowner/v1", json= {'token': token,
+    requests.post(f"{config.url}channel/addowner/v1", json= {'token': token,
                                                                         'channel_id': channel_id,
                                                                         'user_id': u_id2})
-    removeowner = requests.post(f"{config.url}channel/removeowner/v1", json= {'token': token2,
+    requests.post(f"{config.url}channel/removeowner/v1", json= {'token': token2,
                                                                               'channel_id': channel_id,
                                                                               'user_id': u_id1})
     details = requests.get(f'{config.url}channel/details/v2', params= {'token': token,
