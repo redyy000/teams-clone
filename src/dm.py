@@ -1,6 +1,5 @@
 from datetime import timezone
 import datetime
-from re import L
 from src.error import InputError, AccessError
 from src.other import token_create, is_valid_token, load_data, store_data
 '''
@@ -46,7 +45,7 @@ dm_data_structure = {
 
 def dm_name_generate(u_ids):
     '''
-    Givven a list of user u_ids,
+    Given a list of user u_ids,
     Make a name for a dm.
     Name should be an alphabetically-sorted, comma-and-space-separated list of user handles
     e.g. 'ahandle1, bhandle2, chandle3'.
