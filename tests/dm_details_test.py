@@ -125,7 +125,7 @@ def test_dm_details_multiple(post_test_user, fixture_bob, fixture_george):
     assert dm_details2.status_code == 200
 
     assert dm_details2.json()[
-        'name'] == 'bobbuilder, firstnamelastname, georgemonkey'
+        'name'] == 'bobbuilder, firstnamelastname'
     assert fixture_bob['auth_user_id'] in dm_details2.json()['members']
     assert post_test_user['auth_user_id'] in dm_details2.json()['members']
     assert fixture_george['auth_user_id'] not in dm_details2.json()['members']
