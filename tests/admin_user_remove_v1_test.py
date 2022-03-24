@@ -2,7 +2,7 @@ import pytest
 import requests
 from src import config
 
-'''
+
 OWNER_PERMISSION = 1
 MEMBER_PERMISSION = 2
 INVALID_PERMISSION = 3
@@ -99,4 +99,67 @@ def test_admin_user_remove_token_non_authorised(setup_users):
     })
 
     assert response.status_code == 403
-'''
+
+
+def test_admin_user_remove_from_dm(setup_users):
+    owner = setup_users[0]
+    member1 = setup_users[1]
+
+    response = requests.delete(f"{config.url}/admin/user/remove/v1", json={
+        'token': owner['token'],
+        'u_id': member1['auth_user_id'],
+    })
+
+    assert response.status_code == 200
+    assert response.json() == {}
+
+
+def test_admin_user_remove_from_channel(setup_users):
+    owner = setup_users[0]
+    member1 = setup_users[1]
+
+    # Create a channel for owner
+    channel_response = requests.post(f"{config.url}channels/create/v2", json={
+        "token": owner['token'],
+        "name": "general",
+        "is_public": True
+    })
+    # Member 1 Joins
+    join_response = requests.post(f'{config.url}channel/join/v2', json={
+        'token': member1['token'],
+        'channel_id': channel_response['channel_id']
+    })
+
+    assert join_response.status_code == 200
+
+    # Member 1 posts messages
+    requests.post(f"{config.url}message/send/v1", json={
+        "token": member1['token'],
+        "channel_id": channel_response.json()['channel_id'],
+        "message": 'Every soul has its dark'
+    })
+
+    requests.post(f"{config.url}message/send/v1", json={
+        "token": member1['token'],
+        "channel_id": channel_response.json()['channel_id'],
+        "message": 'PUT YOUR AMBITIONS TO REST'
+    })
+
+    remove_response = requests.delete(f"{config.url}/admin/user/remove/v1", json={
+        'token': owner['token'],
+        'u_id': member1['auth_user_id'],
+    })
+
+    assert remove_response.status_code == 200
+    assert remove_response.json() == {}
+
+    # Assert messages are all turned into 'Removed user'
+
+    messages_response = requests.get(f'{config.url}/channel/messages/v2', params={
+        'token': owner['token'],
+        'channel_id': channel_response['channel_id'],
+        'start': 0
+    })
+
+    for message in range(0, len(messages_response.json()['messages'])):
+        assert message['message'] == 'Removed user'

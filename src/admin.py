@@ -150,14 +150,13 @@ def admin_userpermission_change_v1(token, u_id, permission_id):
     return {}
 
 
-'''
 def admin_user_remove_v1(token, u_id):
-    
+    '''
     Given a global owner's token, u_id
     Given a user by their u_id, remove them from the Seams.
     This means they should be removed from all channels/DMs,
     and will not be included in the list of users returned by users/all.
-    Seams owners can remove other Seams owners (including the original first owner).
+    Seams owners can remove other Seams owners(including the original first owner).
     Once users are removed, the contents of the messages they sent will be replaced by 'Removed user'.
     Their profile must still be retrievable with user/profile, however name_first should be 'Removed' and name_last should be 'user'.
     The user's email and handle should be reusable.
@@ -174,8 +173,7 @@ def admin_user_remove_v1(token, u_id):
 
     Return Value:
         {}
-    
-
+    '''
     token_decoded = is_valid_token(token)
     if token_decoded == False:
         raise AccessError(description='False Token!')
@@ -201,9 +199,8 @@ def admin_user_remove_v1(token, u_id):
             user['handle_str'] = ''
             user['name_first'] = 'Removed'
             user['name_last'] = 'user'
+            # Change to users/all
             user['is_deleted'] = True
-            break
-
     # Delete from ALL CHANNELS DMS
     # This means they should be removed from all channels/DMs,
     # and will not be included in the list of users returned by users/all.
@@ -214,10 +211,14 @@ def admin_user_remove_v1(token, u_id):
     # Change messages....
     for channel in datastore['channels']:
         if u_id in channel['owner_members']:
+            # Remove from channel
             channel['owner_members'].remove(u_id)
         for normal_member in channel['all_members']:
             if normal_member['user_id'] == u_id:
                 channel['all_members'].remove(normal_member)
+        for message in channel['messages']:
+            if message['sender_id'] == u_id:
+                message['message'] = 'Removed user'
 
     # Remove from all DMs
     # Change messages
@@ -235,4 +236,3 @@ def admin_user_remove_v1(token, u_id):
 
     store_data(datastore)
     return {}
-'''
