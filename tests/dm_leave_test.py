@@ -88,6 +88,19 @@ def test_dm_leave_success(post_test_user, fixture_bob, fixture_george):
 
     assert dm_details.status_code == 200
 
+    dm1_details = requests.get(f'{config.url}/dm/details/v1', params={
+        'token': fixture_bob['token'],
+        'dm_id': dm_id.json()['dm_id']
+    })
+
+    # Check details hold up.
+    assert dm1_details.status_code == 200
+    assert dm1_details.json()[
+        'name'] == 'bobbuilder, firstnamelastname, georgemonkey'
+    assert fixture_bob['auth_user_id'] in dm1_details.json()['members']
+    assert post_test_user['auth_user_id'] not in dm1_details.json()['members']
+    assert fixture_george['auth_user_id'] in dm1_details.json()['members']
+
 
 def test_dm_leave_success_normal_member(post_test_user, fixture_bob, fixture_george):
 
@@ -103,22 +116,55 @@ def test_dm_leave_success_normal_member(post_test_user, fixture_bob, fixture_geo
 
     assert dm_details.status_code == 200
 
+    dm1_details = requests.get(f'{config.url}/dm/details/v1', params={
+        'token': post_test_user['token'],
+        'dm_id': dm_id.json()['dm_id']
+    })
+
+    # Check details hold up.
+    assert dm1_details.status_code == 200
+    assert dm1_details.json()[
+        'name'] == 'bobbuilder, firstnamelastname, georgemonkey'
+    assert fixture_bob['auth_user_id'] not in dm1_details.json()['members']
+    assert post_test_user['auth_user_id'] in dm1_details.json()['members']
+    assert fixture_george['auth_user_id'] in dm1_details.json()['members']
+
 
 def test_dm_leave_multiple_dms(post_test_user, fixture_bob, fixture_george):
 
-    requests.post(f'{config.url}dm/create/v1', json={
+    dm_id1 = requests.post(f'{config.url}dm/create/v1', json={
         'token': post_test_user['token'],
         'u_ids': [fixture_bob['auth_user_id'], fixture_george['auth_user_id']]
     })
 
-    dm_id = requests.post(f'{config.url}dm/create/v1', json={
+    dm1_leave = requests.post(f'{config.url}dm/leave/v1', json={
+        'token': post_test_user['token'],
+        'dm_id': dm_id1.json()['dm_id']
+    })
+
+    assert dm1_leave.status_code == 200
+
+    dm1_details = requests.get(f'{config.url}/dm/details/v1', params={
+        'token': fixture_bob['token'],
+        'dm_id': dm_id1.json()['dm_id']
+    })
+
+    # Check details hold up.
+    assert dm1_details.status_code == 200
+    assert dm1_details.json()[
+        'name'] == 'bobbuilder, firstnamelastname, georgemonkey'
+    assert fixture_bob['auth_user_id'] in dm1_details.json()['members']
+    assert post_test_user['auth_user_id'] not in dm1_details.json()['members']
+    assert fixture_george['auth_user_id'] in dm1_details.json()['members']
+
+    dm_id2 = requests.post(f'{config.url}dm/create/v1', json={
         'token': fixture_bob['token'],
         'u_ids': [fixture_george['auth_user_id']]
     })
 
     dm_details = requests.post(f'{config.url}dm/leave/v1', json={
         'token': post_test_user['token'],
-        'dm_id': dm_id.json()['dm_id']
+        'dm_id': dm_id2.json()['dm_id']
     })
 
     assert dm_details.status_code == 403
