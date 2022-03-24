@@ -25,7 +25,6 @@ def initialise_channel(token):
                                                                       'is_public': True})
     return channel
 
-
 def test_channel_addowner_invalid_channel(initialise_member):
     register = initialise_member.json()
     token = register['token']
