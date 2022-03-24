@@ -189,7 +189,7 @@ def auth_register_v2(email, password, name_first, name_last):
         'name_last': name_last,
         'handle_str': create_handle_str(store, name_first, name_last),
         'session_id_list': [1],
-        'seams_permission_id': permission_id
+        'permission_id': permission_id
     }
 
     store['users'].append(user)
