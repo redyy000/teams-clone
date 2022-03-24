@@ -12,7 +12,7 @@ from flask import Flask, request, abort
 from flask_cors import CORS
 from src.auth import auth_register_v2, auth_login_v2, auth_logout_v1
 from src.other import clear_v1
-from src.dm import dm_create_v1, dm_details_v1, dm_list_v1, dm_remove_v1, dm_leave_v1
+from src.dm import dm_create_v1, dm_details_v1, dm_list_v1, dm_remove_v1, dm_leave_v1, message_senddm_v1, dm_messages_v1
 
 # dm_messages_v1
 
@@ -170,16 +170,25 @@ def dm_leave():
     return dumps(resp)
 
 
-'''
+@APP.route("/message/senddm/v1", methods=['POST'])
+def message_senddm():
+    arguments = request.get_json()
+    resp = message_senddm_v1(
+        arguments['token'], arguments['dm_id'], arguments['message'])
+
+    return dumps(resp)
+
+
 @APP.route("/dm/messages/v1", methods=['GET'])
 def dm_messages():
     token = request.args.get('token', type=str)
     dm_id = request.args.get('dm_id', type=int)
     start = request.args.get('start', type=int)
+
     resp = dm_messages_v1(
         token, dm_id, start)
     return dumps(resp)
-'''
+
 
 # NO NEED TO MODIFY BELOW THIS POINT
 if __name__ == "__main__":

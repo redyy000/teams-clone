@@ -1,3 +1,4 @@
+from datetime import timezone
 import datetime
 from re import L
 from src.error import InputError, AccessError
@@ -18,7 +19,7 @@ dm_data_structure = {
     # List of owner u_ids
     # Original creator is first
     'owners' : [],
-    
+
     # List of all member ids
     'all_members' : []
 
@@ -319,37 +320,163 @@ def dm_leave_v1(token, dm_id):
     return {}
 
 
-'''
-def dm_messages_v1(token, dm_id, start):
-    
-    Given a token, dm_id and start id
-    Return up to 50 messages from index start and index start + 50,
-    Where 0 is the most recent message.
-    Returns a new index which is the value of start + 50, or if the least recent message has been returned,
-    Returns -1.
+def message_senddm_v1(token, dm_id, message):
+    '''
+    Send a message from authorised_user to the DM specified by dm_id.
+    Note: Each message should have it's own unique ID,
+    i.e. no messages should share an ID with another message,
+    even if that other message is in a different channel or DM.
     Arguments:
         Token (token), user token
-        Dm_id (int), id of the dm's whose messages are returned
-        start (int), index of which to start sending messages. 
+        Dm_id (int), id of the dm to send from
+        Message: Message dictionary with info
 
     Exceptions:
         AccessError - Invalid Token
         AccessError - dm_is is valid but user is not a member of the dm
         InputError -  dm_id is invalid
-        InputError -  start is higher than total number of messages
+        InputError -  Length of message < 1 or > 1000 characters.
 
 
     Return Value:
 
+        {message_id }
+    '''
+
+    store = load_data()
+
+    payload = is_valid_token(token)
+    if payload is False:
+        raise AccessError(description="Invalid token")
+
+    sender_id = payload['u_id']
+    dm_data = store['dms']
+
+    dm_found = False
+    user_found = False
+    for dms in dm_data:
+        if dms['dm_id'] == dm_id:
+            dm_found = True
+            if sender_id in dms['all_members']:
+                user_found = True
+
+    if dm_found == False:
+        raise InputError(description="Invalid DM ID")
+    if user_found == False:
+        raise AccessError(description="User not in dm")
+
+    if len(message) < 1 or len(message) > 1000:
+        raise InputError(description="Invalid message length")
+
+    message_id = 0
+    if len(store['message_ids']) == 0:
+        message_id = 1
+    else:
+        message_id = store['message_ids'][-1]['message_id'] + 1
+
+    store_messages = {
+        'message_id': message_id,
+        'message_type': 2,
+        'source_id': dm_id
+    }
+    store['message_ids'].append(store_messages)
+
+    # Getting the current date
+    # and time
+    dt = datetime.datetime.now(timezone.utc)
+
+    utc_time = dt.replace(tzinfo=timezone.utc)
+    utc_timestamp = utc_time.timestamp()
+
+    new_message = {
+        'message_id': message_id,
+        'sender_id': sender_id,
+        'message': message,
+        'time_sent': int(utc_timestamp)
+    }
+
+    for dms in dm_data:
+        if dms['dm_id'] == dm_id:
+            dms['messages'].append(new_message)
+
+    store_data(store)
+
+    return {'message_id': message_id}
+
+
+def dm_messages_v1(token, dm_id, start):
+    '''
+    Given a token, dm_id and start id
+    Return up to 50 messages from index start and index start + 50,
+    Where 0 is the most recent message.
+    Returns a new index which is the value of start + 50, or if the least recent message has been returned,
+    Returns - 1.
+    Arguments:
+        Token(token), user token
+        Dm_id(int), id of the dm's whose messages are returned
+        start(int), index of which to start sending messages.
+
+    Exceptions:
+        AccessError - Invalid Token
+        AccessError - dm_is is valid but user is not a member of the dm
+        InputError - dm_id is invalid
+        InputError - start is higher than total number of messages
+
+    Return Value:
+
         {messages, start, end}
-        
+    '''
+    # Invalid token
     token_decoded = is_valid_token(token)
     if token_decoded == False:
         raise AccessError(description='False Token!')
+
     user_id = token_decoded['u_id']
     datastore = load_data()
 
-    return {
+    # Check dm exists
+    dm_exist = False
+    user_exist = False
+    for dm in datastore['dms']:
+        if dm['dm_id'] == dm_id:
+            dm_exist = True
+            if user_id in dm['all_members']:
+                user_exist = True
 
+    # Check user in dm
+
+    if dm_exist == False:
+        raise InputError(description='Dm id does not exist!')
+    if user_exist == False:
+        raise AccessError(description='Non-authorised user!!!')
+    message_count = 0
+    for dm in datastore['dms']:
+        message_count = message_count + len(dm['messages'])
+    # message_count = sum([len(dm['messages']) for dm in datastore['dms']])
+
+    # Check starting id is valid
+    if start >= message_count:
+        raise InputError(description='Start index is too high!')
+
+    # Temporary end variable
+    end = start + 50
+
+    dm_list = datastore['dms']
+    dm_selected = dm_list[dm_id - 1]
+    dm_messages = dm_selected['messages']
+    message_list = []
+
+    i = 0
+    for message_dict in dm_messages:
+        message_list.append(message_dict)
+        i += 1
+    if i < 50:
+        end = -1
+    else:
+        end = start + 50
+
+    return {
+        'messages': message_list,
+        'start': start,
+        'end': end
     }
-'''
