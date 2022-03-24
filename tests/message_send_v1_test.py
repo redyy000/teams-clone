@@ -40,9 +40,47 @@ def test_message_send_success(setup_users):
         "is_public": True
     })
 
-    message_response = requests.post(f"{config.url}message/send/v1", json={
+    message_response1 = requests.post(f"{config.url}message/send/v1", json={
         "token": owner['token'],
         "channel_id": channel_response.json()['channel_id'],
+        "message": 'Every soul has its dark'
+    })
+
+    message_response2 = requests.post(f"{config.url}message/send/v1", json={
+        "token": owner['token'],
+        "channel_id": channel_response.json()['channel_id'],
+        "message": 'Every john has its burger'
+    })
+
+    message_response3 = requests.post(f"{config.url}message/send/v1", json={
+        "token": owner['token'],
+        "channel_id": channel_response.json()['channel_id'],
+        "message": 'Every ring has no maidens'
+    })
+
+    assert message_response1.status_code == 200
+    assert message_response2.status_code == 200
+    assert message_response3.status_code == 200
+
+
+def test_message_send_multiple_channels(setup_users):
+    owner = setup_users[0]
+
+    requests.post(f"{config.url}channels/create/v2", json={
+        "token": owner['token'],
+        "name": "general",
+        "is_public": True
+    })
+
+    channel_response2 = requests.post(f"{config.url}channels/create/v2", json={
+        "token": owner['token'],
+        "name": "minutes",
+        "is_public": True
+    })
+
+    message_response = requests.post(f"{config.url}message/send/v1", json={
+        "token": owner['token'],
+        "channel_id": channel_response2.json()['channel_id'],
         "message": 'Every soul has its dark'
     })
 
@@ -142,4 +180,4 @@ def test_message_send_unauthorised_user(setup_users):
         "message": 'Every soul has its dark'
     })
 
-    assert message_response.status_code == 400
+    assert message_response.status_code == 403

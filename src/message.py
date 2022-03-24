@@ -6,18 +6,18 @@ from src.other import is_valid_token, load_data, store_data
 
 def message_send_v1(token, channel_id, message):
     '''
-    Send a message from authorised_user to the channel pecified by channel_id
+    Send a message from authorised_user to the channel specified by channel_id
     Note: Each message should have it's own unique ID,
     i.e. no messages should share an ID with another message,
     even if that other message is in a different channel or DM.
     Arguments:
         Token (token), user token
-        channel_id (int), id of the dm to send from
-        Message: Message dictionary with info
+        channel_id (int), id of the channel to send from
+        Message, string of message
 
     Exceptions:
         AccessError - Invalid Token
-        AccessError - channel_id is valid but user is not a member of the dm
+        AccessError - channel_id is valid but user is not a member of the channel
         InputError -  channel_id is invalid
         InputError -  Length of message < 1 or > 1000 characters.
 
@@ -99,7 +99,7 @@ def message_senddm_v1(token, dm_id, message):
     Arguments:
         Token (token), user token
         Dm_id (int), id of the dm to send from
-        Message: Message dictionary with info
+        Message (string), string of message
 
     Exceptions:
         AccessError - Invalid Token
@@ -172,3 +172,130 @@ def message_senddm_v1(token, dm_id, message):
     store_data(store)
 
     return {'message_id': message_id}
+
+
+def message_edit_v1(token, message_id, message):
+    '''
+    Edit a message with message id, replacing the content's with message
+    If message is empty, then delete the original message
+    Used for channels and dms
+    Arguments:
+        Token (token), user token
+        Message_id (int), id of the message
+        Message (string), string of message
+    Exceptions:
+        AccessError - Invalid Token
+        InputError -  Length of > 1000 characters.
+        InputError -  Message_id is invalid; not in the channel or dm.
+        AccessError - Editor is neither a member of the channel/dm, nor a channel/dm owner.
+                    - NOTE that just because editor is a global owner, does not mean they can edit/delete
+
+    Return Value:
+        {}
+    '''
+    token_decoded = is_valid_token(token)
+    if token_decoded == False:
+        raise AccessError(description='False Token!')
+
+    user_id = token_decoded['u_id']
+    datastore = load_data()
+
+    message_found = False
+
+    if len(message) > 1000:
+        raise InputError(description='Message is too long!')
+
+    # Since channel stores all_members as a list of dicts
+    # Large nesting due to how all_members are stored in channels
+    for channel in datastore['channels']:
+        for message_dict in channel['messages']:
+            if message_dict['message_id'] == message_id:
+                if user_id not in channel['owner_members'] and user_id != message_dict['sender_id']:
+                    raise AccessError(
+                        description='You are both not a channel owner and sender of message')
+                if len(message) == 0:
+                    message_remove_v1(token, message_id)
+                else:
+                    message_dict['message'] = message
+                message_found = True
+
+    # Reloop for DMs; If found already this is skipped.
+    if message_found == False:
+        for dm in datastore['dms']:
+            for message_dict in dm['messages']:
+                if message_dict['message_id'] == message_id:
+                    if user_id not in dm['owners'] and user_id != message_dict['sender_id']:
+                        raise AccessError(
+                            description='You are both not a channel owner and sender of message')
+                    if len(message) == 0:
+                        message_remove_v1(token, message_id)
+                    else:
+                        message_dict['message'] = message
+                    message_found = True
+
+    if message_found == False:
+        raise InputError(description="Invalid Message ID")
+
+    return {}
+
+
+def message_remove_v1(token, message_id):
+    '''
+    Given a message_id, delete the message.
+    Used for channels and dms
+    Arguments:
+        Token (token), user token
+        Message_id (id), id of message to be deleted
+
+    Exceptions:
+        AccessError - Invalid Token
+        InputError -  Message_id is invalid; not in the channel or dm.
+        AccessError - Editor is neither a member of the channel/dm, nor a channel/dm owner.
+                    - NOTE that just because editor is a global owner, does not mean they can edit/delete
+
+    Return Value:
+
+        {}
+    '''
+
+    token_decoded = is_valid_token(token)
+    if token_decoded == False:
+        raise AccessError(description='False Token!')
+
+    user_id = token_decoded['u_id']
+    datastore = load_data()
+
+    # Naive approach; Scan all channels and dms for the message_id match
+    # Break upon done
+
+    message_found = False
+    # Find message, and delete it.
+
+    # Since channel stores all_members as a list of dicts
+    # Large nesting due to how all_members are stored in channels
+    for channel in datastore['channels']:
+        for message in channel['messages']:
+            if message['message_id'] == message_id:
+                if user_id not in channel['owner_members'] and user_id != message['sender_id']:
+                    raise AccessError(
+                        description='You are both not a channel owner and sender of message')
+                else:
+                    channel['messages'].remove(message)
+                    message_found = True
+
+    # Reloop for DMs; If found already this is skipped.
+    if message_found == False:
+        for dm in datastore['dms']:
+            for message in dm['messages']:
+                if message['message_id'] == message_id:
+                    if user_id not in dm['owners'] and user_id != message['sender_id']:
+                        raise AccessError(
+                            description='You are both not a channel owner and sender of message')
+                    else:
+                        dm['messages'].remove(message)
+                        message_found = True
+
+    if message_found == False:
+        raise InputError(description="Invalid Message ID")
+
+    return {}

@@ -158,3 +158,129 @@ def test_message_edit_non_sender_non_owner(setup_users):
     })
 
     assert edit_response.status_code == 403
+
+
+def test_message_edit_channels_empty(setup_users):
+
+    owner = setup_users[0]
+
+    channel_response = requests.post(f"{config.url}channels/create/v2", json={
+        "token": owner['token'],
+        "name": "general",
+        "is_public": True
+    })
+
+    message_response = requests.post(f'{config.url}message/send/v1', json={
+        'token': owner['token'],
+        'channel_id': channel_response.json()['channel_id'],
+        'message': 'bruh '})
+
+    edit_response = requests.put(f"{config.url}message/edit/v1", json={
+        "token": owner['token'],
+        "message_id": message_response.json()['message_id'],
+        'message': ''
+    })
+
+    assert edit_response.status_code == 200
+
+    # Test message is gone....
+
+
+def test_message_edit_dms_empty(setup_users):
+
+    owner = setup_users[0]
+    member1 = setup_users[1]
+    member2 = setup_users[2]
+
+    dm = requests.post(f'{config.url}dm/create/v1', json={
+        'token': owner['token'],
+        'u_ids': [member1['auth_user_id'], member2['auth_user_id']]
+    })
+
+    message_response = requests.post(f'{config.url}message/senddm/v1', json={
+        'token': owner['token'],
+        'dm_id': dm.json()['dm_id'],
+        'message': 'bruh '})
+
+    edit_response = requests.put(f"{config.url}message/edit/v1", json={
+        "token": owner['token'],
+        "message_id": message_response.json()['message_id'],
+        'message': ''
+    })
+
+    assert edit_response.status_code == 200
+
+    # Somehow test the message is now gone...
+
+
+def test_message_edit_dms_invalid_sender(setup_users):
+
+    owner = setup_users[0]
+    member1 = setup_users[1]
+    member2 = setup_users[2]
+
+    dm = requests.post(f'{config.url}dm/create/v1', json={
+        'token': owner['token'],
+        'u_ids': [member1['auth_user_id'], member2['auth_user_id']]
+    })
+
+    message_response = requests.post(f'{config.url}message/senddm/v1', json={
+        'token': owner['token'],
+        'dm_id': dm.json()['dm_id'],
+        'message': 'bruh '})
+
+    edit_response = requests.put(f"{config.url}message/edit/v1", json={
+        "token": member1['token'],
+        "message_id": message_response.json()['message_id'],
+        'message': ''
+    })
+
+    assert edit_response.status_code == 403
+
+
+def test_message_edit_dms_success(setup_users):
+    owner = setup_users[0]
+    member1 = setup_users[1]
+    member2 = setup_users[2]
+
+    dm = requests.post(f'{config.url}dm/create/v1', json={
+        'token': owner['token'],
+        'u_ids': [member1['auth_user_id'], member2['auth_user_id']]
+    })
+
+    message_response1 = requests.post(f'{config.url}message/senddm/v1', json={
+        'token': member1['token'],
+        'dm_id': dm.json()['dm_id'],
+        'message': 'bruh '})
+
+    message_response2 = requests.post(f'{config.url}message/senddm/v1', json={
+        'token': owner['token'],
+        'dm_id': dm.json()['dm_id'],
+        'message': 'wogeihowighowehgoiwhoeighwoegowiheoig'})
+
+    message_response3 = requests.post(f'{config.url}message/senddm/v1', json={
+        'token': member2['token'],
+        'dm_id': dm.json()['dm_id'],
+        'message': 'wogeih'})
+
+    edit_response1 = requests.put(f"{config.url}message/edit/v1", json={
+        "token": owner['token'],
+        "message_id": message_response2.json()['message_id'],
+        'message': 'i could never be replaced'
+    })
+
+    edit_response2 = requests.put(f"{config.url}message/edit/v1", json={
+        "token": member1['token'],
+        "message_id": message_response1.json()['message_id'],
+        'message': 'ahahnooooooo'
+    })
+
+    edit_response3 = requests.put(f"{config.url}message/edit/v1", json={
+        "token": member2['token'],
+        "message_id": message_response3.json()['message_id'],
+        'message': 'ahahaha u  are being replaced'
+    })
+
+    assert edit_response1.status_code == 200
+    assert edit_response2.status_code == 200
+    assert edit_response3.status_code == 200

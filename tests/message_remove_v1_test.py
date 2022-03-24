@@ -132,3 +132,96 @@ def test_message_remove_non_poster_non_owner(setup_users):
     })
 
     assert remove_response.status_code == 403
+
+
+def test_message_remove_dms(setup_users):
+    owner = setup_users[0]
+    member1 = setup_users[1]
+    member2 = setup_users[2]
+
+    dm = requests.post(f'{config.url}dm/create/v1', json={
+        'token': owner['token'],
+        'u_ids': [member1['auth_user_id'], member2['auth_user_id']]
+    })
+
+    message_response1 = requests.post(f'{config.url}message/senddm/v1', json={
+        'token': member1['token'],
+        'dm_id': dm.json()['dm_id'],
+        'message': 'bruh '})
+
+    message_response2 = requests.post(f'{config.url}message/senddm/v1', json={
+        'token': owner['token'],
+        'dm_id': dm.json()['dm_id'],
+        'message': 'wogeihowighowehgoiwhoeighwoegowiheoig'})
+
+    message_response3 = requests.post(f'{config.url}message/senddm/v1', json={
+        'token': member2['token'],
+        'dm_id': dm.json()['dm_id'],
+        'message': 'wogeih'})
+
+    remove_response1 = requests.delete(f"{config.url}message/remove/v1", json={
+        "token": owner['token'],
+        "message_id": message_response2.json()['message_id'],
+    })
+
+    remove_response2 = requests.delete(f"{config.url}message/remove/v1", json={
+        "token": member1['token'],
+        "message_id": message_response1.json()['message_id'],
+    })
+
+    remove_response3 = requests.delete(f"{config.url}message/remove/v1", json={
+        "token": member2['token'],
+        "message_id": message_response3.json()['message_id'],
+    })
+
+    assert remove_response1.status_code == 200
+    assert remove_response2.status_code == 200
+    assert remove_response3.status_code == 200
+
+
+def test_message_remove_dms_non_member(setup_users):
+    owner = setup_users[0]
+    member1 = setup_users[1]
+    member2 = setup_users[2]
+
+    dm = requests.post(f'{config.url}dm/create/v1', json={
+        'token': owner['token'],
+        'u_ids': [member1['auth_user_id']]
+    })
+
+    message_response = requests.post(f'{config.url}message/senddm/v1', json={
+        'token': owner['token'],
+        'dm_id': dm.json()['dm_id'],
+        'message': 'test message'})
+
+    remove_response = requests.delete(f"{config.url}message/remove/v1", json={
+        "token": member2['token'],
+        "message_id": message_response.json()['message_id'],
+    })
+
+    assert remove_response.status_code == 403
+
+# Non-sender but member of dm attempts to remove another
+# Person's message
+
+
+def test_message_remove_dms_non_sender(setup_users):
+    owner = setup_users[0]
+    member1 = setup_users[1]
+
+    dm = requests.post(f'{config.url}dm/create/v1', json={
+        'token': owner['token'],
+        'u_ids': [member1['auth_user_id']]
+    })
+
+    message_response = requests.post(f'{config.url}message/senddm/v1', json={
+        'token': owner['token'],
+        'dm_id': dm.json()['dm_id'],
+        'message': 'bruh '})
+
+    remove_response = requests.delete(f"{config.url}message/remove/v1", json={
+        "token": member1['token'],
+        "message_id": message_response.json()['message_id'],
+    })
+
+    assert remove_response.status_code == 403
