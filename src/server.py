@@ -14,9 +14,9 @@ from src.auth import auth_register_v2, auth_login_v2, auth_logout_v1
 from src.other import clear_v1
 from src.channels import channels_create_v2, channels_list_v2, channels_listall_v2
 from src.channel import channel_details_v2, channel_invite_v2, channel_join_v2, channel_messages_v2, channel_leave_v1, channel_addowner_v1
-from src.dm import dm_create_v1, dm_details_v1, dm_list_v1, dm_remove_v1, dm_leave_v1, message_senddm_v1, dm_messages_v1
+from src.dm import dm_create_v1, dm_details_v1, dm_list_v1, dm_remove_v1, dm_leave_v1, dm_messages_v1
+from src.message import message_send_v1, message_senddm_v1, message_remove_v1, message_edit_v1
 from src.admin import admin_userpermission_change_v1
-# admin_user_remove_v1
 
 
 # dm_messages_v1
@@ -267,6 +267,33 @@ def dm_messages():
     return dumps(resp)
 
 
+@APP.route("/message/send/v1", methods=['POST'])
+def message_send():
+    arguments = request.get_json()
+    resp = message_send_v1(
+        arguments['token'], arguments['channel_id'], arguments['message'])
+
+    return dumps(resp)
+
+
+@APP.route("/message/edit/v1", methods=['PUT'])
+def message_edit():
+    arguments = request.get_json()
+    resp = message_edit_v1(
+        arguments['token'], arguments['message_id'], arguments['message'])
+
+    return dumps(resp)
+
+
+@APP.route("/message/remove/v1", methods=['DELETE'])
+def message_remove():
+    arguments = request.get_json()
+    resp = message_remove_v1(
+        arguments['token'], arguments['message_id'])
+
+    return dumps(resp)
+
+
 @APP.route("/admin/userpermission/change/v1", methods=['POST'])
 def admin_permission_change():
     arguments = request.get_json()
@@ -275,16 +302,6 @@ def admin_permission_change():
 
     return dumps(resp)
 
-
-'''
-@APP.route("/admin/user/remove/v1", methods=['DELETE'])
-def admin_user_remove():
-    arguments = request.get_json()
-    resp = admin_user_remove_v1(
-        arguments['token'], arguments['u_id'])
-
-    return dumps(resp)
-'''
 
 # NO NEED TO MODIFY BELOW THIS POINT
 if __name__ == "__main__":
