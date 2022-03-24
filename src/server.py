@@ -98,6 +98,14 @@ def channel_messages():
     returnvalue = channel_messages_v2(token, channel_id, start)
     return dumps(returnvalue)  
     
+@APP.route("/dm/details/v1", methods=['GET'])
+def dm_details():
+    token = request.args.get('token', type=str)
+    dm_id = request.args.get('dm_id', type=int)
+    resp = dm_details_v1(
+        token, dm_id)
+    return dumps(resp)
+
 @APP.route("/channels/list/v2", methods=["GET"])
 def channels_list():
     token = request.args.get('token')
