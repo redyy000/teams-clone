@@ -75,7 +75,7 @@ def test_channel_addowner_owner(initialise_member):
     u_id2 = register2.json()['auth_user_id']
     requests.post(f"{config.url}channel/invite/v2", json={'token': token,
                                                           'channel_id': channel_id,
-                                                          'user_id': u_id2})
+                                                          'u_id': u_id2})
     addowner = requests.post(f"{config.url}channel/addowner/v1", json= {'token': token,
                                                                         'channel_id': channel_id,
                                                                         'user_id': u_id2})
@@ -98,7 +98,7 @@ def test_channel_addowner_v1_no_owner_permissions(initialise_member):
     token2 = register2.json()['token']
     requests.post(f"{config.url}channel/invite/v2", json={'token': token,
                                                           'channel_id': channel_id,
-                                                          'user_id': u_id2})
+                                                          'u_id': u_id2})
     register3 = requests.post(f"{config.url}auth/register/v2", json={'email': 'testagain@gmail.com',
                                                                     'password': 'newpassword',
                                                                     'name_first': 'John',
@@ -106,7 +106,7 @@ def test_channel_addowner_v1_no_owner_permissions(initialise_member):
     u_id3 = register3.json()['auth_user_id']
     requests.post(f"{config.url}channel/invite/v2", json={'token': token,
                                                           'channel_id': channel_id,
-                                                          'user_id': u_id3})
+                                                          'u_id': u_id3})
     addowner = requests.post(f"{config.url}channel/addowner/v1", json= {'token': token2,
                                                                         'channel_id': channel_id,
                                                                         'user_id': u_id3})
@@ -125,7 +125,7 @@ def test_channel_addowner_v1_success(initialise_member):
     u_id2 = register2.json()['auth_user_id']
     requests.post(f"{config.url}channel/invite/v2", json={'token': token,
                                                           'channel_id': channel_id,
-                                                          'user_id': u_id2})
+                                                          'u_id': u_id2})
     addowner = requests.post(f"{config.url}channel/addowner/v1", json= {'token': token,
                                                                         'channel_id': channel_id,
                                                                         'user_id': u_id2})

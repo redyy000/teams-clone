@@ -38,12 +38,11 @@ def test_channel_leave_v1_success(initialise_member):
     u_id2 = user2['auth_user_id']
     token2 = user2['token']
     requests.post(f"{config.url}channel/invite/v2", json={'token': token,
-                                                                   'channel_id': channel_id,
-                                                                   'user_id': u_id2})
+                                                          'channel_id': channel_id,
+                                                          'u_id': u_id2})
 
     leave = requests.post(f"{config.url}channel/leave/v1", json= {'token': token,
                                                                   'channel_id': channel_id})
-    assert leave.status_code == 200
     details = requests.get(f'{config.url}channel/details/v2', params= {'token': token2,
                                                                        'channel_id': channel_id})
     details_data = details.json()
