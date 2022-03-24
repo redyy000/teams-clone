@@ -224,7 +224,7 @@ def channel_details_v2(token, channel_id):
     '''
     user_info = is_valid_token(token)
     if user_info == False:
-        raise AccessError("Invalid Token")
+        raise AccessError(description = "Invalid Token")
     auth_user_id = user_info['u_id']
     store = load_data()
     # Checks to see if entered channel id exists
@@ -234,7 +234,7 @@ def channel_details_v2(token, channel_id):
             is_channelfound = True
     # Checks to see if the channel_id is valid
     if is_channelfound == False or isinstance(channel_id, int) != True:
-        raise InputError(f"Channel ID {channel_id} is invalid. ")
+        raise InputError(description = f"Channel ID {channel_id} is invalid. ")
     # Given a channel ID, find the correct channel and see if user is member
     is_member = False
     for channels in store['channels']:
