@@ -117,6 +117,13 @@ def channel_join():
     channel_join_v2(token, payload['channel_id'])
     return dumps({})
 
+@APP.route("/dm/details/v1", methods=['GET'])
+def dm_details():
+    token = request.args.get('token', type=str)
+    dm_id = request.args.get('dm_id', type=int)
+    resp = dm_details_v1(
+        token, dm_id)
+    return dumps(resp)
 
 @APP.route("/channel/invite/v2", methods=['POST'])
 def channel_invite():
@@ -233,10 +240,6 @@ def dm_details():
     resp = dm_details_v1(
         token, dm_id)
     return dumps(resp)
-
-        
-
-
 
 @APP.route("/dm/leave/v1", methods=['POST'])
 def dm_leave():
