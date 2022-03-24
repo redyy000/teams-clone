@@ -161,6 +161,16 @@ def channel_addowner():
     return dumps({})
 
 
+@APP.route("/channel/removeowner/v1", methods=['POST'])
+def channel_removeowner():
+    payload = request.get_json()
+    token = payload['token']
+    channel_id = payload['channel_id']
+    u_id = payload['user_id']
+    channel_removeowner_v1(token, channel_id, u_id)
+    return dumps({})
+
+
 @APP.route("/clear/v1", methods=["DELETE"])
 def clear():
     clear_v1()
