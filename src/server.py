@@ -132,9 +132,9 @@ def channel_invite():
     channel_invite_v2(token, payload['channel_id'], payload['u_id'])
     return dumps({})    
 
-@APP.route("/clear/v1", methods=["DELETE"])
+@APP.route("/clear/v2", methods=["DELETE"])
 def clear():
-    clear_v1()
+    clear_v2()
     return dumps({})
 
 @APP.route("/user/profile/v1", methods=['GET'])
