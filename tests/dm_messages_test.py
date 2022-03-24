@@ -188,6 +188,61 @@ def test_dm_messages_functionality(post_test_user, fixture_bob, fixture_george):
     ######
 
 
+def test_dm_messages_functionality_multiple(post_test_user, fixture_bob, fixture_george):
+    dm_id1 = requests.post(f'{config.url}dm/create/v1', json={
+        'token': post_test_user['token'],
+        'u_ids': [fixture_bob['auth_user_id']]
+    })
+
+    dm_id2 = requests.post(f'{config.url}dm/create/v1', json={
+        'token': post_test_user['token'],
+        'u_ids': [fixture_bob['auth_user_id']]
+    })
+
+    # Put 50 msgs in dm1
+    for idx in range(0, 50):
+        requests.post(f'{config.url}message/senddm/v1', json={
+            'token': post_test_user['token'],
+            'dm_id': dm_id1.json()['dm_id'],
+            'message': "Hello World"})
+
+    # Put 50 msgs in dm2
+    for idx in range(0, 50):
+        requests.post(f'{config.url}message/senddm/v1', json={
+            'token': post_test_user['token'],
+            'dm_id': dm_id2.json()['dm_id'],
+            'message': "Hello World"})
+
+    dm_messages1 = requests.get(f'{config.url}dm/messages/v1', params={
+        'token': post_test_user['token'],
+        'dm_id': dm_id1.json()['dm_id'],
+        'start': 0
+    })
+
+    # Checks that msg ids are based on all total msgs in all dms/channels
+    # Similar to a global msg id var
+
+    assert dm_messages1.status_code == 200
+    dm_messages1_info = dm_messages1.json()['messages']
+    for idx in range(0, 50):
+        assert dm_messages1_info[idx]['message_id'] == 50 - idx
+        assert dm_messages1_info[idx]['sender_id'] == post_test_user['auth_user_id']
+        assert dm_messages1_info[idx]['message'] == "Hello World"
+
+    dm_messages2 = requests.get(f'{config.url}dm/messages/v1', params={
+        'token': post_test_user['token'],
+        'dm_id': dm_id2.json()['dm_id'],
+        'start': 0
+    })
+
+    assert dm_messages2.status_code == 200
+    dm_messages2_info = dm_messages2.json()['messages']
+    for idx in range(0, 50):
+        assert dm_messages2_info[idx]['message_id'] == 100 - idx
+        assert dm_messages2_info[idx]['sender_id'] == post_test_user['auth_user_id']
+        assert dm_messages2_info[idx]['message'] == "Hello World"
+
+
 def test_dm_messages_functionality_120(post_test_user, fixture_bob, fixture_george):
 
     dm_id = requests.post(f'{config.url}dm/create/v1', json={
