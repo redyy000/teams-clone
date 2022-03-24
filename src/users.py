@@ -27,7 +27,7 @@ def users_list_all_v1(token):
 
     datastore = load_data()
     user_list = [user_profile_v1(token, user['u_id'])['user']
-                 for user in datastore['users']]
+                 for user in datastore['users'] if user['is_deleted'] == False]
 
     return {
         'users': user_list
