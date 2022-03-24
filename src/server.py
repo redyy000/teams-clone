@@ -12,9 +12,9 @@ from flask import Flask, request, abort
 from flask_cors import CORS
 from src.auth import auth_register_v2, auth_login_v2, auth_logout_v1
 from src.other import clear_v1
-
-
-from src.dm import dm_create_v1, dm_details_v1, dm_list_v1, dm_remove_v1, dm_leave_v1, message_senddm_v1, dm_messages_v1
+from src.channels import channels_create_v2, channels_list_v2, channels_listall_v2
+from src.channel import channel_invite_v2, channel_join_v2, channel_messages_v2
+from src.dm import dm_create_v1, dm_details_v1, dm_list_v1, dm_remove_v1, dm_leave_v1
 
 # dm_messages_v1
 
@@ -71,12 +71,6 @@ def auth_register():
     return dumps(resp)
 
 
-@APP.route("/clear/v1", methods=["DELETE"])
-def clear():
-    clear_v1()
-    return dumps({})
-
-
 @APP.route("/auth/login/v2", methods=['POST'])
 def auth_login():
     arguments = request.get_json()
@@ -86,11 +80,55 @@ def auth_login():
 
 @APP.route("/auth/logout/v1", methods=['POST'])
 def auth_logout():
-
     arguments = request.get_json()
     resp = auth_logout_v1(arguments['token'])
     return dumps(resp)
+    
+@APP.route("/channels/create/v2", methods = ["POST"])
+def channels_create():
+    arguments = request.get_json()
+    resp = channels_create_v2(arguments["token"], arguments["name"], arguments["is_public"])
+    return dumps(resp)
 
+@APP.route("/channel/messages/v2", methods=['GET'])
+def channel_messages():
+    token = request.args.get('token', )
+    channel_id = request.args.get('channel_id', type = int)
+    start = request.args.get('start', type = int)
+    returnvalue = channel_messages_v2(token, channel_id, start)
+    return dumps(returnvalue)  
+    
+@APP.route("/channels/list/v2", methods=["GET"])
+def channels_list():
+    token = request.args.get('token')
+    resp = channels_list_v2(token)
+    return dumps(resp)    
+    
+@APP.route("/channels/listall/v2", methods=['GET'])
+def channels_listall():
+    token = request.args.get('token')
+    returnvalue = channels_listall_v2(token)
+    return dumps(returnvalue)   
+    
+@APP.route("/channel/join/v2", methods=['POST'])
+def channel_join():
+    payload = request.get_json()
+    token = payload['token']
+    channel_join_v2(token, payload['channel_id'])
+    return dumps({})
+
+
+@APP.route("/channel/invite/v2", methods=['POST'])
+def channel_invite():
+    payload = request.get_json()
+    token = payload['token']
+    channel_invite_v2(token, payload['channel_id'], payload['u_id'])
+    return dumps({})    
+
+@APP.route("/clear/v1", methods=["DELETE"])
+def clear():
+    clear_v1()
+    return dumps({})
 
 @APP.route("/user/profile/v1", methods=['GET'])
 def user_profile_get():
@@ -162,6 +200,9 @@ def dm_details():
     resp = dm_details_v1(
         token, dm_id)
     return dumps(resp)
+
+        
+
 
 
 @APP.route("/dm/leave/v1", methods=['POST'])
