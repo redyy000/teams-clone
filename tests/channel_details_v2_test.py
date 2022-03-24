@@ -4,9 +4,8 @@ import json
 from src import config
 from src.user import user_profile_v1
 from src.channels import channels_create_v2
-from src.channel import channel_invite_v2
+from src.channel import channel_invite_v2, channel_details_v2
 from src.auth import auth_register_v2
-from src import channel_details_v2
 
 
 @pytest.fixture
