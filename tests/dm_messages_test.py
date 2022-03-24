@@ -186,3 +186,82 @@ def test_dm_messages_functionality(post_test_user, fixture_bob, fixture_george):
     })
     assert dm_messages.status_code == 200
     ######
+
+
+def test_dm_messages_functionality_120(post_test_user, fixture_bob, fixture_george):
+
+    dm_id = requests.post(f'{config.url}dm/create/v1', json={
+        'token': post_test_user['token'],
+        'u_ids': [fixture_bob['auth_user_id']]
+    })
+    # First 25 Messages
+    for idx in range(0, 25):
+        requests.post(f'{config.url}message/senddm/v1', json={
+            'token': fixture_bob['token'],
+            'dm_id': dm_id.json()['dm_id'],
+            'message': "Goodbye World"})
+    # Next 50 Messages
+    for idx in range(0, 50):
+        requests.post(f'{config.url}message/senddm/v1', json={
+            'token': post_test_user['token'],
+            'dm_id': dm_id.json()['dm_id'],
+            'message': "Hello World"})
+    # Next 50 Messages
+    for idx in range(0, 50):
+        requests.post(f'{config.url}message/senddm/v1', json={
+            'token': fixture_bob['token'],
+            'dm_id': dm_id.json()['dm_id'],
+            'message': "Evening World"})
+
+    dm_messages1 = requests.get(f'{config.url}dm/messages/v1', params={
+        'token': post_test_user['token'],
+        'dm_id': dm_id.json()['dm_id'],
+        'start': 0
+    })
+
+    dm_messages2 = requests.get(f'{config.url}dm/messages/v1', params={
+        'token': post_test_user['token'],
+        'dm_id': dm_id.json()['dm_id'],
+        'start': 50
+    })
+
+    dm_messages3 = requests.get(f'{config.url}dm/messages/v1', params={
+        'token': post_test_user['token'],
+        'dm_id': dm_id.json()['dm_id'],
+        'start': 100
+    })
+
+    assert dm_messages1.status_code == 200
+    dm_messages1_info = dm_messages1.json()['messages']
+    assert len(dm_messages1_info) == 50
+
+    for idx in range(0, 50):
+        assert dm_messages1_info[idx]['message_id'] == 125 - idx
+        assert dm_messages1_info[idx]['sender_id'] == fixture_bob['auth_user_id']
+        assert dm_messages1_info[idx]['message'] == "Evening World"
+
+    assert dm_messages1.json()['end'] == 50
+    assert dm_messages1.json()['start'] == 0
+
+    assert dm_messages2.status_code == 200
+    dm_messages2_info = dm_messages2.json()['messages']
+    assert len(dm_messages2_info) == 50
+
+    for idx in range(0, 50):
+        assert dm_messages2_info[idx]['message_id'] == 75 - idx
+        assert dm_messages2_info[idx]['sender_id'] == post_test_user['auth_user_id']
+        assert dm_messages2_info[idx]['message'] == "Hello World"
+
+    assert dm_messages2.json()['end'] == 100
+    assert dm_messages2.json()['start'] == 50
+
+    assert dm_messages3.status_code == 200
+    dm_messages3_info = dm_messages3.json()['messages']
+    assert len(dm_messages3_info) == 25
+    for idx in range(0, 25):
+        assert dm_messages3_info[idx]['message_id'] == 25 - idx
+        assert dm_messages3_info[idx]['sender_id'] == fixture_bob['auth_user_id']
+        assert dm_messages3_info[idx]['message'] == "Goodbye World"
+
+    assert dm_messages3.json()['end'] == -1
+    assert dm_messages3.json()['start'] == 100

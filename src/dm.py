@@ -464,13 +464,18 @@ def dm_messages_v1(token, dm_id, start):
     dm_list = datastore['dms']
     dm_selected = dm_list[dm_id - 1]
     dm_messages = dm_selected['messages']
-    message_list = []
 
-    i = 0
-    for message_dict in dm_messages:
-        message_list.append(message_dict)
-        i += 1
-    if i < 50:
+    message_list = []
+    recent_message_list = dm_messages[::-1]
+
+    end_fail = False
+    for idx in range(start, start + 50):
+        try:
+            message_list.append(recent_message_list[idx])
+        except:
+            end_fail = True
+            break
+    if end_fail == True:
         end = -1
     else:
         end = start + 50
