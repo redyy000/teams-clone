@@ -10,7 +10,7 @@ SECRET = "RICHARDRYANDANIELMAXTAYLA"
 BASE_URL = "http://127.0.0.1:{config.port}"
 
 
-def clear_v1():
+def clear_v2():
     '''
     Input Types:
     None
