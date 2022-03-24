@@ -3,8 +3,7 @@ from src.channels import channels_create_v2, channels_list_v2
 from src.error import InputError, AccessError
 from json import dumps, dump, load
 from flask import Flask, request
-from src.other import store_data, load_data, is_valid_token, is_valid_user
-
+from src.other import store_data, load_data, is_valid_token
 
 def channel_invite_v2(token, channel_id, u_id):
     '''
