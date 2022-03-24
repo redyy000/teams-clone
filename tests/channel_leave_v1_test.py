@@ -25,7 +25,7 @@ def initialise_channel(token):
                                                                       'is_public': True})
     return channel
 
-def test_channel_leave_v1_simple_success(initialise_member):
+def test_channel_leave_v1_success(initialise_member):
     register = initialise_member.json()
     token = register['token']
     variable = initialise_channel(token).json()
@@ -39,7 +39,7 @@ def test_channel_leave_v1_simple_success(initialise_member):
     token2 = user2['token']
     requests.post(f"{config.url}channel/invite/v2", json={'token': token,
                                                                    'channel_id': channel_id,
-                                                                   'u_id': u_id2})
+                                                                   'user_id': u_id2})
 
     leave = requests.post(f"{config.url}channel/leave/v1", json= {'token': token,
                                                                   'channel_id': channel_id})
@@ -55,4 +55,24 @@ def test_channel_leave_v1_simple_success(initialise_member):
                             'name_first': 'bing',
                             'name_last': 'rong',
                             'u_id': 2}]}
+    
+def test_channel_leave_v1_invalid_channel(initialise_member):
+    register = initialise_member.json()
+    token = register['token']
+    leave = requests.post(f"{config.url}channel/leave/v1", json= {'token': token,
+                                                                  'channel_id': 1})
+    assert leave.status_code == 400
 
+def test_channel_leave_v1_invalid_user(initialise_member):
+    register = initialise_member.json()
+    token = register['token']
+    variable = initialise_channel(token).json()
+    channel_id = variable['channel_id']
+    register2 = requests.post(f"{config.url}auth/register/v2", json={'email': 'test@bing.com',
+                                                                    'password': 'justjack001',
+                                                                    'name_first': 'bing',
+                                                                    'name_last': 'rong'})
+    token2 = register2.json()['token']
+    leave = requests.post(f"{config.url}channel/leave/v1", json= {'token': token2,
+                                                                  'channel_id': channel_id})
+    assert leave.status_code == 403
