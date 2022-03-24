@@ -84,7 +84,7 @@ def create_handle_str(store, name_first, name_last):
 
 
     Exceptions:
-        None    
+        None
 
     Return Value:
         Returns newly created handle_str
@@ -120,7 +120,7 @@ def auth_register_v2(email, password, name_first, name_last):
     '''
     Given an email, password, name_first and name_last, create a new handle_str and auth_user_id
     Proceed to save this new user as a dictionary containing the given inputs as well as handle_str and auth_user_id
-    Dictionary will enter the DataStore class as part of the dictionary key 'users' list. 
+    Dictionary will enter the DataStore class as part of the dictionary key 'users' list.
 
 
     ARGUMENTS:
@@ -134,7 +134,7 @@ def auth_register_v2(email, password, name_first, name_last):
         InputError  - Occurs when name_first string is not between 1-50 characters inclusive.
         InputError  - Occurs when name_last string is not between 1-50 characters inclusive.
         InputError  - Occurs when email string is not a valid regular expression.
-        InputError  - Occurs when email string matches an already existing entry. 
+        InputError  - Occurs when email string matches an already existing entry.
         InputError  - Occurs when password is not 6 or more characters long.
 
 
@@ -173,6 +173,13 @@ def auth_register_v2(email, password, name_first, name_last):
     # Create auth_user_id
     auth_user_id = len(store['users']) + 1
 
+    # Create a seams permission id
+    # 1 == Global Owner, automatically assigned to the first registered user
+    # 2 == Normal member
+    permission_id = 2
+    if len(store['users']) == 0:
+        permission_id = 1
+
     # Create user dictionary
     user = {
         'u_id': auth_user_id,
@@ -181,7 +188,9 @@ def auth_register_v2(email, password, name_first, name_last):
         'name_first': name_first,
         'name_last': name_last,
         'handle_str': create_handle_str(store, name_first, name_last),
-        'session_id_list': [1]
+        'session_id_list': [1],
+        'permission_id': permission_id,
+        'is_deleted': False
     }
 
     store['users'].append(user)
