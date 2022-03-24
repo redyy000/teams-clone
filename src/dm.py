@@ -455,7 +455,7 @@ def dm_messages_v1(token, dm_id, start):
     # message_count = sum([len(dm['messages']) for dm in datastore['dms']])
 
     # Check starting id is valid
-    if start >= message_count:
+    if start >= message_count or isinstance(start, int) == False or start < 0:
         raise InputError(description='Start index is too high!')
 
     # Temporary end variable
