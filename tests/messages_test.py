@@ -160,10 +160,39 @@ def test_messages_senddm_success(setup_users):
 
     message_list = response2['messages']
 
-    # FIX NON BLACKBOX
-
-    assert message_list[0]['message_id'] == 1
     assert message_list[0]['sender_id'] == user1['auth_user_id']
     assert message_list[0]['message'] == "Hello World"
 
     assert response2['end'] == -1
+
+
+def test_messages_senddm_multiple_dms(setup_users):
+    user1 = setup_users[0]
+    user2 = setup_users[1]
+    user3 = setup_users[2]
+
+    token_id1 = user1['token']
+    u_id2 = user2['auth_user_id']
+    u_id3 = user3['auth_user_id']
+
+    dm_id_1 = requests.post(f'{config.url}dm/create/v1', json={
+        'token': token_id1,
+        'u_ids': [u_id2, u_id3]})
+
+    dm_id_2 = requests.post(f'{config.url}dm/create/v1', json={
+        'token': token_id1,
+        'u_ids': [u_id2, u_id3]})
+
+    response1 = requests.post(f'{config.url}message/senddm/v1', json={
+        'token': token_id1,
+        'dm_id': dm_id_1.json()['dm_id'],
+        'message': "Hello World"})
+
+    assert response1.status_code == 200
+
+    response2 = requests.post(f'{config.url}message/senddm/v1', json={
+        'token': token_id1,
+        'dm_id': dm_id_2.json()['dm_id'],
+        'message': "Goodbye World"})
+
+    assert response2.status_code == 200
