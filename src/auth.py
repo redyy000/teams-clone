@@ -173,6 +173,13 @@ def auth_register_v2(email, password, name_first, name_last):
     # Create auth_user_id
     auth_user_id = len(store['users']) + 1
 
+    # Create a seams permission id
+    # 1 == Global Owner, automatically assigned to the first registered user
+    # 2 == Normal member
+    seams_permission_id = 2
+    if len(store['users'] == 0):
+        seams_permission_id = 1
+
     # Create user dictionary
     user = {
         'u_id': auth_user_id,
@@ -181,7 +188,8 @@ def auth_register_v2(email, password, name_first, name_last):
         'name_first': name_first,
         'name_last': name_last,
         'handle_str': create_handle_str(store, name_first, name_last),
-        'session_id_list': [1]
+        'session_id_list': [1],
+        'seams_permission_id': seams_permission_id
     }
 
     store['users'].append(user)
