@@ -206,3 +206,78 @@ def channel_join_v2(token, channel_id):
 
     return {
     }
+
+def channel_details_v2(token, channel_id):
+    '''
+    Function: Given a channel with ID channel_id that the authorised user is a member of, provide basic details about the channel.
+    Arguments:
+        token (string)- an authorisation hash of the user.
+        channel_id (integer)  - id number of channel generated at creation.
+    Exceptions:
+        InputError    -    Occurs when channel id is invalid.
+        InputError    -    Occurs when backend detail collection is not successful
+        AccessError   -    Occurs when user attempting to access details is not a memnber of the channel.
+        AccessError   -    Occurs when user id is invalid
+
+    Return Value:
+        Returns {name, is_public, owner_members, all_members} on successful access to details
+    '''
+    user_info = is_valid_token(token)
+    if user_info == False:
+        raise AccessError(description = "Invalid Token")
+    auth_user_id = user_info['u_id']
+    store = load_data()
+    # Checks to see if entered channel id exists
+    is_channelfound = False
+    for channels in store['channels']:
+        if channels['channel_id'] == channel_id:
+            is_channelfound = True
+    # Checks to see if the channel_id is valid
+    if is_channelfound == False or isinstance(channel_id, int) != True:
+        raise InputError(description = f"Channel ID {channel_id} is invalid. ")
+    # Given a channel ID, find the correct channel and see if user is member
+    is_member = False
+    for channels in store['channels']:
+        if channels['channel_id'] == channel_id:
+            for member in channels['all_members']:
+                if auth_user_id == member['user_id']:
+                    is_member = True
+    if is_member == False:
+        raise AccessError(
+            description=f"User ID {auth_user_id} is not a member of channel (Channel ID {channel_id}).")
+# Collect details
+    for channels in store['channels']:
+        if channels['channel_id'] == channel_id:
+            channel_members = []
+            channel_owners = []
+            channel_name = channels['name']
+            channel_public = channels['is_public']
+            for u_id in channels['owner_members']:
+                for user in store['users']:
+                    if u_id == user['u_id']:
+                        new_owner = {
+                            'u_id': user['u_id'],
+                            'email': user['email'],
+                            'name_first': user['name_first'],
+                            'name_last': user['name_last'],
+                            'handle_str': user['handle_str'],
+                        }
+                        channel_owners.append(new_owner)
+            for member in channels['all_members']:
+                for user in store['users']:
+                    if member['user_id'] == user['u_id']:
+                        new_user = {
+                            'u_id': user['u_id'],
+                            'email': user['email'],
+                            'name_first': user['name_first'],
+                            'name_last': user['name_last'],
+                            'handle_str': user['handle_str'],
+                        }
+                        channel_members.append(new_user)
+    return {
+        'name': channel_name,
+        'is_public': channel_public,
+        'owner_members': channel_owners,
+        'all_members': channel_members
+    }
+
