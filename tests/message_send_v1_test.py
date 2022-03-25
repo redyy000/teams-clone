@@ -208,6 +208,7 @@ def test_message_send_multiple_users(setup_users):
         'u_id': setup_users[2]['auth_user_id']
     })
     assert invite_user2.status_code == 200
+
     # send messages between members
     user2_message = requests.post(f"{config.url}message/send/v1", json={
         "token": setup_users[2]['token'],
@@ -215,9 +216,7 @@ def test_message_send_multiple_users(setup_users):
         "message": 'Welcome to the jungle.'
     })
     assert user2_message.status_code == 200
-
     message_id1 = user2_message.json()['message_id']
-    assert message_id1 == 1
 
     user1_message = requests.post(f"{config.url}message/send/v1", json={
         "token": setup_users[1]['token'],
@@ -227,4 +226,18 @@ def test_message_send_multiple_users(setup_users):
     assert user1_message.status_code == 200
 
     message_id2 = user1_message.json()['message_id']
-    assert message_id2 == 2
+
+    # assert message_id2 == 2
+
+    messages_response = requests.get(f'{config.url}/channel/messages/v2', params={
+        'token': setup_users[0]['token'],
+        'channel_id': channel_id,
+        'start': 0
+    })
+
+    message_list = messages_response.json()['messages']
+    for message_dict in message_list:
+        if message_dict['message'] == 'Welcome to the jungle.':
+            assert message_id1 == message_dict['message_id']
+        if message_dict['message'] == "We've got fun and games":
+            assert message_id2 == message_dict['message_id']
