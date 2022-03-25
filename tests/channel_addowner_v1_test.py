@@ -40,7 +40,7 @@ def test_channel_addowner_v1_invalid_token(initialise_member):
                                                                         'user_id': u_id2})
     assert addowner.status_code == 403
 
-def test_channel_addowner_invalid_channel(initialise_member):
+def test_channel_addowner_v1_invalid_channel(initialise_member):
     register = initialise_member.json()
     token = register['token']
     register2 = requests.post(f"{config.url}auth/register/v2", json={'email': 'test@bing.com',
@@ -53,7 +53,7 @@ def test_channel_addowner_invalid_channel(initialise_member):
                                                                         'user_id': u_id2})
     assert addowner.status_code == 400
 
-def test_channel_addowner_invalid_user(initialise_member):
+def test_channel_addowner_v1_invalid_user(initialise_member):
     register = initialise_member.json()
     token = register['token']
     variable = initialise_channel(token).json()
@@ -63,7 +63,7 @@ def test_channel_addowner_invalid_user(initialise_member):
                                                                         'user_id': 3})
     assert addowner.status_code == 400
 
-def test_channel_addowner_non_member(initialise_member):
+def test_channel_addowner_v1_non_member(initialise_member):
     register = initialise_member.json()
     token = register['token']
     variable = initialise_channel(token).json()
@@ -78,7 +78,7 @@ def test_channel_addowner_non_member(initialise_member):
                                                                         'user_id': u_id2})
     assert addowner.status_code == 400
 
-def test_channel_addowner_owner(initialise_member):
+def test_channel_addowner_v1_owner(initialise_member):
     register = initialise_member.json()
     token = register['token']
     variable = initialise_channel(token).json()

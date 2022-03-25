@@ -53,17 +53,17 @@ def test_channel_removeowner_v1_invalid_token(initialise_member):
                                                                               'user_id': u_id2})
     assert removeowner.status_code == 403
 
-def test_channel_removeowner_invalid_user(initialise_member):
+def test_channel_removeowner_v1_invalid_user(initialise_member):
     register = initialise_member.json()
     token = register['token']
     variable = initialise_channel(token).json()
     channel_id = variable['channel_id']
-    removeowner = requests.post(f"{config.url}channel/addowner/v1", json= {'token': token,
-                                                                           'channel_id': channel_id,
-                                                                           'user_id': 3})
+    removeowner = requests.post(f"{config.url}channel/removeowner/v1", json= {'token': token,
+                                                                              'channel_id': channel_id,
+                                                                              'user_id': 3})
     assert removeowner.status_code == 400
 
-def test_channel_removeowner_non_member(initialise_member):
+def test_channel_removeowner_v1_non_member(initialise_member):
     register = initialise_member.json()
     token = register['token']
     variable = initialise_channel(token).json()
@@ -78,7 +78,7 @@ def test_channel_removeowner_non_member(initialise_member):
                                                                               'user_id': u_id2})
     assert removeowner.status_code == 200
 
-def test_channel_removeowner_non_owner(initialise_member):
+def test_channel_removeowner_v1_non_owner(initialise_member):
     register = initialise_member.json()
     token = register['token']
     variable = initialise_channel(token).json()
@@ -96,7 +96,7 @@ def test_channel_removeowner_non_owner(initialise_member):
                                                                               'user_id': u_id2})
     assert removeowner.status_code == 400
 
-def test_channel_removeowner_only_owner(initialise_member):
+def test_channel_removeowner_v1_only_owner(initialise_member):
     register = initialise_member.json()
     token = register['token']
     u_id1 = register['auth_user_id']
