@@ -4,6 +4,34 @@ from src import config
 
 
 @pytest.fixture
+def setup_users():
+    requests.delete(f'{config.url}clear/v1')
+    userlist = []
+    response1 = requests.post(f'{config.url}auth/register/v2', json={'email': "dlin@gmail.com",
+                                                                     'password': "password",
+                                                                     'name_first': "daniel",
+                                                                     'name_last': "lin"})
+
+    response2 = requests.post(f'{config.url}auth/register/v2', json={'email': "rxue@gmail.com",
+                                                                     'password': "password",
+                                                                     'name_first': "richard",
+                                                                     'name_last': "xue"})
+
+    response3 = requests.post(f'{config.url}auth/register/v2', json={'email': "ryan@gmail.com",
+                                                                     'password': "password",
+                                                                     'name_first': "ryan",
+                                                                     'name_last': "godakanda"})
+
+    user1_info = (response1.json())
+    user2_info = (response2.json())
+    user3_info = (response3.json())
+    userlist.append(user1_info)
+    userlist.append(user2_info)
+    userlist.append(user3_info)
+    return userlist
+
+
+@pytest.fixture
 def post_test_user():
     return test_user()
 
@@ -144,6 +172,36 @@ def test_dm_messages_invalid_start(post_test_user, fixture_bob, fixture_george):
     })
 
     assert dm_messages.status_code == 400
+
+
+def test_dm_messages_start_one_one_message(setup_users):
+
+    owner = setup_users[0]
+    member1 = setup_users[1]
+    member2 = setup_users[2]
+
+    dm = requests.post(f'{config.url}dm/create/v1', json={
+        'token': owner['token'],
+        'u_ids': [member1['auth_user_id'], member2['auth_user_id']]
+    })
+
+    requests.post(f'{config.url}message/senddm/v1', json={
+        'token': owner['token'],
+        'dm_id': dm.json()['dm_id'],
+        'message': 'bruh '})
+
+    # Since there is 1 message and start is 1, result should be empty list
+    messages_response = requests.get(f'{config.url}/dm/messages/v1', params={
+        'token': owner['token'],
+        'dm_id': dm.json()['dm_id'],
+        'start': 1
+    })
+
+    message_list = messages_response.json()
+    assert message_list['start'] == 1
+    assert message_list['end'] == -1
+    assert len(message_list['messages']) == 0
+    assert messages_response.status_code == 200
 
 
 def test_dm_messages_unauthorised_user(post_test_user, fixture_bob, fixture_george):

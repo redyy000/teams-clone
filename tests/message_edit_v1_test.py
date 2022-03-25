@@ -246,14 +246,17 @@ def test_message_edit_dms_empty(setup_users):
 
     assert edit_response.status_code == 200
 
-    # Since there are no messages, dm/messages will return an input error.
     messages_response = requests.get(f'{config.url}/dm/messages/v1', params={
         'token': setup_users[0]['token'],
         'dm_id': dm.json()['dm_id'],
         'start': 0
     })
 
-    assert messages_response.status_code == 400
+    message_list = messages_response.json()
+    assert message_list['start'] == 0
+    assert message_list['end'] == -1
+    assert len(message_list['messages']) == 0
+    assert messages_response.status_code == 200
 
 
 def test_message_edit_dms_invalid_sender(setup_users):
