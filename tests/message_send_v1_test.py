@@ -184,7 +184,7 @@ def test_message_send_unauthorised_user(setup_users):
     assert message_response.status_code == 403
 
 
-def test_message_send_multiple_users(setup_users):
+def test_message_send_multiple_users_in_channel(setup_users):
     # create the channel
     channel_response = requests.post(f"{config.url}channels/create/v2", json={
         "token": setup_users[0]['token'],
@@ -241,3 +241,65 @@ def test_message_send_multiple_users(setup_users):
             assert message_id1 == message_dict['message_id']
         if message_dict['message'] == "We've got fun and games":
             assert message_id2 == message_dict['message_id']
+
+
+def test_message_send_multiple_users_in_dm(setup_users):
+    # create dm
+    owner = setup_users[0]
+    user1 = setup_users[1]
+    user2 = setup_users[2]
+
+    dm_response = requests.post(f'{config.url}dm/create/v1', json={
+        'token': owner['token'],
+        'u_ids': [user1['auth_user_id'], user2['auth_user_id']]
+    })
+    assert dm_response.status_code == 200
+    dm_id = dm_response.json()['dm_id']
+
+    dm_details = requests.get(f'{config.url}dm/details/v1', params={
+        'token': owner['token'],
+        'dm_id': dm_response.json()['dm_id']
+    })
+    dm_id = dm_response.json()['dm_id']
+
+    # send multiple dms
+    dm1 = requests.post(f'{config.url}message/senddm/v1', json={
+        'token': owner['token'],
+        'dm_id': dm_id,
+        'message': "Billy Jean is"
+    })
+    assert dm1.status_code == 200
+    message_id1 = dm1.json()['message_id']
+
+    dm2 = requests.post(f'{config.url}message/senddm/v1', json={
+        'token': user1['token'],
+        'dm_id': dm_id,
+        'message': "not my lover"
+    })
+    assert dm2.status_code == 200
+    message_id2 = dm2.json()['message_id']
+
+    dm3 = requests.post(f'{config.url}message/senddm/v1', json={
+        'token': user2['token'],
+        'dm_id': dm_id,
+        'message': "She's just a girl who claims that I am the one"
+    })
+    assert dm3.status_code == 200
+    message_id3 = dm3.json()['message_id']
+
+    # test responses
+    dm_messages = requests.get(f'{config.url}dm/messages/v1', params={
+        'token': owner['token'],
+        'dm_id': dm_id,
+        'start': 0
+    })
+    assert dm_messages.status_code == 200
+
+    message_list = dm_messages.json()['messages']
+    for dm_dict in message_list:
+        if dm_dict['message'] == 'Billy Jean is':
+            assert message_id1 == dm_dict['message_id']
+        if dm_dict['message'] == "not my lover":
+            assert message_id2 == dm_dict['message_id']
+        if dm_dict['message'] == "She's just a girl who claims that I am the one":
+            assert message_id3 == dm_dict['message_id']
