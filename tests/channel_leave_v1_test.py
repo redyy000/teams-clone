@@ -125,7 +125,7 @@ def test_channel_leave_v1_global_owner(initialise_member):
                                                                     'password': 'justjack001',
                                                                     'name_first': 'bing',
                                                                     'name_last': 'rong'})
-    token2 = register2['token']
+    token2 = register2.json()['token']
     variable = initialise_channel(token2).json()
     channel_id = variable['channel_id']
     requests.post(f"{config.url}channel/invite/v2", json={'token': token2,

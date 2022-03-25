@@ -181,7 +181,7 @@ def test_channel_addowner_v1_success2(initialise_member):
                                                                      'name_last': 'rong'})
     u_id2 = register2.json()['auth_user_id']
     channel2 = requests.post(f"{config.url}channels/create/v2", json= {'token': token,
-                                                                       'name': 'General',
+                                                                       'name': 'Channel 2',
                                                                        'is_public': True})
     channel_id2 = channel2.json()['channel_id']
     requests.post(f"{config.url}channel/invite/v2", json={'token': token,

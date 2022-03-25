@@ -181,7 +181,12 @@ def test_channel_removeowner_v1_success(initialise_member):
 def test_channel_removeowner_v1_success2(initialise_member):
     register = initialise_member.json()
     token = register['token']
-    u_id1 = register['auth_user_id']
+    register['auth_user_id']
+    register2 = requests.post(f"{config.url}auth/register/v2", json={'email': 'anothertest@gmail.com',
+                                                                     'password': 'securepassword',
+                                                                     'name_first': 'Jane',
+                                                                     'name_last': 'Doe'})
+    u_id2 = register2.json()['auth_user_id']
     initialise_channel(token)
     channel2 = requests.post(f"{config.url}channels/create/v2", json= {'token': token,
                                                                        'name': 'Channel 2',
