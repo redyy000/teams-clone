@@ -4,6 +4,34 @@ import requests
 
 
 @pytest.fixture
+def setup_users():
+    requests.delete(f'{config.url}clear/v1')
+    userlist = []
+    response1 = requests.post(f'{config.url}auth/register/v2', json={'email': "dlin@gmail.com",
+                                                                     'password': "password",
+                                                                     'name_first': "daniel",
+                                                                     'name_last': "lin"})
+
+    response2 = requests.post(f'{config.url}auth/register/v2', json={'email': "rxue@gmail.com",
+                                                                     'password': "password",
+                                                                     'name_first': "richard",
+                                                                     'name_last': "xue"})
+
+    response3 = requests.post(f'{config.url}auth/register/v2', json={'email': "ryan@gmail.com",
+                                                                     'password': "password",
+                                                                     'name_first': "ryan",
+                                                                     'name_last': "godakanda"})
+
+    user1_info = response1.json()
+    user2_info = response2.json()
+    user3_info = response3.json()
+    userlist.append(user1_info)
+    userlist.append(user2_info)
+    userlist.append(user3_info)
+    return userlist
+
+
+@pytest.fixture
 # Returns a JSON file with status code and data
 def initialise_test():
     '''
@@ -54,6 +82,45 @@ def test_register_v2_success():
     # Check data is correct
     assert data[]
     '''
+
+
+def test_register_v2_success_removed_user(setup_users):
+    owner = setup_users[0]
+    member1 = setup_users[1]
+    # Remove george :(
+    requests.delete(f"{config.url}/admin/user/remove/v1", json={
+        'token': owner['token'],
+        'u_id': member1['auth_user_id'],
+    })
+
+    response1 = requests.get(f"{config.url}/user/profile/v1", params={
+        'token': owner['token'],
+        'u_id': member1['auth_user_id']
+    })
+
+    user_dict = response1.json()['user']
+    assert response1.status_code == 200
+    assert user_dict['email'] == ''
+    assert user_dict['name_first'] == 'Removed'
+    assert user_dict['name_last'] == 'user'
+    assert user_dict['handle_str'] == ''
+
+    # Asserting that removed handles and emails are reusable
+    register_response = register_user(
+        'rxue@gmail.com', 'password', 'richard', 'xue')
+    assert register_response.status_code == 200
+
+    response2 = requests.get(f"{config.url}/user/profile/v1", params={
+        'token': owner['token'],
+        'u_id': register_response.json()['auth_user_id']
+    })
+
+    user_dict = response2.json()['user']
+    assert response2.status_code == 200
+    assert user_dict['email'] == 'rxue@gmail.com'
+    assert user_dict['name_first'] == 'richard'
+    assert user_dict['name_last'] == 'xue'
+    assert user_dict['handle_str'] == 'richardxue'
 
 
 def test_register_v2_long_handle():
