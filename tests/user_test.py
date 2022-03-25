@@ -125,6 +125,29 @@ def test_user_profile_functionality(post_test_user):
     assert george_dict['handle_str'] == 'georgemonkey'
 
 
+def test_user_profile_functionality_admin_remove(post_test_user):
+
+    george_info = post_george()
+
+    # Remove george :(
+    requests.delete(f"{config.url}/admin/user/remove/v1", json={
+        'token': post_test_user['token'],
+        'u_id': george_info['auth_user_id'],
+    })
+
+    response1 = requests.get(f"{config.url}/user/profile/v1", params={
+        'token': post_test_user['token'],
+        'u_id': george_info['auth_user_id']
+    })
+
+    user_dict = response1.json()['user']
+    assert response1.status_code == 200
+    assert user_dict['email'] == ''
+    assert user_dict['name_first'] == 'Removed'
+    assert user_dict['name_last'] == 'user'
+    assert user_dict['handle_str'] == ''
+
+
 # USER SETEMAIL TESTS
 
 
