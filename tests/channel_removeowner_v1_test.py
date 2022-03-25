@@ -146,7 +146,7 @@ def test_channel_removeowner_v1_success(initialise_member):
                                                                     'name_first': 'Jane',
                                                                     'name_last': 'Doe'})
     u_id2 = register2.json()['auth_user_id']
-    token2 = register2.json()['token']
+    register2.json()['token']
     requests.post(f"{config.url}channel/invite/v2", json={'token': token,
                                                           'channel_id': channel_id,
                                                           'u_id': u_id2})
