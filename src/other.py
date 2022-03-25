@@ -61,16 +61,10 @@ def token_create(u_id, session_id):
         session_id (int)    - Current session id
 
     Exceptions:
-        InputError: Any given argument is NOT an integer
 
     Return Value:
         token (json)        - Token from unique user id and current session id
     '''
-
-    if isinstance(u_id, int) is False or isinstance(session_id, int) is False:
-        raise InputError(
-            description='One or more of the inputted ids are not integers!')
-
     return jwt.encode({'u_id': u_id, 'session_id': session_id}, SECRET, 'HS256')
 
 
