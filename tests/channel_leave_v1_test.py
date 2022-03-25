@@ -25,6 +25,15 @@ def initialise_channel(token):
                                                                       'is_public': True})
     return channel
 
+def test_channel_leave_v1_invalid_token(initialise_member):
+    register = initialise_member.json()
+    token = register['token']
+    variable = initialise_channel(token).json()
+    channel_id = variable['channel_id']
+    leave = requests.post(f"{config.url}channel/leave/v1", json= {'token': 3,
+                                                                  'channel_id': channel_id})
+    assert leave.status_code == 403
+
 def test_channel_leave_v1_success(initialise_member):
     register = initialise_member.json()
     token = register['token']

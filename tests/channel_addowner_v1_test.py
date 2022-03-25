@@ -25,13 +25,28 @@ def initialise_channel(token):
                                                                       'is_public': True})
     return channel
 
+def test_channel_addowner_v1_invalid_token(initialise_member):
+    register = initialise_member.json()
+    token = register['token']
+    variable = initialise_channel(token).json()
+    channel_id = variable['channel_id']
+    register2 = requests.post(f"{config.url}auth/register/v2", json={'email': 'test@bing.com',
+                                                                     'password': 'justjack001',
+                                                                     'name_first': 'bing',
+                                                                     'name_last': 'rong'})
+    u_id2 = register2.json()['auth_user_id']
+    addowner = requests.post(f"{config.url}channel/addowner/v1", json= {'token': 3,
+                                                                        'channel_id': channel_id,
+                                                                        'user_id': u_id2})
+    assert addowner.status_code == 403
+
 def test_channel_addowner_invalid_channel(initialise_member):
     register = initialise_member.json()
     token = register['token']
     register2 = requests.post(f"{config.url}auth/register/v2", json={'email': 'test@bing.com',
-                                                                    'password': 'justjack001',
-                                                                    'name_first': 'bing',
-                                                                    'name_last': 'rong'})
+                                                                     'password': 'justjack001',
+                                                                     'name_first': 'bing',
+                                                                     'name_last': 'rong'})
     u_id2 = register2.json()['auth_user_id']
     addowner = requests.post(f"{config.url}channel/addowner/v1", json= {'token': token,
                                                                         'channel_id': 1,
@@ -45,7 +60,7 @@ def test_channel_addowner_invalid_user(initialise_member):
     channel_id = variable['channel_id']
     addowner = requests.post(f"{config.url}channel/addowner/v1", json= {'token': token,
                                                                         'channel_id': channel_id,
-                                                                        'user_id': 1})
+                                                                        'user_id': 3})
     assert addowner.status_code == 400
 
 def test_channel_addowner_non_member(initialise_member):

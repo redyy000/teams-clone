@@ -38,6 +38,21 @@ def test_channel_removeowner_v1_invalid_channel(initialise_member):
                                                                               'user_id': u_id2})
     assert removeowner.status_code == 400
 
+def test_channel_removeowner_v1_invalid_token(initialise_member):
+    register = initialise_member.json()
+    token = register['token']
+    variable = initialise_channel(token).json()
+    channel_id = variable['channel_id']
+    register2 = requests.post(f"{config.url}auth/register/v2", json={'email': 'test@bing.com',
+                                                                     'password': 'justjack001',
+                                                                     'name_first': 'bing',
+                                                                     'name_last': 'rong'})
+    u_id2 = register2.json()['auth_user_id']
+    removeowner = requests.post(f"{config.url}channel/removeowner/v1", json= {'token': 3,
+                                                                              'channel_id': channel_id,
+                                                                              'user_id': u_id2})
+    assert removeowner.status_code == 403
+
 def test_channel_removeowner_invalid_user(initialise_member):
     register = initialise_member.json()
     token = register['token']
@@ -45,7 +60,7 @@ def test_channel_removeowner_invalid_user(initialise_member):
     channel_id = variable['channel_id']
     removeowner = requests.post(f"{config.url}channel/addowner/v1", json= {'token': token,
                                                                            'channel_id': channel_id,
-                                                                           'user_id': 1})
+                                                                           'user_id': 3})
     assert removeowner.status_code == 400
 
 def test_channel_removeowner_non_member(initialise_member):
@@ -136,21 +151,21 @@ def test_channel_removeowner_v1_success(initialise_member):
                                                           'channel_id': channel_id,
                                                           'u_id': u_id2})
     requests.post(f"{config.url}channel/addowner/v1", json= {'token': token,
-                                                                        'channel_id': channel_id,
-                                                                        'user_id': u_id2})
-    requests.post(f"{config.url}channel/removeowner/v1", json= {'token': token2,
-                                                                              'channel_id': channel_id,
-                                                                              'user_id': u_id1})
+                                                             'channel_id': channel_id,
+                                                             'user_id': u_id2})
+    requests.post(f"{config.url}channel/removeowner/v1", json= {'token': token,
+                                                                'channel_id': channel_id,
+                                                                'user_id': u_id2})
     details = requests.get(f'{config.url}channel/details/v2', params= {'token': token,
                                                                        'channel_id': channel_id})
     details_data = details.json()
     assert details_data == {'name': 'General',
                             'is_public': True,
-                            'owner_members': [{'u_id': u_id2,
-                                              'email': 'anothertest@gmail.com',
-                                              'name_first': 'Jane',
-                                              'name_last': 'Doe',
-                                              'handle_str': 'janedoe'}
+                            'owner_members': [{'u_id': u_id1,
+                                              'email': 'test@email.com',
+                                              'name_first': 'first_name',
+                                              'name_last': 'last_name',
+                                              'handle_str': 'firstnamelastname'}
                                              ],
                             'all_members': [{'u_id': u_id1,
                                              'email': 'test@email.com',
