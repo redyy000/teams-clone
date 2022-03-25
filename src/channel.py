@@ -163,6 +163,7 @@ def channel_messages_v2(token, channel_id, start):
         'end': end,
     }
 
+
 def channel_join_v2(token, channel_id):
     '''
     Given a channel_id of a channel that the authorised user can join, adds them to that channel.

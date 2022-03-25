@@ -29,9 +29,9 @@ def test_channel_removeowner_v1_invalid_channel(initialise_member):
     register = initialise_member.json()
     token = register['token']
     register2 = requests.post(f"{config.url}auth/register/v2", json={'email': 'test@bing.com',
-                                                                    'password': 'justjack001',
-                                                                    'name_first': 'bing',
-                                                                    'name_last': 'rong'})
+                                                                     'password': 'justjack001',
+                                                                     'name_first': 'bing',
+                                                                     'name_last': 'rong'})
     u_id2 = register2.json()['auth_user_id']
     removeowner = requests.post(f"{config.url}channel/removeowner/v1", json= {'token': token,
                                                                               'channel_id': 1,
@@ -69,9 +69,9 @@ def test_channel_removeowner_v1_non_member(initialise_member):
     variable = initialise_channel(token).json()
     channel_id = variable['channel_id']
     register2 = requests.post(f"{config.url}auth/register/v2", json={'email': 'test@bing.com',
-                                                                    'password': 'justjack001',
-                                                                    'name_first': 'bing',
-                                                                    'name_last': 'rong'})
+                                                                     'password': 'justjack001',
+                                                                     'name_first': 'bing',
+                                                                     'name_last': 'rong'})
     u_id2 = register2.json()['auth_user_id']
     removeowner = requests.post(f"{config.url}channel/removeowner/v1", json= {'token': token,
                                                                               'channel_id': channel_id,
@@ -84,9 +84,9 @@ def test_channel_removeowner_v1_non_owner(initialise_member):
     variable = initialise_channel(token).json()
     channel_id = variable['channel_id']
     register2 = requests.post(f"{config.url}auth/register/v2", json={'email': 'test@bing.com',
-                                                                    'password': 'justjack001',
-                                                                    'name_first': 'bing',
-                                                                    'name_last': 'rong'})
+                                                                     'password': 'justjack001',
+                                                                     'name_first': 'bing',
+                                                                     'name_last': 'rong'})
     u_id2 = register2.json()['auth_user_id']
     requests.post(f"{config.url}channel/invite/v2", json={'token': token,
                                                           'channel_id': channel_id,
@@ -114,9 +114,9 @@ def test_channel_removeowner_v1_no_owner_permissions(initialise_member):
     variable = initialise_channel(token).json()
     channel_id = variable['channel_id']
     register2 = requests.post(f"{config.url}auth/register/v2", json={'email': 'anothertest@gmail.com',
-                                                                    'password': 'securepassword',
-                                                                    'name_first': 'Jane',
-                                                                    'name_last': 'Doe'})
+                                                                     'password': 'securepassword',
+                                                                     'name_first': 'Jane',
+                                                                     'name_last': 'Doe'})
     u_id2 = register2.json()['auth_user_id']
     token2 = register2.json()['token']
     requests.post(f"{config.url}channel/invite/v2", json={'token': token,
@@ -142,9 +142,9 @@ def test_channel_removeowner_v1_success(initialise_member):
     variable = initialise_channel(token).json()
     channel_id = variable['channel_id']
     register2 = requests.post(f"{config.url}auth/register/v2", json={'email': 'anothertest@gmail.com',
-                                                                    'password': 'securepassword',
-                                                                    'name_first': 'Jane',
-                                                                    'name_last': 'Doe'})
+                                                                     'password': 'securepassword',
+                                                                     'name_first': 'Jane',
+                                                                     'name_last': 'Doe'})
     u_id2 = register2.json()['auth_user_id']
     register2.json()['token']
     requests.post(f"{config.url}channel/invite/v2", json={'token': token,
@@ -177,3 +177,28 @@ def test_channel_removeowner_v1_success(initialise_member):
                                               'name_first': 'Jane',
                                               'name_last': 'Doe',
                                               'handle_str': 'janedoe'}]}
+
+def test_channel_removeowner_v1_success2(initialise_member):
+    register = initialise_member.json()
+    token = register['token']
+    register['auth_user_id']
+    register2 = requests.post(f"{config.url}auth/register/v2", json={'email': 'anothertest@gmail.com',
+                                                                     'password': 'securepassword',
+                                                                     'name_first': 'Jane',
+                                                                     'name_last': 'Doe'})
+    u_id2 = register2.json()['auth_user_id']
+    initialise_channel(token)
+    channel2 = requests.post(f"{config.url}channels/create/v2", json= {'token': token,
+                                                                       'name': 'Channel 2',
+                                                                       'is_public': True})
+    variable = channel2.json()
+    channel_id2 = variable['channel_id']
+    requests.post(f"{config.url}channel/invite/v2", json={'token': token,
+                                                          'channel_id': channel_id2,
+                                                          'u_id': u_id2})
+    requests.post(f"{config.url}channel/addowner/v1", json= {'token': token,
+                                                             'channel_id': channel_id2,
+                                                             'user_id': u_id2})
+    requests.post(f"{config.url}channel/removeowner/v1", json= {'token': token,
+                                                                'channel_id': channel_id2,
+                                                                'user_id': u_id2})
