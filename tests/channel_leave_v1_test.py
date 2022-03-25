@@ -80,7 +80,7 @@ def test_channel_leave_v1_success_2(initialise_member):
                                                                        'is_public': True})
     channel_id2 = channel2.json()['channel_id']
     requests.post(f"{config.url}channel/leave/v1", json= {'token': token,
-                                                                  'channel_id': channel_id2})
+                                                          'channel_id': channel_id2})
 
 def test_channel_leave_v1_success_3(initialise_member):
     register = initialise_member.json()
@@ -88,13 +88,12 @@ def test_channel_leave_v1_success_3(initialise_member):
     variable = initialise_channel(token).json()
     channel_id = variable['channel_id']
     register2 = requests.post(f"{config.url}auth/register/v2", json={'email': 'test@bing.com',
-                                                                    'password': 'justjack001',
-                                                                    'name_first': 'bing',
-                                                                    'name_last': 'rong'})
+                                                                     'password': 'justjack001',
+                                                                     'name_first': 'bing',
+                                                                     'name_last': 'rong'})
     user2 = register2.json()
     u_id2 = user2['auth_user_id']
     token2 = user2['token']
-    # second owner wants to leave
     requests.post(f"{config.url}channel/invite/v2", json={'token': token,
                                                           'channel_id': channel_id,
                                                           'u_id': u_id2})
@@ -102,7 +101,7 @@ def test_channel_leave_v1_success_3(initialise_member):
                                                              'channel_id': channel_id,
                                                              'user_id': u_id2})
     requests.post(f"{config.url}channel/leave/v1", json= {'token': token2,
-                                                                  'channel_id': channel_id})
+                                                          'channel_id': channel_id})
 
 def test_channel_leave_v1_invalid_user(initialise_member):
     register = initialise_member.json()
@@ -117,3 +116,20 @@ def test_channel_leave_v1_invalid_user(initialise_member):
     leave = requests.post(f"{config.url}channel/leave/v1", json= {'token': token2,
                                                                   'channel_id': channel_id})
     assert leave.status_code == 403
+
+def test_channel_leave_v1_global_owner(initialise_member):
+    register = initialise_member.json()
+    token = register['token']
+    u_id1 = register['auth_user_id']
+    register2 = requests.post(f"{config.url}auth/register/v2", json={'email': 'test@bing.com',
+                                                                    'password': 'justjack001',
+                                                                    'name_first': 'bing',
+                                                                    'name_last': 'rong'})
+    token2 = register2['token']
+    variable = initialise_channel(token2).json()
+    channel_id = variable['channel_id']
+    requests.post(f"{config.url}channel/invite/v2", json={'token': token2,
+                                                          'channel_id': channel_id,
+                                                          'u_id': u_id1})
+    requests.post(f"{config.url}channel/leave/v1", json= {'token': token,
+                                                          'channel_id': channel_id})

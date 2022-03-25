@@ -93,7 +93,7 @@ def test_channel_addowner_v1_owner(initialise_member):
                                                           'u_id': u_id2})
     requests.post(f"{config.url}channel/addowner/v1", json= {'token': token,
                                                              'channel_id': channel_id,
-                                                                        'user_id': u_id2})
+                                                             'user_id': u_id2})
     addowner2 = requests.post(f"{config.url}channel/addowner/v1", json= {'token': token,
                                                                          'channel_id': channel_id,
                                                                          'user_id': u_id2})
@@ -133,9 +133,9 @@ def test_channel_addowner_v1_success(initialise_member):
     variable = initialise_channel(token).json()
     channel_id = variable['channel_id']
     register2 = requests.post(f"{config.url}auth/register/v2", json={'email': 'anothertest@gmail.com',
-                                                                    'password': 'securepassword',
-                                                                    'name_first': 'Jane',
-                                                                    'name_last': 'Doe'})
+                                                                     'password': 'securepassword',
+                                                                     'name_first': 'Jane',
+                                                                     'name_last': 'Doe'})
     u_id2 = register2.json()['auth_user_id']
     requests.post(f"{config.url}channel/invite/v2", json={'token': token,
                                                           'channel_id': channel_id,
@@ -174,6 +174,7 @@ def test_channel_addowner_v1_success2(initialise_member):
     register = initialise_member.json()
     token = register['token']
     register['auth_user_id']
+    initialise_channel(token)
     register2 = requests.post(f"{config.url}auth/register/v2", json={'email': 'test@bing.com',
                                                                      'password': 'justjack001',
                                                                      'name_first': 'bing',
