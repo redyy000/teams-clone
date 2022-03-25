@@ -33,7 +33,7 @@ def message_send_v1(token, channel_id, message):
     if payload is False:
         raise AccessError(description="Invalid token")
 
-    sender_id = payload['u_id']
+    u_id = payload['u_id']
     channel_list = store['channels']
 
     channel_found = False
@@ -44,7 +44,7 @@ def message_send_v1(token, channel_id, message):
 
     for channel in channel_list:
         for member in channel['all_members']:
-            if member['user_id'] == sender_id:
+            if member['user_id'] == u_id:
                 user_found = True
 
     if channel_found == False:
@@ -76,7 +76,7 @@ def message_send_v1(token, channel_id, message):
 
     new_message = {
         'message_id': message_id,
-        'sender_id': sender_id,
+        'u_id': u_id,
         'message': message,
         'time_sent': int(utc_timestamp)
     }
@@ -119,7 +119,7 @@ def message_senddm_v1(token, dm_id, message):
     if payload is False:
         raise AccessError(description="Invalid token")
 
-    sender_id = payload['u_id']
+    u_id = payload['u_id']
     dm_data = store['dms']
 
     dm_found = False
@@ -127,7 +127,7 @@ def message_senddm_v1(token, dm_id, message):
     for dms in dm_data:
         if dms['dm_id'] == dm_id:
             dm_found = True
-            if sender_id in dms['all_members']:
+            if u_id in dms['all_members']:
                 user_found = True
 
     if dm_found == False:
@@ -160,7 +160,7 @@ def message_senddm_v1(token, dm_id, message):
 
     new_message = {
         'message_id': message_id,
-        'sender_id': sender_id,
+        'u_id': u_id,
         'message': message,
         'time_sent': int(utc_timestamp)
     }
@@ -210,13 +210,15 @@ def message_edit_v1(token, message_id, message):
     for channel in datastore['channels']:
         for message_dict in channel['messages']:
             if message_dict['message_id'] == message_id:
-                if user_id not in channel['owner_members'] and user_id != message_dict['sender_id']:
+                if user_id not in channel['owner_members'] and user_id != message_dict['u_id']:
                     raise AccessError(
                         description='You are both not a channel owner and sender of message')
                 if len(message) == 0:
-                    message_remove_v1(token, message_id)
+                    channel['messages'].remove(message_dict)
                 else:
+
                     message_dict['message'] = message
+
                 message_found = True
 
     # Reloop for DMs; If found already this is skipped.
@@ -224,17 +226,20 @@ def message_edit_v1(token, message_id, message):
         for dm in datastore['dms']:
             for message_dict in dm['messages']:
                 if message_dict['message_id'] == message_id:
-                    if user_id not in dm['owners'] and user_id != message_dict['sender_id']:
+                    if user_id not in dm['owners'] and user_id != message_dict['u_id']:
                         raise AccessError(
                             description='You are both not a channel owner and sender of message')
                     if len(message) == 0:
-                        message_remove_v1(token, message_id)
+                        dm['messages'].remove(message_dict)
                     else:
+
                         message_dict['message'] = message
                     message_found = True
 
     if message_found == False:
         raise InputError(description="Invalid Message ID")
+
+    store_data(datastore)
 
     return {}
 
@@ -276,7 +281,7 @@ def message_remove_v1(token, message_id):
     for channel in datastore['channels']:
         for message in channel['messages']:
             if message['message_id'] == message_id:
-                if user_id not in channel['owner_members'] and user_id != message['sender_id']:
+                if user_id not in channel['owner_members'] and user_id != message['u_id']:
                     raise AccessError(
                         description='You are both not a channel owner and sender of message')
                 else:
@@ -288,7 +293,7 @@ def message_remove_v1(token, message_id):
         for dm in datastore['dms']:
             for message in dm['messages']:
                 if message['message_id'] == message_id:
-                    if user_id not in dm['owners'] and user_id != message['sender_id']:
+                    if user_id not in dm['owners'] and user_id != message['u_id']:
                         raise AccessError(
                             description='You are both not a channel owner and sender of message')
                     else:
@@ -297,5 +302,7 @@ def message_remove_v1(token, message_id):
 
     if message_found == False:
         raise InputError(description="Invalid Message ID")
+
+    store_data(datastore)
 
     return {}

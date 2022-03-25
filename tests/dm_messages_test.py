@@ -226,7 +226,7 @@ def test_dm_messages_functionality_multiple(post_test_user, fixture_bob, fixture
     dm_messages1_info = dm_messages1.json()['messages']
     for idx in range(0, 50):
         assert dm_messages1_info[idx]['message_id'] == 50 - idx
-        assert dm_messages1_info[idx]['sender_id'] == post_test_user['auth_user_id']
+        assert dm_messages1_info[idx]['u_id'] == post_test_user['auth_user_id']
         assert dm_messages1_info[idx]['message'] == "Hello World"
 
     dm_messages2 = requests.get(f'{config.url}dm/messages/v1', params={
@@ -239,7 +239,7 @@ def test_dm_messages_functionality_multiple(post_test_user, fixture_bob, fixture
     dm_messages2_info = dm_messages2.json()['messages']
     for idx in range(0, 50):
         assert dm_messages2_info[idx]['message_id'] == 100 - idx
-        assert dm_messages2_info[idx]['sender_id'] == post_test_user['auth_user_id']
+        assert dm_messages2_info[idx]['u_id'] == post_test_user['auth_user_id']
         assert dm_messages2_info[idx]['message'] == "Hello World"
 
 
@@ -292,7 +292,7 @@ def test_dm_messages_functionality_120(post_test_user, fixture_bob, fixture_geor
 
     for idx in range(0, 50):
         assert dm_messages1_info[idx]['message_id'] == 125 - idx
-        assert dm_messages1_info[idx]['sender_id'] == fixture_bob['auth_user_id']
+        assert dm_messages1_info[idx]['u_id'] == fixture_bob['auth_user_id']
         assert dm_messages1_info[idx]['message'] == "Evening World"
 
     assert dm_messages1.json()['end'] == 50
@@ -304,7 +304,7 @@ def test_dm_messages_functionality_120(post_test_user, fixture_bob, fixture_geor
 
     for idx in range(0, 50):
         assert dm_messages2_info[idx]['message_id'] == 75 - idx
-        assert dm_messages2_info[idx]['sender_id'] == post_test_user['auth_user_id']
+        assert dm_messages2_info[idx]['u_id'] == post_test_user['auth_user_id']
         assert dm_messages2_info[idx]['message'] == "Hello World"
 
     assert dm_messages2.json()['end'] == 100
@@ -315,7 +315,7 @@ def test_dm_messages_functionality_120(post_test_user, fixture_bob, fixture_geor
     assert len(dm_messages3_info) == 25
     for idx in range(0, 25):
         assert dm_messages3_info[idx]['message_id'] == 25 - idx
-        assert dm_messages3_info[idx]['sender_id'] == fixture_bob['auth_user_id']
+        assert dm_messages3_info[idx]['u_id'] == fixture_bob['auth_user_id']
         assert dm_messages3_info[idx]['message'] == "Goodbye World"
 
     assert dm_messages3.json()['end'] == -1

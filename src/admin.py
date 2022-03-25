@@ -217,7 +217,7 @@ def admin_user_remove_v1(token, u_id):
             if normal_member['user_id'] == u_id:
                 channel['all_members'].remove(normal_member)
         for message in channel['messages']:
-            if message['sender_id'] == u_id:
+            if message['u_id'] == u_id:
                 message['message'] = 'Removed user'
 
     # Remove from all DMs
@@ -231,7 +231,7 @@ def admin_user_remove_v1(token, u_id):
             dm['normal_members'].remove(u_id)
 
         for message in dm['messages']:
-            if message['sender_id'] == u_id:
+            if message['u_id'] == u_id:
                 message['message'] = 'Removed user'
 
     store_data(datastore)

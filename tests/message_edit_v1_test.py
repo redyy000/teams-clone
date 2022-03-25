@@ -54,6 +54,15 @@ def test_message_edit_success(setup_users):
 
     assert edit_response.status_code == 200
 
+    messages_response = requests.get(f'{config.url}/channel/messages/v2', params={
+        'token': setup_users[0]['token'],
+        'channel_id': channel_response.json()['channel_id'],
+        'start': 0
+    })
+
+    assert messages_response.json(
+    )['messages'][0]['message'] == 'Ringo did nothing wrong'
+
 
 def test_message_edit_invalid_token(setup_users):
     owner = setup_users[0]
@@ -94,13 +103,21 @@ def test_message_edit_non_existant_message_id(setup_users):
         "message": 'Every soul has its dark'
     })
 
-    edit_response = requests.put(f"{config.url}message/edit/v1", json={
+    edit_response1 = requests.put(f"{config.url}message/edit/v1", json={
         "token": owner['token'],
         "message_id": 9999999,
         "message": 'Ringo did nothing wrong'
     })
 
-    assert edit_response.status_code == 400
+    assert edit_response1.status_code == 400
+
+    edit_response2 = requests.put(f"{config.url}message/edit/v1", json={
+        "token": owner['token'],
+        "message_id": 'eiogheiohgroie',
+        "message": 'Ringo did nothing wrong'
+    })
+
+    assert edit_response2.status_code == 400
 
 
 def test_message_edit_length_long(setup_users):
@@ -125,6 +142,16 @@ def test_message_edit_length_long(setup_users):
     })
 
     assert edit_response.status_code == 400
+
+    messages_response = requests.get(f'{config.url}/channel/messages/v2', params={
+        'token': setup_users[0]['token'],
+        'channel_id': channel_response.json()['channel_id'],
+        'start': 0
+    })
+
+    # Assert message has not changed
+    assert messages_response.json(
+    )['messages'][0]['message'] == 'Every soul has its dark'
 
 # Tests for both non_sender and non_global owner/non_channel_owner
 
@@ -183,6 +210,15 @@ def test_message_edit_channels_empty(setup_users):
 
     assert edit_response.status_code == 200
 
+    messages_response = requests.get(f'{config.url}/channel/messages/v2', params={
+        'token': setup_users[0]['token'],
+        'channel_id': channel_response.json()['channel_id'],
+        'start': 0
+    })
+
+    print(messages_response.json())
+    assert len(messages_response.json()['messages']) == 0
+
     # Test message is gone....
 
 
@@ -210,7 +246,14 @@ def test_message_edit_dms_empty(setup_users):
 
     assert edit_response.status_code == 200
 
-    # Somehow test the message is now gone...
+    # Since there are no messages, dm/messages will return an input error.
+    messages_response = requests.get(f'{config.url}/dm/messages/v1', params={
+        'token': setup_users[0]['token'],
+        'dm_id': dm.json()['dm_id'],
+        'start': 0
+    })
+
+    assert messages_response.status_code == 400
 
 
 def test_message_edit_dms_invalid_sender(setup_users):
@@ -264,14 +307,14 @@ def test_message_edit_dms_success(setup_users):
         'message': 'wogeih'})
 
     edit_response1 = requests.put(f"{config.url}message/edit/v1", json={
-        "token": owner['token'],
-        "message_id": message_response2.json()['message_id'],
+        "token": member1['token'],
+        "message_id": message_response1.json()['message_id'],
         'message': 'i could never be replaced'
     })
 
     edit_response2 = requests.put(f"{config.url}message/edit/v1", json={
-        "token": member1['token'],
-        "message_id": message_response1.json()['message_id'],
+        "token": owner['token'],
+        "message_id": message_response2.json()['message_id'],
         'message': 'ahahnooooooo'
     })
 
@@ -284,3 +327,22 @@ def test_message_edit_dms_success(setup_users):
     assert edit_response1.status_code == 200
     assert edit_response2.status_code == 200
     assert edit_response3.status_code == 200
+
+    messages_response = requests.get(f'{config.url}/dm/messages/v1', params={
+        'token': setup_users[0]['token'],
+        'dm_id': dm.json()['dm_id'],
+        'start': 0
+    })
+
+    # Assert the messages have been edited, with the identical ids
+    message_list = messages_response.json()['messages']
+    for message_dict in message_list:
+        if message_dict['message'] == 'i could never be replaced':
+            assert message_dict['message_id'] == message_response1.json()[
+                'message_id']
+        if message_dict['message'] == "ahahnooooooo":
+            assert message_dict['message_id'] == message_response2.json()[
+                'message_id']
+        if message_dict['message'] == 'ahahaha u  are being replaced':
+            assert message_dict['message_id'] == message_response3.json()[
+                'message_id']

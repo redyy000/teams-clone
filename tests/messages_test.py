@@ -160,7 +160,7 @@ def test_messages_senddm_success(setup_users):
 
     message_list = response2['messages']
 
-    assert message_list[0]['sender_id'] == user1['auth_user_id']
+    assert message_list[0]['u_id'] == user1['auth_user_id']
     assert message_list[0]['message'] == "Hello World"
 
     assert response2['end'] == -1
