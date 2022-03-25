@@ -201,6 +201,8 @@ def admin_user_remove_v1(token, u_id):
             user['name_last'] = 'user'
             # Change to users/all
             user['is_deleted'] = True
+            # Invalidates all tokens for this id
+            user['session_id_list'] = []
     # Delete from ALL CHANNELS DMS
     # This means they should be removed from all channels/DMs,
     # and will not be included in the list of users returned by users/all.
