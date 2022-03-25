@@ -105,15 +105,16 @@ def test_successful_join(setup_users):
     })
 
     response = requests.get(f'{config.url}channels/list/v2', params={"token":
-        setup_users[1]['token']})
+                                                                     setup_users[1]['token']})
     assert response.status_code == 200
-    assert response.json() == {'channels': [{"channel_id": channel1["channel_id"], "name": "Public"}]}
-    
-    response = requests.get
+    assert response.json() == {'channels': [
+        {"channel_id": channel1["channel_id"], "name": "Public"}]}
+
     response = requests.get(f'{config.url}channels/list/v2', params={"token":
-        setup_users[2]['token']})
+                                                                     setup_users[2]['token']})
     assert response.status_code == 200
-    assert response.json() == {'channels': [{"channel_id": channel1["channel_id"], "name": "Public"}]}
+    assert response.json() == {'channels': [
+        {"channel_id": channel1["channel_id"], "name": "Public"}]}
 
 
 def test_invalid_token(setup_users):
@@ -129,3 +130,25 @@ def test_invalid_token(setup_users):
     })
 
     assert response.status_code == 403
+
+
+def test_global_owner(setup_users):
+    channel1 = requests.post(f'{config.url}channels/create/v2', json={
+        'token': setup_users[1]['token'],
+        'name': "Private",
+        'is_public': False
+    }).json()
+
+    response = requests.post(f'{config.url}channel/join/v2', json={
+        'token': setup_users[0]['token'],
+        'channel_id': channel1['channel_id']
+    })
+
+    # Global owner should be able to join private channels successfully.
+    assert response.status_code == 200
+
+    response = requests.get(f'{config.url}channels/list/v2', params={"token":
+                                                                     setup_users[0]['token']})
+
+    assert response.json() == {'channels': [
+        {"channel_id": channel1["channel_id"], "name": "Private"}]}
