@@ -173,7 +173,7 @@ def test_channel_addowner_v1_success(initialise_member):
 def test_channel_addowner_v1_success2(initialise_member):
     register = initialise_member.json()
     token = register['token']
-    u_id1 = register['auth_user_id']
+    register['auth_user_id']
     register2 = requests.post(f"{config.url}auth/register/v2", json={'email': 'test@bing.com',
                                                                      'password': 'justjack001',
                                                                      'name_first': 'bing',

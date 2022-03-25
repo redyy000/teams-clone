@@ -79,7 +79,7 @@ def test_channel_leave_v1_success_2(initialise_member):
                                                                        'name': 'Channel 2',
                                                                        'is_public': True})
     channel_id2 = channel2.json()['channel_id']
-    leave = requests.post(f"{config.url}channel/leave/v1", json= {'token': token,
+    requests.post(f"{config.url}channel/leave/v1", json= {'token': token,
                                                                   'channel_id': channel_id2})
 
 def test_channel_leave_v1_success_3(initialise_member):
@@ -101,7 +101,7 @@ def test_channel_leave_v1_success_3(initialise_member):
     requests.post(f"{config.url}channel/addowner/v1", json= {'token': token,
                                                              'channel_id': channel_id,
                                                              'user_id': u_id2})
-    leave = requests.post(f"{config.url}channel/leave/v1", json= {'token': token2,
+    requests.post(f"{config.url}channel/leave/v1", json= {'token': token2,
                                                                   'channel_id': channel_id})
 
 def test_channel_leave_v1_invalid_user(initialise_member):
