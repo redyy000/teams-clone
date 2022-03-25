@@ -1,5 +1,6 @@
 import pytest
 import requests
+# from setuptools import setup
 from src import config
 
 
@@ -181,3 +182,49 @@ def test_message_send_unauthorised_user(setup_users):
     })
 
     assert message_response.status_code == 403
+
+
+def test_message_send_multiple_users(setup_users):
+    # create the channel
+    channel_response = requests.post(f"{config.url}channels/create/v2", json={
+        "token": setup_users[0]['token'],
+        "name": "Jungle",
+        "is_public": True
+    })
+    assert channel_response.status_code == 200
+    channel_id = channel_response.json()['channel_id']
+
+    # invite all users to channel
+    invite_user1 = requests.post(f'{config.url}channel/invite/v2', json={
+        'token': setup_users[0]['token'],
+        'channel_id': channel_id,
+        'u_id': setup_users[1]['auth_user_id']
+    })
+    assert invite_user1.status_code == 200
+
+    invite_user2 = requests.post(f'{config.url}channel/invite/v2', json={
+        'token': setup_users[0]['token'],
+        'channel_id': channel_id,
+        'u_id': setup_users[2]['auth_user_id']
+    })
+    assert invite_user2.status_code == 200
+    # send messages between members
+    user_2_message = requests.post(f"{config.url}message/send/v1", json={
+        "token": setup_users[2]['token'],
+        "channel_id": channel_id,
+        "message": 'Welcome to the jungle.'
+    })
+    assert user_2_message.status_code == 200
+
+    message_id1 = user_2_message.json()['message_id']
+    assert message_id1 == 1
+
+    user_1_message = requests.post(f"{config.url}message/send/v1", json={
+        "token": setup_users[1]['token'],
+        "channel_id": channel_id,
+        "message": "We've got fun and games"
+    })
+    assert user_1_message.status_code == 200
+
+    message_id2 = user_1_message.json()['message_id']
+    assert message_id2 == 2
