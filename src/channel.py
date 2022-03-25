@@ -5,7 +5,12 @@ from json import dumps, dump, load
 from flask import Flask, request
 from src.other import store_data, load_data, is_valid_token
 
-
+def permission_id_given_user(auth_user_id):
+    store = load_data()
+    for user in store['users']:
+        if user['u_id'] == auth_user_id:
+            return user['permission_id']
+    
 def channel_invite_v2(token, channel_id, u_id):
     '''
     Invites a user with ID u_id to join a channel with ID channel_id. 
@@ -158,7 +163,6 @@ def channel_messages_v2(token, channel_id, start):
         'end': end,
     }
 
-
 def channel_join_v2(token, channel_id):
     '''
     Given a channel_id of a channel that the authorised user can join, adds them to that channel.
@@ -228,7 +232,7 @@ def channel_details_v2(token, channel_id):
     Exceptions:
         InputError    -    Occurs when channel id is invalid.
         InputError    -    Occurs when backend detail collection is not successful
-        AccessError   -    Occurs when user attempting to access details is not a memnber of the channel.
+        AccessError   -    Occurs when user attempting to access details is not a member of the channel.
         AccessError   -    Occurs when user id is invalid
 
     Return Value:
@@ -257,7 +261,7 @@ def channel_details_v2(token, channel_id):
     if is_member == False:
         raise AccessError(
             description=f"User ID {auth_user_id} is not a member of channel (Channel ID {channel_id}).")
-# Collect details
+    # Collect details
     for channels in store['channels']:
         if channels['channel_id'] == channel_id:
             channel_members = []
@@ -295,6 +299,21 @@ def channel_details_v2(token, channel_id):
 
 
 def channel_leave_v1(token, channel_id):
+    '''
+    Function: Given a channel with ID channel_id that the authorised user is a member of, remove the authorised user from the channel.
+
+    Arguments:
+        token (string)        - an authorisation hash of the user.
+        channel_id (integer)  - id number of channel generated at creation.
+
+    Exceptions:
+        InputError    -    Occurs when channel id is invalid.
+        AccessError   -    Occurs when user attempting to access details is not a member of the channel.
+        AccessError   -    Occurs when user id is invalid.
+
+    Return Value:
+        Returns nothing.
+    '''
     user_info = is_valid_token(token)
     if user_info == False:
         raise AccessError("Invalid Token")
@@ -336,6 +355,24 @@ def channel_leave_v1(token, channel_id):
 
 
 def channel_addowner_v1(token, channel_id, u_id):
+    '''
+    Function: Given a channel with ID channel_id that the authorised user has owner permissions of, add an owner to the channel.
+
+    Arguments:
+        token (string)        - an authorisation hash of the user.
+        channel_id (integer)  - id number of channel generated at creation.
+        u_id (integer)        - id number of owner to be removed.
+
+    Exceptions:
+        InputError    -    Occurs when channel id is invalid.
+        InputError    -    Occurs when user id is invalid.
+        InputError    -    Occurs when user id is not a member of the channel.
+        AccessError   -    Occurs when user attempting to add an owner does not have owner permissions in the channel.
+        InputError    -    Occurs when user is already an owner of the channel.
+
+    Return Value:
+        Returns nothing.
+    '''
     user_info = is_valid_token(token)
     if user_info == False:
         raise AccessError("Invalid Token")
@@ -367,15 +404,14 @@ def channel_addowner_v1(token, channel_id, u_id):
                 if u_id == member['user_id']:
                     is_member = True
     if is_member == False:
-        raise AccessError(
+        raise InputError(
             f"User ID {u_id} is not a member of channel (Channel ID {channel_id}).")
 
     for channels in store['channels']:
         if channels['channel_id'] == channel_id:
             # Check if auth_user_id has owner permissions
-            if auth_user_id not in channels['owner_members']:
-                raise AccessError(
-                    f"User ID {auth_user_id} does not have owner permissions in this channel.")
+            if auth_user_id not in channels['owner_members'] or permission_id_given_user(auth_user_id) != 1:
+                raise AccessError(f"User ID {auth_user_id} does not have owner permissions in this channel.")
             # Check if u_id is already an owner
             elif u_id in channels['owner_members']:
                 raise InputError(
@@ -383,5 +419,74 @@ def channel_addowner_v1(token, channel_id, u_id):
             # Add owner
             else:
                 channels['owner_members'].append(u_id)
+    store_data(store)
+    return
+
+def channel_removeowner_v1(token, channel_id, u_id):
+    '''
+    Function: Given a channel with ID channel_id that the authorised user has owner permissions of, add an owner to the channel.
+    Arguments:
+        token (string)        - an authorisation hash of the user.
+        channel_id (integer)  - id number of channel generated at creation.
+        u_id (integer)        - id number of owner to be removed.
+
+    Exceptions:
+        InputError    -    Occurs when channel id is invalid.
+        InputError    -    Occurs when user id is invalid.
+        InputError    -    Occurs when user id is not a member of the channel.
+        AccessError   -    Occurs when user attempting to remove an owner does not have owner permissions in the channel.
+        InputError    -    Occurs when user is not an owner of the channel.
+        InputError    -    Occurs when user is the only owner of the channel.
+
+    Return Value:
+        Returns nothing.
+    '''
+    user_info = is_valid_token(token)
+    if user_info == False:
+        raise AccessError("Invalid Token")
+    auth_user_id = user_info['u_id']
+
+    store = load_data()
+    is_channelfound = False
+    # Checks to see if entered channel id exists
+    for channels in store['channels']:
+        if channels['channel_id'] == channel_id:
+            is_channelfound = True
+    # Checks to see if the channel_id is valid
+    if is_channelfound == False or isinstance(channel_id, int) != True:
+        raise InputError(f"Channel ID {channel_id} is invalid. ")
+    
+    #check if u_id is a valid user
+    valid_user = False
+    for user in store['users']:
+        if u_id == user['u_id']:
+            valid_user = True
+    if valid_user == False:
+        raise InputError(f"User ID {u_id} is invalid.")
+
+    # Given a channel ID, find the correct channel and see if user is member
+    is_member = False
+    for channels in store['channels']:
+        if channels['channel_id'] == channel_id:
+            for member in channels['all_members']:
+                if u_id == member['user_id']:
+                    is_member = True
+    if is_member == False:
+        return
+    
+    for channels in store['channels']:
+        if channels['channel_id'] == channel_id:
+            # Check if auth_user_id does not have owner permissions
+            if auth_user_id not in channels['owner_members'] or permission_id_given_user(auth_user_id) != 1:
+                raise AccessError(f"User ID {auth_user_id} does not have owner permissions in this channel.")
+            # Check if u_id is not an owner
+            elif u_id not in channels['owner_members']:
+                raise InputError(f"User ID {u_id} is not an owner of the channel.")
+            # Check if u_id is the only channel owner
+            elif [u_id] == channels['owner_members']:
+                raise InputError(f"User ID {u_id} is the only owner of the channel.")
+            # Remove owner
+            else:
+                channels['owner_members'].remove(u_id)
     store_data(store)
     return
