@@ -25,7 +25,7 @@ def clear_v1():
         "message_ids": [],
 
     }
-    with open("data.json", "wb") as W_FILE:
+    with open("data.json", "w") as W_FILE:
         W_FILE.write(json.dumps(DATA_STRUCTURE))
 
 
@@ -36,7 +36,7 @@ def store_data(data):
 
     Given a set of data, overwrite data.p with new data
     '''
-    with open("data.json", "wb") as W_FILE:
+    with open("data.json", "w") as W_FILE:
         W_FILE.write(json.dumps(data))
 
 
@@ -47,7 +47,7 @@ def load_data():
 
     load_data from data.p as a readable data structure
     '''
-    with open("data.json", "rb") as FILE:
+    with open("data.json", "r") as FILE:
         if os.stat("data.json") == 0:
             clear_v1()
         return json.loads(FILE.read())
