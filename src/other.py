@@ -1,5 +1,6 @@
 from src.error import InputError
 import pickle
+import json
 import requests
 import jwt
 import os
@@ -24,8 +25,8 @@ def clear_v1():
         "message_ids": [],
 
     }
-    with open("data.p", "wb") as W_FILE:
-        W_FILE.write(pickle.dumps(DATA_STRUCTURE))
+    with open("data.json", "w") as W_FILE:
+        W_FILE.write(json.dumps(DATA_STRUCTURE))
 
 
 def store_data(data):
@@ -35,8 +36,8 @@ def store_data(data):
 
     Given a set of data, overwrite data.p with new data
     '''
-    with open("data.p", "wb") as W_FILE:
-        W_FILE.write(pickle.dumps(data))
+    with open("data.json", "w") as W_FILE:
+        W_FILE.write(json.dumps(data))
 
 
 def load_data():
@@ -46,10 +47,10 @@ def load_data():
 
     load_data from data.p as a readable data structure
     '''
-    with open("data.p", "rb") as FILE:
-        if os.stat("data.p") == 0:
+    with open("data.json", "r") as FILE:
+        if os.stat("data.json") == 0:
             clear_v1()
-        return pickle.loads(FILE.read())
+        return json.loads(FILE.read())
 
 
 def token_create(u_id, session_id):
