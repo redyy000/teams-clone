@@ -2,7 +2,7 @@ from src.error import InputError
 import pickle
 import requests
 import jwt
-from pathlib import Path
+import os
 
 SECRET = "RICHARDRYANDANIELMAXTAYLA"
 
@@ -47,7 +47,7 @@ def load_data():
     load_data from data.p as a readable data structure
     '''
     with open("data.p", "rb") as FILE:
-        if pickle.loads(FILE.read()) == {}:
+        if os.stat(data.p) == 0:
             clear_v1()
         return pickle.loads(FILE.read())
 
