@@ -46,9 +46,9 @@ def load_data():
 
     load_data from data.p as a readable data structure
     '''
-    if Path("data.p").exists() == False:
-        requests.delete(f"{BASE_URL}/clear/v1")
     with open("data.p", "rb") as FILE:
+        if pickle.loads(FILE.read()) == {}:
+            clear_v1()
         return pickle.loads(FILE.read())
 
 
