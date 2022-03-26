@@ -4,6 +4,34 @@ from src import config
 
 
 @pytest.fixture
+def setup_users():
+    requests.delete(f'{config.url}clear/v1')
+    userlist = []
+    response1 = requests.post(f'{config.url}auth/register/v2', json={'email': "dlin@gmail.com",
+                                                                     'password': "password",
+                                                                     'name_first': "daniel",
+                                                                     'name_last': "lin"})
+
+    response2 = requests.post(f'{config.url}auth/register/v2', json={'email': "rxue@gmail.com",
+                                                                     'password': "password",
+                                                                     'name_first': "richard",
+                                                                     'name_last': "xue"})
+
+    response3 = requests.post(f'{config.url}auth/register/v2', json={'email': "ryan@gmail.com",
+                                                                     'password': "password",
+                                                                     'name_first': "ryan",
+                                                                     'name_last': "godakanda"})
+
+    user1_info = response1.json()
+    user2_info = response2.json()
+    user3_info = response3.json()
+    userlist.append(user1_info)
+    userlist.append(user2_info)
+    userlist.append(user3_info)
+    return userlist
+
+
+@pytest.fixture
 def post_test_user():
     return test_user()
 
@@ -80,6 +108,7 @@ def test_dm_details_success(post_test_user, fixture_bob, fixture_george):
         'token': post_test_user['token'],
         'u_ids': [fixture_bob['auth_user_id'], fixture_george['auth_user_id']]
     })
+
     dm_details = requests.get(f'{config.url}/dm/details/v1', params={
         'token': post_test_user['token'],
         'dm_id': dm_id.json()['dm_id']
@@ -88,9 +117,6 @@ def test_dm_details_success(post_test_user, fixture_bob, fixture_george):
 
     assert dm_details.json()[
         'name'] == 'bobbuilder, firstnamelastname, georgemonkey'
-    assert fixture_bob['auth_user_id'] in dm_details.json()['members']
-    assert post_test_user['auth_user_id'] in dm_details.json()['members']
-    assert fixture_george['auth_user_id'] in dm_details.json()['members']
 
 
 def test_dm_details_multiple(post_test_user, fixture_bob, fixture_george):
@@ -113,9 +139,25 @@ def test_dm_details_multiple(post_test_user, fixture_bob, fixture_george):
     assert dm_details1.status_code == 200
     assert dm_details1.json()[
         'name'] == 'bobbuilder, firstnamelastname, georgemonkey'
-    assert fixture_bob['auth_user_id'] in dm_details1.json()['members']
-    assert post_test_user['auth_user_id'] in dm_details1.json()['members']
-    assert fixture_george['auth_user_id'] in dm_details1.json()['members']
+
+    assert len(dm_details1.json()['members']) == 3
+
+    for member_dict in dm_details1.json()['members']:
+        if member_dict['u_id'] == post_test_user['auth_user_id']:
+            assert member_dict['email'] == "user@gmail.com"
+            assert member_dict['name_first'] == "FirstName"
+            assert member_dict['name_last'] == "LastName"
+            assert member_dict['handle_str'] == "firstnamelastname"
+        if member_dict['u_id'] == fixture_bob['auth_user_id']:
+            assert member_dict['email'] == "canwefixit@gmail.com"
+            assert member_dict['name_first'] == "Bob"
+            assert member_dict['name_last'] == "Builder"
+            assert member_dict['handle_str'] == "bobbuilder"
+        if member_dict['u_id'] == fixture_george['auth_user_id']:
+            assert member_dict['email'] == "george@gmail.com"
+            assert member_dict['name_first'] == "George"
+            assert member_dict['name_last'] == "Monkey"
+            assert member_dict['handle_str'] == "georgemonkey"
 
     dm_details2 = requests.get(f'{config.url}/dm/details/v1', params={
         'token': post_test_user['token'],
@@ -126,9 +168,20 @@ def test_dm_details_multiple(post_test_user, fixture_bob, fixture_george):
 
     assert dm_details2.json()[
         'name'] == 'bobbuilder, firstnamelastname'
-    assert fixture_bob['auth_user_id'] in dm_details2.json()['members']
-    assert post_test_user['auth_user_id'] in dm_details2.json()['members']
-    assert fixture_george['auth_user_id'] not in dm_details2.json()['members']
+
+    assert len(dm_details2.json()['members']) == 2
+
+    for member_dict in dm_details2.json()['members']:
+        if member_dict['u_id'] == post_test_user['auth_user_id']:
+            assert member_dict['email'] == "user@gmail.com"
+            assert member_dict['name_first'] == "FirstName"
+            assert member_dict['name_last'] == "LastName"
+            assert member_dict['handle_str'] == "firstnamelastname"
+        if member_dict['u_id'] == fixture_bob['auth_user_id']:
+            assert member_dict['email'] == "canwefixit@gmail.com"
+            assert member_dict['name_first'] == "Bob"
+            assert member_dict['name_last'] == "Builder"
+            assert member_dict['handle_str'] == "bobbuilder"
 
 
 def test_dm_details_invalid_token(post_test_user, fixture_bob, fixture_george):
@@ -189,3 +242,39 @@ def test_dm_details_non_dm_member(post_test_user, fixture_bob, fixture_george):
     })
 
     assert dm_details.status_code == 403
+
+
+def test_dm_details_func(setup_users):
+    owner = setup_users[0]
+    member1 = setup_users[1]
+    member2 = setup_users[2]
+
+    dm_id = requests.post(f'{config.url}dm/create/v1', json={
+        'token': owner['token'],
+        'u_ids': [member1['auth_user_id'], member2['auth_user_id']]
+    })
+
+    dm_details = requests.get(f'{config.url}dm/details/v1', params={
+        'token': owner['token'],
+        'dm_id': dm_id.json()['dm_id']
+    })
+
+    # Assert member info
+    assert dm_details.json()['name'] == 'daniellin, richardxue, ryangodakanda'
+
+    for member_dict in dm_details.json()['members']:
+        if member_dict['u_id'] == owner['auth_user_id']:
+            assert member_dict['email'] == "dlin@gmail.com"
+            assert member_dict['name_first'] == "daniel"
+            assert member_dict['name_last'] == "lin"
+            assert member_dict['handle_str'] == "daniellin"
+        if member_dict['u_id'] == member1['auth_user_id']:
+            assert member_dict['email'] == "rxue@gmail.com"
+            assert member_dict['name_first'] == "richard"
+            assert member_dict['name_last'] == "xue"
+            assert member_dict['handle_str'] == "richardxue"
+        if member_dict['u_id'] == member2['auth_user_id']:
+            assert member_dict['email'] == "ryan@gmail.com"
+            assert member_dict['name_first'] == "ryan"
+            assert member_dict['name_last'] == "godakanda"
+            assert member_dict['handle_str'] == "ryangodakanda"
