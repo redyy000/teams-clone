@@ -5,12 +5,14 @@ from json import dumps, dump, load
 from flask import Flask, request
 from src.other import store_data, load_data, is_valid_token
 
+
 def permission_id_given_user(auth_user_id):
     store = load_data()
     for user in store['users']:
         if user['u_id'] == auth_user_id:
             return user['permission_id']
-    
+
+
 def channel_invite_v2(token, channel_id, u_id):
     '''
     Invites a user with ID u_id to join a channel with ID channel_id. 
@@ -18,10 +20,11 @@ def channel_invite_v2(token, channel_id, u_id):
     In both public and private channels, all members are able to invite users.
 
     Arguments:
-        auth_user_id (integer) - unique identifier for the authorised user
+        token (string) - Unique token of user
         channel_id   (integer) - unique identifier of the channel
         u_id         (integer) - unique identifier for the invitee
     Exceptions:
+        AccessError - Invalid token
         InputError - Occurs when channel_id is invalid
         InputError - Occurs when u_id does not refer to a valid user
         InputError - Occurs when u_id refers to an invitee that is already in the channel
@@ -94,13 +97,13 @@ def channel_invite_v2(token, channel_id, u_id):
 
 def channel_messages_v2(token, channel_id, start):
     '''
-    Given a channel with a channel ID that the authorised user (auth_user_id) is
+    Given a channel with a channel ID that the authorised user (token) is
     a member of, return up to 50 messages between 'start' and 'start + 50'. If
     the function has return the lease recent message in the channel return -1 to
     indicate there are no more messages
 
     Arguments:
-        auth_user_id (integer) - id number of authorised user
+        token (string) - Unique token of user
         channel_id (integer) - id number for channel
         start (integer) - integer value of starting index (e.g. 0 for messages[0])
         ...
@@ -113,7 +116,7 @@ def channel_messages_v2(token, channel_id, start):
     General Exceptions
         InputError - Occurs when channel_id is not an integer
         InputError - Occurs when starting index is not an integer
-        AccessError - Occurs when auth_user_id is not an integer
+        AccessError - Occurs when token is invalid
 
     Return Value:
         Returns dictionary containing list of messages, the starting index (start) and
@@ -168,12 +171,13 @@ def channel_join_v2(token, channel_id):
     '''
     Given a channel_id of a channel that the authorised user can join, adds them to that channel.
     Arguments:
-        auth_user_id (integer) - unique identifier for the authorised user
+        token (string) - Unique token of user
         channel_id   (integer) - unique identifier of the channel
     Exceptions:
         InputError - Occurs when channel_id is invalid
         InputError - Occurs when u_id refers to an invitee that is already in the channel
         AccessError - Occurs when the authorised user tries to join a private channel and is not already a member
+        AccessError - Token invalid
     Return Type:
         None
     '''
@@ -234,7 +238,7 @@ def channel_details_v2(token, channel_id):
         InputError    -    Occurs when channel id is invalid.
         InputError    -    Occurs when backend detail collection is not successful
         AccessError   -    Occurs when user attempting to access details is not a member of the channel.
-        AccessError   -    Occurs when user id is invalid
+        AccessError   -    Occurs when token is invalid
 
     Return Value:
         Returns {name, is_public, owner_members, all_members} on successful access to details
@@ -310,7 +314,7 @@ def channel_leave_v1(token, channel_id):
     Exceptions:
         InputError    -    Occurs when channel id is invalid.
         AccessError   -    Occurs when user attempting to access details is not a member of the channel.
-        AccessError   -    Occurs when user id is invalid.
+        AccessError   -    Occurs when token is invalid.
 
     Return Value:
         Returns nothing.
@@ -412,7 +416,8 @@ def channel_addowner_v1(token, channel_id, u_id):
         if channels['channel_id'] == channel_id:
             # Check if auth_user_id has owner permissions
             if auth_user_id not in channels['owner_members'] or permission_id_given_user(auth_user_id) != 1:
-                raise AccessError(f"User ID {auth_user_id} does not have owner permissions in this channel.")
+                raise AccessError(
+                    f"User ID {auth_user_id} does not have owner permissions in this channel.")
             # Check if u_id is already an owner
             elif u_id in channels['owner_members']:
                 raise InputError(
@@ -422,6 +427,7 @@ def channel_addowner_v1(token, channel_id, u_id):
                 channels['owner_members'].append(u_id)
     store_data(store)
     return
+
 
 def channel_removeowner_v1(token, channel_id, u_id):
     '''
@@ -456,8 +462,8 @@ def channel_removeowner_v1(token, channel_id, u_id):
     # Checks to see if the channel_id is valid
     if is_channelfound == False or isinstance(channel_id, int) != True:
         raise InputError(f"Channel ID {channel_id} is invalid. ")
-    
-    #check if u_id is a valid user
+
+    # check if u_id is a valid user
     valid_user = False
     for user in store['users']:
         if u_id == user['u_id']:
@@ -474,18 +480,21 @@ def channel_removeowner_v1(token, channel_id, u_id):
                     is_member = True
     if is_member == False:
         return
-    
+
     for channels in store['channels']:
         if channels['channel_id'] == channel_id:
             # Check if auth_user_id does not have owner permissions
             if auth_user_id not in channels['owner_members'] or permission_id_given_user(auth_user_id) != 1:
-                raise AccessError(f"User ID {auth_user_id} does not have owner permissions in this channel.")
+                raise AccessError(
+                    f"User ID {auth_user_id} does not have owner permissions in this channel.")
             # Check if u_id is not an owner
             elif u_id not in channels['owner_members']:
-                raise InputError(f"User ID {u_id} is not an owner of the channel.")
+                raise InputError(
+                    f"User ID {u_id} is not an owner of the channel.")
             # Check if u_id is the only channel owner
             elif [u_id] == channels['owner_members']:
-                raise InputError(f"User ID {u_id} is the only owner of the channel.")
+                raise InputError(
+                    f"User ID {u_id} is the only owner of the channel.")
             # Remove owner
             else:
                 channels['owner_members'].remove(u_id)

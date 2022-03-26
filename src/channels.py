@@ -9,10 +9,10 @@ def channels_list_v2(token):
     Provide a list of all channels (and their associated details) that the authorised user is part of.
 
     Arguments:
-        auth_user_id (integer)  - an authorisation hash of the user
+        token (string)  - an authorisation hash of the user
 
     Exceptions:
-        AccessError     - Occurs when auth_user_id is invalid.
+        AccessError     - Occurs when token is invalid.
 
     Return Value:
         'channels'      - A list of dictionaries containing channel ID's and names for each channel they are a part of 
@@ -38,7 +38,8 @@ def channels_list_v2(token):
                     'name': channel['name']
                 }
                 channel_details.append(channel_info)
-        store_data(store)
+
+    store_data(store)
     return {
         'channels': channel_details
     }
@@ -61,7 +62,7 @@ def channels_listall_v2(token):
     token_decoded = is_valid_token(token)
     if token_decoded == False:
         raise AccessError(description='False Token!')
-        
+
     store = load_data()
     channel_details = []
     # For each channel in the list of channels
@@ -80,11 +81,11 @@ def channels_create_v2(token, name, is_public):
     '''
     Function to create a named channel either private or public
     Arguments:
-        auth_user_id (integer)- an authorisation hash of the user
+        token (string) - an authorisation hash of the user
         name (string)         - channel name
         is_public (boolean)   - True if the channel is public, False if it's private
     Exceptions:
-        AccessError  -  Occurs when auth_user_id is invalid.
+        AccessError  -  Occurs when token is invalid.
         InputError   -  Occurs when no channel name entered or name is greater than 20 characters.
         InputError   -  Occurs when duplicate channel name is entered. 
         InputError   -  Occurs when public status return is invalid. 
@@ -136,6 +137,5 @@ def channels_create_v2(token, name, is_public):
     store_data(data)
 
     return {
-        'channel_id': int(channel_id),
+        'channel_id': channel_id
     }
-
