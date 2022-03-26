@@ -130,32 +130,10 @@ def test_channel_addowner_v1_owner(initialise_member):
     requests.post(f"{config.url}channel/addowner/v1", json={'token': token,
                                                             'channel_id': channel_id,
                                                             'user_id': u_id2})
-    details = requests.get(f'{config.url}channel/details/v2', params={'token': token,
-                                                                      'channel_id': channel_id})
-    details_data = details.json()
-    assert details_data == {'name': 'General',
-                            'is_public': True,
-                            'owner_members': [{'u_id': u_id1,
-                                               'email': 'test@email.com',
-                                               'name_first': 'first_name',
-                                               'name_last': 'last_name',
-                                               'handle_str': 'firstnamelastname'},
-                                              {'u_id': u_id2,
-                                              'email': 'test@bing.com',
-                                               'name_first': 'bing',
-                                               'name_last': 'rong',
-                                               'handle_str': 'bingrong'}
-                                              ],
-                            'all_members': [{'u_id': u_id1,
-                                             'email': 'test@email.com',
-                                             'name_first': 'first_name',
-                                             'name_last': 'last_name',
-                                             'handle_str': 'firstnamelastname'},
-                                            {'u_id': u_id2,
-                                             'email': 'test@bing.com',
-                                             'name_first': 'bing',
-                                             'name_last': 'rong',
-                                             'handle_str': 'bingrong'}]}
+    addowner = requests.post(f"{config.url}channel/addowner/v1", json={'token': token,
+                                                            'channel_id': channel_id,
+                                                            'user_id': u_id2})  
+    assert addowner.status_code == 400
 
 
 def test_channel_addowner_v1_no_owner_permissions(initialise_member):
