@@ -47,7 +47,7 @@ def load_data():
     load_data from data.p as a readable data structure
     '''
     with open("data.p", "rb") as FILE:
-        if os.stat(data.p) == 0:
+        if os.stat("data.p") == 0:
             clear_v1()
         return pickle.loads(FILE.read())
 
