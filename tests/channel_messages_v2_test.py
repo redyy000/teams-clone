@@ -144,3 +144,36 @@ def test_channel_message_success(setup_users):
     })
     assert response.status_code == 200
     assert response.json() == {"messages": [], "start": 0, "end": -1}
+
+
+def test_channel_message_success_functionality(setup_users):
+
+    owner = setup_users[0]
+
+    channel_response = requests.post(f'{config.url}channels/create/v2', json={
+        'token': owner['token'],
+        'name': "Public",
+        'is_public': True
+    }).json()
+
+    requests.post(f"{config.url}message/send/v1", json={
+        "token": owner['token'],
+        "channel_id": channel_response['channel_id'],
+        "message": 'Every soul has its dark'
+    })
+
+    # Send some messages
+
+    response = requests.get(f'{config.url}channel/messages/v2', params={
+        'token': owner['token'],
+        'channel_id': channel_response['channel_id'],
+        'start': 0
+    })
+
+    assert response.status_code == 200
+    assert response.json()['start'] == 0
+    assert response.json()['end'] == -1
+    assert len(response.json()['messages']) == 1
+    assert response.json()[
+        'messages'][0]['message'] == 'Every soul has its dark'
+    assert response.json()['messages'][0]['message_id'] == 1

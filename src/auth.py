@@ -196,8 +196,6 @@ def auth_register_v2(email, password, name_first, name_last):
     store['users'].append(user)
     store_data(store)
 
-    print(user)
-
     return {
         'auth_user_id': auth_user_id,
         'token': token_create(user['u_id'], user['session_id_list'][0])
