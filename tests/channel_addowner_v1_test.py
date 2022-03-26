@@ -116,6 +116,7 @@ def test_channel_addowner_v1_non_member(initialise_member):
 def test_channel_addowner_v1_owner(initialise_member):
     register = initialise_member.json()
     token = register['token']
+    u_id1 = register['auth_user_id']
     variable = initialise_channel(token).json()
     channel_id = variable['channel_id']
     register2 = requests.post(f"{config.url}auth/register/v2", json={'email': 'test@bing.com',
@@ -129,15 +130,38 @@ def test_channel_addowner_v1_owner(initialise_member):
     requests.post(f"{config.url}channel/addowner/v1", json={'token': token,
                                                             'channel_id': channel_id,
                                                             'user_id': u_id2})
-    addowner2 = requests.post(f"{config.url}channel/addowner/v1", json={'token': token,
-                                                                        'channel_id': channel_id,
-                                                                        'user_id': u_id2})
-    assert addowner2.status_code == 400
+    details = requests.get(f'{config.url}channel/details/v2', params={'token': token,
+                                                                      'channel_id': channel_id})
+    details_data = details.json()
+    assert details_data == {'name': 'General',
+                            'is_public': True,
+                            'owner_members': [{'u_id': u_id1,
+                                               'email': 'test@email.com',
+                                               'name_first': 'first_name',
+                                               'name_last': 'last_name',
+                                               'handle_str': 'firstnamelastname'},
+                                              {'u_id': u_id2,
+                                              'email': 'test@bing.com',
+                                               'name_first': 'bing',
+                                               'name_last': 'rong',
+                                               'handle_str': 'bingrong'}
+                                              ],
+                            'all_members': [{'u_id': u_id1,
+                                             'email': 'test@email.com',
+                                             'name_first': 'first_name',
+                                             'name_last': 'last_name',
+                                             'handle_str': 'firstnamelastname'},
+                                            {'u_id': u_id2,
+                                             'email': 'test@bing.com',
+                                             'name_first': 'bing',
+                                             'name_last': 'rong',
+                                             'handle_str': 'bingrong'}]}
 
 
 def test_channel_addowner_v1_no_owner_permissions(initialise_member):
     register = initialise_member.json()
     token = register['token']
+    u_id1 = register['auth_user_id']
     variable = initialise_channel(token).json()
     channel_id = variable['channel_id']
     register2 = requests.post(f"{config.url}auth/register/v2", json={'email': 'anothertest@gmail.com',
@@ -157,10 +181,35 @@ def test_channel_addowner_v1_no_owner_permissions(initialise_member):
     requests.post(f"{config.url}channel/invite/v2", json={'token': token,
                                                           'channel_id': channel_id,
                                                           'u_id': u_id3})
-    addowner = requests.post(f"{config.url}channel/addowner/v1", json={'token': token2,
-                                                                       'channel_id': channel_id,
-                                                                       'user_id': u_id3})
-    assert addowner.status_code == 403
+    requests.post(f"{config.url}channel/addowner/v1", json={'token': token2,
+                                                            'channel_id': channel_id,
+                                                            'user_id': u_id3})
+    details = requests.get(f'{config.url}channel/details/v2', params={'token': token,
+                                                                      'channel_id': channel_id})
+    details_data = details.json()
+    assert details_data == {'name': 'General',
+                            'is_public': True,
+                            'owner_members': [{'u_id': u_id1,
+                                               'email': 'test@email.com',
+                                               'name_first': 'first_name',
+                                               'name_last': 'last_name',
+                                               'handle_str': 'firstnamelastname'}
+                                              ],
+                            'all_members': [{'u_id': u_id1,
+                                             'email': 'test@email.com',
+                                             'name_first': 'first_name',
+                                             'name_last': 'last_name',
+                                             'handle_str': 'firstnamelastname'},
+                                            {'u_id': u_id2,
+                                               'email': 'anothertest@gmail.com',
+                                               'name_first': 'Jane',
+                                               'name_last': 'Doe',
+                                               'handle_str': 'janedoe'},
+                                              {'u_id': u_id3,
+                                               'email': 'testagain@gmail.com',
+                                               'name_first': 'John',
+                                               'name_last': 'Win',
+                                               'handle_str': 'johnwin'}]}
 
 
 def test_channel_addowner_v1_success(initialise_member):
@@ -211,7 +260,7 @@ def test_channel_addowner_v1_success(initialise_member):
 def test_channel_addowner_v1_success2(initialise_member):
     register = initialise_member.json()
     token = register['token']
-    register['auth_user_id']
+    u_id1 = register['auth_user_id']
     initialise_channel(token)
     register2 = requests.post(f"{config.url}auth/register/v2", json={'email': 'test@bing.com',
                                                                      'password': 'justjack001',
@@ -225,11 +274,36 @@ def test_channel_addowner_v1_success2(initialise_member):
     requests.post(f"{config.url}channel/invite/v2", json={'token': token,
                                                           'channel_id': channel_id2,
                                                           'u_id': u_id2})
-    add_owner_response = requests.post(f"{config.url}channel/addowner/v1", json={'token': token,
-                                                                                 'channel_id': channel_id2,
-                                                                                 'user_id': u_id2})
+    requests.post(f"{config.url}channel/addowner/v1", json={'token': token,
+                                                            'channel_id': channel_id2,
+                                                            'user_id': u_id2})
 
-    assert add_owner_response.status_code == 200
+    details = requests.get(f'{config.url}channel/details/v2', params={'token': token,
+                                                                      'channel_id': channel_id2})
+    details_data = details.json()
+    assert details_data == {'name': 'Channel 2',
+                            'is_public': True,
+                            'owner_members': [{'u_id': u_id1,
+                                               'email': 'test@email.com',
+                                               'name_first': 'first_name',
+                                               'name_last': 'last_name',
+                                               'handle_str': 'firstnamelastname'},
+                                              {'u_id': u_id2,
+                                              'email': 'test@bing.com',
+                                               'name_first': 'bing',
+                                               'name_last': 'rong',
+                                               'handle_str': 'bingrong'}
+                                              ],
+                            'all_members': [{'u_id': u_id1,
+                                               'email': 'test@email.com',
+                                               'name_first': 'first_name',
+                                               'name_last': 'last_name',
+                                               'handle_str': 'firstnamelastname'},
+                                              {'u_id': u_id2,
+                                              'email': 'test@bing.com',
+                                               'name_first': 'bing',
+                                               'name_last': 'rong',
+                                               'handle_str': 'bingrong'}]}
 
 
 def test_channel_addowner_v1_non_global_nor_normal_owner(setup_users):

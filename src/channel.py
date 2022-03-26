@@ -473,7 +473,9 @@ def channel_removeowner_v1(token, channel_id, u_id):
                 if u_id == member['user_id']:
                     is_member = True
     if is_member == False:
-        return
+        raise InputError(
+            description=f"User ID {u_id} is not an owner of the channel.")
+
 
     for channels in store['channels']:
         if channels['channel_id'] == channel_id:

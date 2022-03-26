@@ -76,7 +76,7 @@ def test_channel_removeowner_v1_non_member(initialise_member):
     removeowner = requests.post(f"{config.url}channel/removeowner/v1", json= {'token': token,
                                                                               'channel_id': channel_id,
                                                                               'user_id': u_id2})
-    assert removeowner.status_code == 200
+    assert removeowner.status_code == 400
 
 def test_channel_removeowner_v1_non_owner(initialise_member):
     register = initialise_member.json()
