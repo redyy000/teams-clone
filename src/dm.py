@@ -2,6 +2,7 @@ from datetime import timezone
 import datetime
 from src.error import InputError, AccessError
 from src.other import token_create, is_valid_token, load_data, store_data
+from src.user import user_profile_v1
 
 
 def dm_name_generate(u_ids):
@@ -212,19 +213,23 @@ def dm_details_v1(token, dm_id):
             dm_exist = True
     if dm_exist == False:
         raise InputError(description='Given dm does not exist')
-
-    return_dict = {}
+    dm_name = ''
+    members_list = []
     for dm in datastore['dms']:
         if dm['dm_id'] == dm_id:
             if user_id not in dm['all_members']:
                 raise AccessError(
                     description='User is not a member of the DM!')
+            dm_name = dm['name']
+            # Grab user details
+            for user in dm['all_members']:
+                user_dict = user_profile_v1(token, user)['user']
+                members_list.append(user_dict)
 
-            return_dict = {
-                'name': dm['name'],
-                'members': dm['all_members']
-            }
-    return return_dict
+    return {
+        'name': dm_name,
+        'members': members_list
+    }
 
 
 def dm_leave_v1(token, dm_id):

@@ -81,9 +81,23 @@ def test_dm_create_functionality(post_test_user):
     assert dm_details.status_code == 200
     assert dm_details.json()[
         'name'] == 'bobbuilder, firstnamelastname, georgemonkey'
-    assert bob_info['auth_user_id'] in dm_details.json()['members']
-    assert post_test_user['auth_user_id'] in dm_details.json()['members']
-    assert george_info['auth_user_id'] in dm_details.json()['members']
+
+    for member_dict in dm_details.json()['members']:
+        if member_dict['u_id'] == post_test_user['auth_user_id']:
+            assert member_dict['email'] == "user@gmail.com"
+            assert member_dict['name_first'] == "FirstName"
+            assert member_dict['name_last'] == "LastName"
+            assert member_dict['handle_str'] == "firstnamelastname"
+        if member_dict['u_id'] == bob_info['auth_user_id']:
+            assert member_dict['email'] == "canwefixit@gmail.com"
+            assert member_dict['name_first'] == "Bob"
+            assert member_dict['name_last'] == "Builder"
+            assert member_dict['handle_str'] == "bobbuilder"
+        if member_dict['u_id'] == george_info['auth_user_id']:
+            assert member_dict['email'] == "george@gmail.com"
+            assert member_dict['name_first'] == "George"
+            assert member_dict['name_last'] == "Monkey"
+            assert member_dict['handle_str'] == "georgemonkey"
 
 
 def test_dm_create_invalid_token(post_test_user):
@@ -116,7 +130,13 @@ def test_dm_create_empty_u_ids(post_test_user):
     assert dm_details.status_code == 200
     assert dm_details.json()[
         'name'] == 'firstnamelastname'
-    assert post_test_user['auth_user_id'] in dm_details.json()['members']
+
+    for member_dict in dm_details.json()['members']:
+        if member_dict['u_id'] == post_test_user['auth_user_id']:
+            assert member_dict['email'] == "user@gmail.com"
+            assert member_dict['name_first'] == "FirstName"
+            assert member_dict['name_last'] == "LastName"
+            assert member_dict['handle_str'] == "firstnamelastname"
 
 
 def test_dm_create_invalid_u_id(post_test_user):

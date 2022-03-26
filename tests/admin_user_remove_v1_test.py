@@ -179,6 +179,28 @@ def test_admin_user_remove_from_channel(setup_users):
         assert message_dict['message'] == 'Removed user'
 
 
+def test_admin_user_remove_token(setup_users):
+    owner = setup_users[0]
+    member1 = setup_users[1]
+
+    remove_response1 = requests.delete(f"{config.url}/admin/user/remove/v1", json={
+        'token': owner['token'],
+        'u_id': member1['auth_user_id'],
+    })
+
+    assert remove_response1.status_code == 200
+
+    # Check the removed user cannot use their token anymore
+
+    channel_response = requests.post(f"{config.url}channels/create/v2", json={
+        "token": member1['token'],
+        "name": "general",
+        "is_public": True
+    })
+
+    assert channel_response.status_code == 403
+
+
 def test_admin_user_remove_from_channel_owner(setup_users):
     owner = setup_users[0]
     member1 = setup_users[1]

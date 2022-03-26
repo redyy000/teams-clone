@@ -40,6 +40,7 @@ def test_admin_userpermissions_change__v1_success(setup_users):
 
     owner = setup_users[0]
     member1 = setup_users[1]
+    member2 = setup_users[2]
 
     change_permission_id = requests.post(f"{config.url}/admin/userpermission/change/v1", json={
         'token': owner['token'],
@@ -48,6 +49,14 @@ def test_admin_userpermissions_change__v1_success(setup_users):
 
     assert change_permission_id.status_code == 200
     assert change_permission_id.json() == {}
+
+    change_permission_id2 = requests.post(f"{config.url}/admin/userpermission/change/v1", json={
+        'token': member1['token'],
+        'u_id': member2['auth_user_id'],
+        'permission_id': OWNER_PERMISSION})
+
+    assert change_permission_id2.status_code == 200
+    assert change_permission_id2.json() == {}
 
 
 def test_admin_userpermissions_change__v1_multiple_owners(setup_users):

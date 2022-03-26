@@ -97,9 +97,21 @@ def test_dm_leave_success(post_test_user, fixture_bob, fixture_george):
     assert dm1_details.status_code == 200
     assert dm1_details.json()[
         'name'] == 'bobbuilder, firstnamelastname, georgemonkey'
-    assert fixture_bob['auth_user_id'] in dm1_details.json()['members']
-    assert post_test_user['auth_user_id'] not in dm1_details.json()['members']
-    assert fixture_george['auth_user_id'] in dm1_details.json()['members']
+
+    assert len(dm1_details.json()['members']) == 2
+
+    for member_dict in dm1_details.json()['members']:
+        assert member_dict['u_id'] != post_test_user['auth_user_id']
+        if member_dict['u_id'] == fixture_bob['auth_user_id']:
+            assert member_dict['email'] == "canwefixit@gmail.com"
+            assert member_dict['name_first'] == "Bob"
+            assert member_dict['name_last'] == "Builder"
+            assert member_dict['handle_str'] == "bobbuilder"
+        if member_dict['u_id'] == fixture_george['auth_user_id']:
+            assert member_dict['email'] == "george@gmail.com"
+            assert member_dict['name_first'] == "George"
+            assert member_dict['name_last'] == "Monkey"
+            assert member_dict['handle_str'] == "georgemonkey"
 
 
 def test_dm_leave_success_normal_member(post_test_user, fixture_bob, fixture_george):
@@ -125,9 +137,21 @@ def test_dm_leave_success_normal_member(post_test_user, fixture_bob, fixture_geo
     assert dm1_details.status_code == 200
     assert dm1_details.json()[
         'name'] == 'bobbuilder, firstnamelastname, georgemonkey'
-    assert fixture_bob['auth_user_id'] not in dm1_details.json()['members']
-    assert post_test_user['auth_user_id'] in dm1_details.json()['members']
-    assert fixture_george['auth_user_id'] in dm1_details.json()['members']
+
+    assert len(dm1_details.json()['members']) == 2
+
+    for member_dict in dm1_details.json()['members']:
+        assert member_dict['u_id'] != fixture_bob['auth_user_id']
+        if member_dict['u_id'] == post_test_user['auth_user_id']:
+            assert member_dict['email'] == "user@gmail.com"
+            assert member_dict['name_first'] == "FirstName"
+            assert member_dict['name_last'] == "LastName"
+            assert member_dict['handle_str'] == "firstnamelastname"
+        if member_dict['u_id'] == fixture_george['auth_user_id']:
+            assert member_dict['email'] == "george@gmail.com"
+            assert member_dict['name_first'] == "George"
+            assert member_dict['name_last'] == "Monkey"
+            assert member_dict['handle_str'] == "georgemonkey"
 
 
 def test_dm_leave_multiple_dms(post_test_user, fixture_bob, fixture_george):
@@ -153,10 +177,21 @@ def test_dm_leave_multiple_dms(post_test_user, fixture_bob, fixture_george):
     assert dm1_details.status_code == 200
     assert dm1_details.json()[
         'name'] == 'bobbuilder, firstnamelastname, georgemonkey'
-    assert fixture_bob['auth_user_id'] in dm1_details.json()['members']
-    assert post_test_user['auth_user_id'] not in dm1_details.json()['members']
-    assert fixture_george['auth_user_id'] in dm1_details.json()['members']
 
+    assert len(dm1_details.json()['members']) == 2
+
+    for member_dict in dm1_details.json()['members']:
+        assert member_dict['u_id'] != post_test_user['auth_user_id']
+        if member_dict['u_id'] == fixture_bob['auth_user_id']:
+            assert member_dict['email'] == "canwefixit@gmail.com"
+            assert member_dict['name_first'] == "Bob"
+            assert member_dict['name_last'] == "Builder"
+            assert member_dict['handle_str'] == "bobbuilder"
+        if member_dict['u_id'] == fixture_george['auth_user_id']:
+            assert member_dict['email'] == "george@gmail.com"
+            assert member_dict['name_first'] == "George"
+            assert member_dict['name_last'] == "Monkey"
+            assert member_dict['handle_str'] == "georgemonkey"
     dm_id2 = requests.post(f'{config.url}dm/create/v1', json={
         'token': fixture_bob['token'],
         'u_ids': [fixture_george['auth_user_id']]

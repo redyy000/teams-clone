@@ -177,3 +177,93 @@ def test_channel_message_success_functionality(setup_users):
     assert response.json()[
         'messages'][0]['message'] == 'Every soul has its dark'
     assert response.json()['messages'][0]['message_id'] == 1
+
+
+def test_channel_messages_functionality_125(setup_users):
+
+    owner = setup_users[0]
+    member1 = setup_users[1]
+
+    channel_id = requests.post(f'{config.url}channels/create/v2', json={
+        'token': owner['token'],
+        'name': 'general',
+        'is_public': True
+    })
+
+    requests.post(f'{config.url}channel/invite/v2', json={
+        'token': owner['token'],
+        'channel_id': channel_id.json()['channel_id'],
+        'u_id': member1['auth_user_id']
+    })
+
+    # First 25 Messages
+    for idx in range(0, 25):
+        requests.post(f'{config.url}message/send/v1', json={
+            'token': member1['token'],
+            'channel_id': channel_id.json()['channel_id'],
+            'message': "Goodbye World"})
+    # Next 50 Messages
+    for idx in range(0, 50):
+        requests.post(f'{config.url}message/send/v1', json={
+            'token': owner['token'],
+            'channel_id': channel_id.json()['channel_id'],
+            'message': "Hello World"})
+    # Next 50 Messages
+    for idx in range(0, 50):
+        requests.post(f'{config.url}message/send/v1', json={
+            'token': member1['token'],
+            'channel_id': channel_id.json()['channel_id'],
+            'message': "Evening World"})
+
+    channel_messages1 = requests.get(f'{config.url}channel/messages/v2', params={
+        'token': owner['token'],
+        'channel_id': channel_id.json()['channel_id'],
+        'start': 0
+    })
+
+    channel_messages2 = requests.get(f'{config.url}channel/messages/v2', params={
+        'token': owner['token'],
+        'channel_id': channel_id.json()['channel_id'],
+        'start': 50
+    })
+
+    channel_messages3 = requests.get(f'{config.url}channel/messages/v2', params={
+        'token': owner['token'],
+        'channel_id': channel_id.json()['channel_id'],
+        'start': 100
+    })
+
+    assert channel_messages1.status_code == 200
+    channel_messages1_info = channel_messages1.json()['messages']
+    assert len(channel_messages1_info) == 50
+
+    for idx in range(0, 50):
+        assert channel_messages1_info[idx]['message_id'] == 125 - idx
+        assert channel_messages1_info[idx]['u_id'] == member1['auth_user_id']
+        assert channel_messages1_info[idx]['message'] == "Evening World"
+
+    assert channel_messages1.json()['end'] == 50
+    assert channel_messages1.json()['start'] == 0
+
+    assert channel_messages2.status_code == 200
+    channel_messages2_info = channel_messages2.json()['messages']
+    assert len(channel_messages2_info) == 50
+
+    for idx in range(0, 50):
+        assert channel_messages2_info[idx]['message_id'] == 75 - idx
+        assert channel_messages2_info[idx]['u_id'] == owner['auth_user_id']
+        assert channel_messages2_info[idx]['message'] == "Hello World"
+
+    assert channel_messages2.json()['end'] == 100
+    assert channel_messages2.json()['start'] == 50
+
+    assert channel_messages3.status_code == 200
+    channel_messages3_info = channel_messages3.json()['messages']
+    assert len(channel_messages3_info) == 25
+    for idx in range(0, 25):
+        assert channel_messages3_info[idx]['message_id'] == 25 - idx
+        assert channel_messages3_info[idx]['u_id'] == member1['auth_user_id']
+        assert channel_messages3_info[idx]['message'] == "Goodbye World"
+
+    assert channel_messages3.json()['end'] == -1
+    assert channel_messages3.json()['start'] == 100
