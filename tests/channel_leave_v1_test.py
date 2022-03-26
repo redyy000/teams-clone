@@ -81,6 +81,7 @@ def test_channel_leave_v1_success_2(initialise_member):
     channel_id2 = channel2.json()['channel_id']
     requests.post(f"{config.url}channel/leave/v1", json= {'token': token,
                                                           'channel_id': channel_id2})
+    # 0 members in the channel
 
 def test_channel_leave_v1_success_3(initialise_member):
     register = initialise_member.json()
@@ -102,6 +103,21 @@ def test_channel_leave_v1_success_3(initialise_member):
                                                              'user_id': u_id2})
     requests.post(f"{config.url}channel/leave/v1", json= {'token': token2,
                                                           'channel_id': channel_id})
+    details = requests.get(f'{config.url}channel/details/v2', params= {'token': token,
+                                                                       'channel_id': channel_id})
+    details_data = details.json()
+    assert details_data == {'name': 'General',
+                            'is_public': True,
+                            'owner_members': [{'email': 'test@email.com',
+                            'handle_str': 'firstnamelastname',
+                            'name_first': 'first_name',
+                            'name_last': 'last_name',
+                            'u_id': 1}],
+                            'all_members': [{'email': 'test@email.com',
+                            'handle_str': 'firstnamelastname',
+                            'name_first': 'first_name',
+                            'name_last': 'last_name',
+                            'u_id': 1}]}
 
 def test_channel_leave_v1_invalid_user(initialise_member):
     register = initialise_member.json()
@@ -133,3 +149,18 @@ def test_channel_leave_v1_global_owner(initialise_member):
                                                           'u_id': u_id1})
     requests.post(f"{config.url}channel/leave/v1", json= {'token': token,
                                                           'channel_id': channel_id})
+    details = requests.get(f'{config.url}channel/details/v2', params= {'token': token2,
+                                                                       'channel_id': channel_id})
+    details_data = details.json()
+    assert details_data == {'name': 'General',
+                            'is_public': True,
+                            'owner_members': [{'email': 'test@bing.com',
+                            'handle_str': 'bingrong',
+                            'name_first': 'bing',
+                            'name_last': 'rong',
+                            'u_id': 2}],
+                            'all_members': [{'email': 'test@bing.com',
+                            'handle_str': 'bingrong',
+                            'name_first': 'bing',
+                            'name_last': 'rong',
+                            'u_id': 2}]}
