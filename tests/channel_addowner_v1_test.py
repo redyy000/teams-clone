@@ -116,7 +116,7 @@ def test_channel_addowner_v1_non_member(initialise_member):
 def test_channel_addowner_v1_owner(initialise_member):
     register = initialise_member.json()
     token = register['token']
-    u_id1 = register['auth_user_id']
+    register['auth_user_id']
     variable = initialise_channel(token).json()
     channel_id = variable['channel_id']
     register2 = requests.post(f"{config.url}auth/register/v2", json={'email': 'test@bing.com',
