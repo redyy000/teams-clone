@@ -5,14 +5,16 @@ from json import dumps, dump, load
 from flask import Flask, request
 from src.other import store_data, load_data, is_valid_token
 from src.admin import is_global_owner
-
+from src.user import user_profile_v1
 
 
 def permission_id_given_user(auth_user_id):
     store = load_data()
+    permission = 0
     for user in store['users']:
         if user['u_id'] == auth_user_id:
-            return user['permission_id']
+            permission = user['permission_id']
+    return permission
 
 
 def channel_invite_v2(token, channel_id, u_id):
@@ -268,40 +270,30 @@ def channel_details_v2(token, channel_id):
     if is_member == False:
         raise AccessError(
             description=f"User ID {auth_user_id} is not a member of channel (Channel ID {channel_id}).")
-    # Collect details
-    for channels in store['channels']:
-        if channels['channel_id'] == channel_id:
-            channel_members = []
-            channel_owners = []
-            channel_name = channels['name']
-            channel_public = channels['is_public']
-            for u_id in channels['owner_members']:
-                for user in store['users']:
-                    if u_id == user['u_id']:
-                        new_owner = {
-                            'u_id': user['u_id'],
-                            'email': user['email'],
-                            'name_first': user['name_first'],
-                            'name_last': user['name_last'],
-                            'handle_str': user['handle_str'],
-                        }
-                        channel_owners.append(new_owner)
-            for member in channels['all_members']:
-                for user in store['users']:
-                    if member['user_id'] == user['u_id']:
-                        new_user = {
-                            'u_id': user['u_id'],
-                            'email': user['email'],
-                            'name_first': user['name_first'],
-                            'name_last': user['name_last'],
-                            'handle_str': user['handle_str'],
-                        }
-                        channel_members.append(new_user)
+    channel_name = ''
+    channel_public = ''
+    owner_list = []
+    member_list = []
+
+    for channel in store['channels']:
+        if channel_id == channel['channel_id']:
+            channel_name = channel['name']
+            channel_public = channel['is_public']
+
+            # Collect owner details
+            for owner in channel['owner_members']:
+                owner_list.append(user_profile_v1(token, owner)['user'])
+
+            # Collect normal member details
+            for member_dict in channel['all_members']:
+                member_list.append(user_profile_v1(
+                    token, member_dict['user_id'])['user'])
+
     return {
         'name': channel_name,
         'is_public': channel_public,
-        'owner_members': channel_owners,
-        'all_members': channel_members
+        'owner_members': owner_list,
+        'all_members': member_list
     }
 
 
@@ -346,8 +338,8 @@ def channel_leave_v1(token, channel_id):
                     is_member = True
 
     if is_member == False:
-        raise AccessError(description=
-            f"User ID {u_id} is not a member of {channels['name']}, channel ID {channel_id} ")
+        raise AccessError(
+            description=f"User ID {u_id} is not a member of {channels['name']}, channel ID {channel_id} ")
 
     # remove selected member from channel
     for channels in store['channels']:
@@ -411,19 +403,19 @@ def channel_addowner_v1(token, channel_id, u_id):
                 if u_id == member['user_id']:
                     is_member = True
     if is_member == False:
-        raise InputError(description=
-            f"User ID {u_id} is not a member of channel (Channel ID {channel_id}).")
+        raise InputError(
+            description=f"User ID {u_id} is not a member of channel (Channel ID {channel_id}).")
 
     for channels in store['channels']:
         if channels['channel_id'] == channel_id:
             # Check if auth_user_id has owner permissions
             if auth_user_id not in channels['owner_members'] or permission_id_given_user(auth_user_id) != 1:
-                raise AccessError(description=
-                    f"User ID {auth_user_id} does not have owner permissions in this channel.")
+                raise AccessError(
+                    description=f"User ID {auth_user_id} does not have owner permissions in this channel.")
             # Check if u_id is already an owner
             elif u_id in channels['owner_members']:
-                raise InputError(description=
-                    f"User ID {u_id} is already an owner of the channel.")
+                raise InputError(
+                    description=f"User ID {u_id} is already an owner of the channel.")
             # Add owner
             else:
                 channels['owner_members'].append(u_id)
@@ -487,16 +479,16 @@ def channel_removeowner_v1(token, channel_id, u_id):
         if channels['channel_id'] == channel_id:
             # Check if auth_user_id does not have owner permissions
             if auth_user_id not in channels['owner_members'] or permission_id_given_user(auth_user_id) != 1:
-                raise AccessError(description=
-                    f"User ID {auth_user_id} does not have owner permissions in this channel.")
+                raise AccessError(
+                    description=f"User ID {auth_user_id} does not have owner permissions in this channel.")
             # Check if u_id is not an owner
             elif u_id not in channels['owner_members']:
-                raise InputError(description=
-                    f"User ID {u_id} is not an owner of the channel.")
+                raise InputError(
+                    description=f"User ID {u_id} is not an owner of the channel.")
             # Check if u_id is the only channel owner
             elif [u_id] == channels['owner_members']:
-                raise InputError(description=
-                    f"User ID {u_id} is the only owner of the channel.")
+                raise InputError(
+                    description=f"User ID {u_id} is the only owner of the channel.")
             # Remove owner
             else:
                 channels['owner_members'].remove(u_id)
