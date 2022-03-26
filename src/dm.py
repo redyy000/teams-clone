@@ -2,45 +2,6 @@ from datetime import timezone
 import datetime
 from src.error import InputError, AccessError
 from src.other import token_create, is_valid_token, load_data, store_data
-'''
-dm_data_structure = {
-    # Name of dm automatically generated
-    'name' : 'string',
-
-    # dm id
-    'dm_id' : number
-
-    # List of normal member u_ids
-    # Normal members == NOT owners
-    'normal_members' : [],
-
-
-    # List of owner u_ids
-    # Original creator is first
-    'owners' : [],
-
-    # List of all member ids
-    'all_members' : []
-
-    # List of message dictionaries
-    'messages' : [
-        {
-
-            # Message id is now the global message id
-            'message_id' : int,
-
-            # U_id of the sender
-            'sender_id' : int(u_id),
-
-            # Actual string of message
-            'message' : 'string',
-
-            # Time sent
-            'time_sent' : datetime.datetime.now()
-        }
-    ]
-}
-'''
 
 
 def dm_name_generate(u_ids):
@@ -350,10 +311,12 @@ def dm_messages_v1(token, dm_id, start):
     datastore = load_data()
 
     # Check dm exists
+    message_count = -1
     dm_exist = False
     user_exist = False
     for dm in datastore['dms']:
         if dm['dm_id'] == dm_id:
+            message_count = len(dm['messages'])
             dm_exist = True
             if user_id in dm['all_members']:
                 user_exist = True
@@ -364,13 +327,9 @@ def dm_messages_v1(token, dm_id, start):
         raise InputError(description='Dm id does not exist!')
     if user_exist == False:
         raise AccessError(description='Non-authorised user!!!')
-    message_count = 0
-    for dm in datastore['dms']:
-        message_count = message_count + len(dm['messages'])
-    # message_count = sum([len(dm['messages']) for dm in datastore['dms']])
 
     # Check starting id is valid
-    if start >= message_count or isinstance(start, int) == False or start < 0:
+    if start > message_count or isinstance(start, int) == False or start < 0:
         raise InputError(description='Start index is too high!')
 
     # Temporary end variable
