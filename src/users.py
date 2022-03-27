@@ -27,8 +27,6 @@ def users_list_all_v1(token):
         raise AccessError('False Token!')
 
     datastore = data_store.get()
-    # user_list = [user_profile_v1(token, user['u_id'])['user']
-    # for user in datastore['users'] if user['is_deleted'] == False]
     user_list = []
 
     for user in datastore['users']:

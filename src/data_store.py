@@ -78,7 +78,7 @@ class Datastore:
         data = self.__store
 
         with open('src/data.json', 'w', encoding="utf8") as input_file:
-            # Why do we use indent = 4...
+
             json.dump(data, input_file, indent=4)
 
 

@@ -19,8 +19,6 @@ from src.message import message_send_v1, message_senddm_v1, message_remove_v1, m
 from src.admin import admin_userpermission_change_v1, admin_user_remove_v1
 from src.data_store import data_store
 
-# dm_messages_v1
-
 
 APP = Flask(__name__)
 
@@ -66,7 +64,6 @@ def auth_register():
         'session_id_list' : [1]
     }
     '''
-    # What happens when auth_register_v2 throws an exception?
     resp = auth_register_v2(arguments['email'],
                             arguments['password'],
                             arguments['name_first'],
@@ -186,7 +183,6 @@ def channel_removeowner():
 
 @APP.route("/clear/v1", methods=["DELETE"])
 def clear():
-    # ADD SAVE?
     clear_v1()
     data_store.save()
     return dumps({})
