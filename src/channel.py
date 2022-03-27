@@ -89,7 +89,7 @@ def channel_invite_v2(token, channel_id, u_id):
                         description="Invitee is already in the channel")
 
     # If all prior checks pass, create a new dictionary and append to members list in datastore
-    new_member = {'user_id': u_id, 'permission_id': 0}
+    new_member = {'user_id': u_id, 'permission_id': 2}
     for channels in channel_info:
         if channels['channel_id'] == channel_id:
             channels['all_members'].append(new_member)
@@ -218,7 +218,7 @@ def channel_join_v2(token, channel_id):
         raise InputError(description="Channel ID is invalid. ")
     elif is_public == False and is_global_owner(auth_user_id) == False:
         raise AccessError(
-            description="User is trying to access a private server")
+            description="User is trying to access a private channel")
 
     # If all prior checks pass, create a new dictionary and append to members list in datastore
     new_member = {'user_id': auth_user_id, 'permission_id': 2}
