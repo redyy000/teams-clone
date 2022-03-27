@@ -188,7 +188,6 @@ def channel_removeowner():
 def clear():
     # ADD SAVE?
     clear_v1()
-    print(data_store)
     data_store.save()
     return dumps({})
 
