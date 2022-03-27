@@ -54,7 +54,7 @@ class Datastore:
     def __init__(self):
 
         # If the file already exists, then we load that in
-        if os.path.exists('src/data.json') and os.stat("src/data.json") == 0:
+        if os.path.exists('src/data.json') and os.stat("src/data.json") != 0:
             with open('src/data.json', 'r', encoding="utf8") as input_file:
                 data = json.load(input_file)
         else:

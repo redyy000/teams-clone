@@ -190,7 +190,8 @@ def admin_user_remove_v1(token, u_id):
         raise AccessError(description="You're not a global owner, forbidden!")
 
     if is_u_id_final_global_owner(u_id) == True:
-        raise InputError(description='u_id is the final global owner!')
+        raise InputError(
+            description='You cannot remove the final global owner!')
 
     # Their profile must still be retrievable with user/profile,
     # however name_first should be 'Removed' and name_last should be 'user'.
