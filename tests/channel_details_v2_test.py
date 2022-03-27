@@ -36,7 +36,6 @@ def user2():
         'name_first': 'FirstName2',
         'name_last': 'LastName2',
     }).json()
-    print(user_data2)
     return user_data2['token']
 
 
@@ -125,7 +124,6 @@ def test_channel_details_v2_user_not_in_channel(user1, user2):
         "name": "New Channel",
         "is_public": True
     })
-    print(f"new_channel2 has channel id: {new_channel2.json()}")
     channel_id2 = new_channel2.json()['channel_id']
     non_member = requests.get(f'{config.url}channel/details/v2', params={'token': user2,
                                                                          'channel_id': channel_id2})
@@ -138,7 +136,6 @@ def test_channel_details_v2_invalid_token(user1):
         "name": "New Channel",
         "is_public": True
     })
-    print(f"new_channel3 has channel id: {new_channel3.json()}")
     invalid_token = requests.get(f'{config.url}channel/details/v2', params={'token': 'invalid_token',
                                                                             'channel_id': new_channel3})
     assert invalid_token.status_code == 403

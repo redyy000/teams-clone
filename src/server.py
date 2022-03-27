@@ -17,7 +17,7 @@ from src.channel import channel_details_v2, channel_invite_v2, channel_join_v2, 
 from src.dm import dm_create_v1, dm_details_v1, dm_list_v1, dm_remove_v1, dm_leave_v1, dm_messages_v1
 from src.message import message_send_v1, message_senddm_v1, message_remove_v1, message_edit_v1
 from src.admin import admin_userpermission_change_v1, admin_user_remove_v1
-
+from src.data_store import data_store
 
 # dm_messages_v1
 
@@ -71,6 +71,7 @@ def auth_register():
                             arguments['password'],
                             arguments['name_first'],
                             arguments['name_last'])
+    data_store.save()
     return dumps(resp)
 
 
@@ -78,6 +79,7 @@ def auth_register():
 def auth_login():
     arguments = request.get_json()
     resp = auth_login_v2(arguments['email'], arguments['password'])
+    data_store.save()
     return dumps(resp)
 
 
@@ -85,6 +87,7 @@ def auth_login():
 def auth_logout():
     arguments = request.get_json()
     resp = auth_logout_v1(arguments['token'])
+    data_store.save()
     return dumps(resp)
 
 
@@ -93,6 +96,7 @@ def channels_create():
     arguments = request.get_json()
     resp = channels_create_v2(
         arguments["token"], arguments["name"], arguments["is_public"])
+    data_store.save()
     return dumps(resp)
 
 
@@ -102,6 +106,7 @@ def channel_messages():
     channel_id = request.args.get('channel_id', type=int)
     start = request.args.get('start', type=int)
     returnvalue = channel_messages_v2(token, channel_id, start)
+    data_store.save()
     return dumps(returnvalue)
 
 
@@ -110,6 +115,7 @@ def channel_details():
     token = request.args.get('token')
     channel_id = request.args.get('channel_id', type=int)
     returnvalue = channel_details_v2(token, channel_id)
+    data_store.save()
     return dumps(returnvalue)
 
 
@@ -117,6 +123,7 @@ def channel_details():
 def channels_list():
     token = request.args.get('token')
     resp = channels_list_v2(token)
+    data_store.save()
     return dumps(resp)
 
 
@@ -124,6 +131,7 @@ def channels_list():
 def channels_listall():
     token = request.args.get('token')
     returnvalue = channels_listall_v2(token)
+    data_store.save()
     return dumps(returnvalue)
 
 
@@ -132,6 +140,7 @@ def channel_join():
     payload = request.get_json()
     token = payload['token']
     channel_join_v2(token, payload['channel_id'])
+    data_store.save()
     return dumps({})
 
 
@@ -140,6 +149,7 @@ def channel_invite():
     payload = request.get_json()
     token = payload['token']
     channel_invite_v2(token, payload['channel_id'], payload['u_id'])
+    data_store.save()
     return dumps({})
 
 
@@ -148,6 +158,7 @@ def channel_leave():
     payload = request.get_json()
     token = payload['token']
     channel_leave_v1(token, payload['channel_id'])
+    data_store.save()
     return dumps({})
 
 
@@ -158,6 +169,7 @@ def channel_addowner():
     channel_id = payload['channel_id']
     u_id = payload['user_id']
     channel_addowner_v1(token, channel_id, u_id)
+    data_store.save()
     return dumps({})
 
 
@@ -168,12 +180,15 @@ def channel_removeowner():
     channel_id = payload['channel_id']
     u_id = payload['user_id']
     channel_removeowner_v1(token, channel_id, u_id)
+    data_store.save()
     return dumps({})
 
 
 @APP.route("/clear/v1", methods=["DELETE"])
 def clear():
+    # ADD SAVE?
     clear_v1()
+    data_store.save()
     return dumps({})
 
 
@@ -182,6 +197,7 @@ def user_profile_get():
     token = request.args.get('token', type=str)
     u_id = request.args.get('u_id', type=int)
     resp = user_profile_v1(token, u_id)
+    data_store.save()
     return dumps(resp)
 
 
@@ -189,6 +205,7 @@ def user_profile_get():
 def user_profile_setemail():
     arguments = request.get_json()
     resp = user_profile_setemail_v1(arguments['token'], arguments['email'])
+    data_store.save()
     return dumps(resp)
 
 
@@ -197,6 +214,7 @@ def user_profile_sethandle():
     arguments = request.get_json()
     resp = user_profile_sethandle_v1(
         arguments['token'], arguments['handle_str'])
+    data_store.save()
     return dumps(resp)
 
 
@@ -205,6 +223,7 @@ def user_profile_setname():
     arguments = request.get_json()
     resp = user_profile_setname_v1(
         arguments['token'], arguments['name_first'], arguments['name_last'])
+    data_store.save()
     return dumps(resp)
 
 
@@ -213,6 +232,7 @@ def users_list_all():
     token = request.args.get('token', type=str)
     resp = users_list_all_v1(
         token)
+    data_store.save()
     return dumps(resp)
 
 
@@ -221,6 +241,7 @@ def dm_create():
     arguments = request.get_json()
     resp = dm_create_v1(
         arguments['token'], arguments['u_ids'])
+    data_store.save()
     return dumps(resp)
 
 
@@ -229,6 +250,7 @@ def dm_list():
     token = request.args.get('token', type=str)
     resp = dm_list_v1(
         token)
+    data_store.save()
     return dumps(resp)
 
 
@@ -237,6 +259,7 @@ def dm_remove():
     arguments = request.get_json()
     resp = dm_remove_v1(
         arguments['token'], arguments['dm_id'])
+    data_store.save()
     return dumps(resp)
 
 
@@ -246,6 +269,7 @@ def dm_details():
     dm_id = request.args.get('dm_id', type=int)
     resp = dm_details_v1(
         token, dm_id)
+    data_store.save()
     return dumps(resp)
 
 
@@ -254,6 +278,7 @@ def dm_leave():
     arguments = request.get_json()
     resp = dm_leave_v1(
         arguments['token'], arguments['dm_id'])
+    data_store.save()
     return dumps(resp)
 
 
@@ -262,7 +287,7 @@ def message_senddm():
     arguments = request.get_json()
     resp = message_senddm_v1(
         arguments['token'], arguments['dm_id'], arguments['message'])
-
+    data_store.save()
     return dumps(resp)
 
 
@@ -274,6 +299,7 @@ def dm_messages():
 
     resp = dm_messages_v1(
         token, dm_id, start)
+    data_store.save()
     return dumps(resp)
 
 
@@ -282,7 +308,7 @@ def message_send():
     arguments = request.get_json()
     resp = message_send_v1(
         arguments['token'], arguments['channel_id'], arguments['message'])
-
+    data_store.save()
     return dumps(resp)
 
 
@@ -291,7 +317,7 @@ def message_edit():
     arguments = request.get_json()
     resp = message_edit_v1(
         arguments['token'], arguments['message_id'], arguments['message'])
-
+    data_store.save()
     return dumps(resp)
 
 
@@ -300,7 +326,7 @@ def message_remove():
     arguments = request.get_json()
     resp = message_remove_v1(
         arguments['token'], arguments['message_id'])
-
+    data_store.save()
     return dumps(resp)
 
 
@@ -309,7 +335,7 @@ def admin_permission_change():
     arguments = request.get_json()
     resp = admin_userpermission_change_v1(
         arguments['token'], arguments['u_id'], arguments['permission_id'])
-
+    data_store.save()
     return dumps(resp)
 
 
@@ -318,7 +344,7 @@ def admin_user_remove():
     arguments = request.get_json()
     resp = admin_user_remove_v1(
         arguments['token'], arguments['u_id'])
-
+    data_store.save()
     return dumps(resp)
 
 

@@ -1,6 +1,7 @@
 import re
 from src.error import InputError, AccessError
-from src.other import is_valid_token, load_data, store_data
+from src.other import is_valid_token
+from src.data_store import data_store
 
 
 def user_profile_v1(token, u_id):
@@ -33,7 +34,7 @@ def user_profile_v1(token, u_id):
     if token_decoded == False:
         raise AccessError(description='False Token!')
 
-    datastore = load_data()
+    datastore = data_store.get()
     return_dict = {}
     for user in datastore['users']:
         if user['u_id'] == u_id:
@@ -75,7 +76,7 @@ def user_profile_setname_v1(token, name_first, name_last):
     if token_decoded == False:
         raise AccessError(description='False Token!')
 
-    datastore = load_data()
+    datastore = data_store.get()
     u_id = token_decoded['u_id']
 
     if isinstance(name_first, str) == False or isinstance(name_last, str) == False:
@@ -92,7 +93,7 @@ def user_profile_setname_v1(token, name_first, name_last):
             user['name_first'] = name_first
             user['name_last'] = name_last
 
-    store_data(datastore)
+    data_store.set(datastore)
     return {}
 
 
@@ -120,7 +121,7 @@ def user_profile_setemail_v1(token, email):
     if token_decoded == False:
         raise AccessError(description='False Token!')
 
-    datastore = load_data()
+    datastore = data_store.get()
     u_id = token_decoded['u_id']
 
     # Determine if email matches regular expression.
@@ -140,8 +141,7 @@ def user_profile_setemail_v1(token, email):
         if user['u_id'] == u_id:
             user['email'] = email
 
-    store_data(datastore)
-
+    data_store.set(datastore)
     return {}
 
 
@@ -168,7 +168,7 @@ def user_profile_sethandle_v1(token, handle_str):
     if token_decoded == False:
         raise AccessError(description='False Token!')
 
-    datastore = load_data()
+    datastore = data_store.get()
     u_id = token_decoded['u_id']
 
     for user in datastore['users']:
@@ -186,6 +186,6 @@ def user_profile_sethandle_v1(token, handle_str):
         if user['u_id'] == u_id:
             user['handle_str'] = handle_str
 
-    store_data(datastore)
+    data_store.set(datastore)
 
     return {}
