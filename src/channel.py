@@ -3,13 +3,14 @@ from src.channels import channels_create_v2, channels_list_v2
 from src.error import InputError, AccessError
 from json import dumps, dump, load
 from flask import Flask, request
-from src.other import store_data, load_data, is_valid_token
+from src.other import is_valid_token
 from src.admin import is_global_owner
 from src.user import user_profile_v1
+from src.data_store import data_store
 
 
 def permission_id_given_user(auth_user_id):
-    store = load_data()
+    store = data_store.get()
     permission = 0
     for user in store['users']:
         if user['u_id'] == auth_user_id:
@@ -36,7 +37,7 @@ def channel_invite_v2(token, channel_id, u_id):
     Return Type:
         None
     '''
-    store = load_data()
+    store = data_store.get()
 
     token_decoded = is_valid_token(token)
     if token_decoded == False:
@@ -94,7 +95,7 @@ def channel_invite_v2(token, channel_id, u_id):
         if channels['channel_id'] == channel_id:
             channels['all_members'].append(new_member)
 
-    store_data(store)
+    data_store.set(store)
     return {
     }
 
@@ -126,7 +127,7 @@ def channel_messages_v2(token, channel_id, start):
         Returns dictionary containing list of messages, the starting index (start) and
         the ending index (start + 50 or -1 if least recent message returned)
     '''
-    store = load_data()
+    store = data_store.get()
 
     token_decoded = is_valid_token(token)
     if token_decoded == False:
@@ -186,7 +187,7 @@ def channel_join_v2(token, channel_id):
         None
     '''
 
-    store = load_data()
+    store = data_store.get()
     channel_info = store['channels']
 
     token_decoded = is_valid_token(token)
@@ -226,7 +227,7 @@ def channel_join_v2(token, channel_id):
         if channels['channel_id'] == channel_id:
             channels['all_members'].append(new_member)
 
-    store_data(store)
+    data_store.set(store)
 
     return {
     }
@@ -251,7 +252,7 @@ def channel_details_v2(token, channel_id):
     if user_info == False:
         raise AccessError(description="Invalid Token")
     auth_user_id = user_info['u_id']
-    store = load_data()
+    store = data_store.get()
     # Checks to see if entered channel id exists
     is_channelfound = False
     for channels in store['channels']:
@@ -318,7 +319,7 @@ def channel_leave_v1(token, channel_id):
         raise AccessError(description="Invalid Token")
     u_id = user_info['u_id']
 
-    store = load_data()
+    store = data_store.get()
     is_channelfound = False
     # Checks to see if entered channel id exists
     for channels in store['channels']:
@@ -349,7 +350,7 @@ def channel_leave_v1(token, channel_id):
                     channels['all_members'].remove(member)
                     if u_id in channels['owner_members']:
                         channels['owner_members'].remove(u_id)
-    store_data(store)
+    data_store.set(store)
     return
 
 
@@ -377,7 +378,7 @@ def channel_addowner_v1(token, channel_id, u_id):
         raise AccessError(description="Invalid Token")
     auth_user_id = user_info['u_id']
 
-    store = load_data()
+    store = data_store.get()
     is_channelfound = False
     # Checks to see if entered channel id exists
     for channels in store['channels']:
@@ -419,7 +420,7 @@ def channel_addowner_v1(token, channel_id, u_id):
             # Add owner
             else:
                 channels['owner_members'].append(u_id)
-    store_data(store)
+    data_store.set(store)
     return
 
 
@@ -447,7 +448,7 @@ def channel_removeowner_v1(token, channel_id, u_id):
         raise AccessError(description="Invalid Token")
     auth_user_id = user_info['u_id']
 
-    store = load_data()
+    store = data_store.get()
     is_channelfound = False
     # Checks to see if entered channel id exists
     for channels in store['channels']:
@@ -476,7 +477,6 @@ def channel_removeowner_v1(token, channel_id, u_id):
         raise InputError(
             description=f"User ID {u_id} is not an owner of the channel.")
 
-
     for channels in store['channels']:
         if channels['channel_id'] == channel_id:
             # Check if auth_user_id does not have owner permissions
@@ -494,5 +494,5 @@ def channel_removeowner_v1(token, channel_id, u_id):
             # Remove owner
             else:
                 channels['owner_members'].remove(u_id)
-    store_data(store)
+    data_store.set(store)
     return

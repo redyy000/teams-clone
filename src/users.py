@@ -1,8 +1,9 @@
 
 from src.data_store import data_store
 from src.error import InputError, AccessError
-from src.other import token_create, is_valid_token, load_data, store_data
+from src.other import token_create, is_valid_token
 from src.user import user_profile_v1
+from src.data_store import data_store
 
 
 def users_list_all_v1(token):
@@ -25,9 +26,7 @@ def users_list_all_v1(token):
     if token_decoded == False:
         raise AccessError('False Token!')
 
-    datastore = load_data()
-    # user_list = [user_profile_v1(token, user['u_id'])['user']
-    # for user in datastore['users'] if user['is_deleted'] == False]
+    datastore = data_store.get()
     user_list = []
 
     for user in datastore['users']:

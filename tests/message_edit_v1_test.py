@@ -216,7 +216,6 @@ def test_message_edit_channels_empty(setup_users):
         'start': 0
     })
 
-    print(messages_response.json())
     assert len(messages_response.json()['messages']) == 0
 
     # Test message is gone....
