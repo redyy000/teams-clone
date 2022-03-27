@@ -1,7 +1,8 @@
 from datetime import timezone
 import datetime
 from src.error import InputError, AccessError
-from src.other import token_create, is_valid_token, load_data, store_data
+from src.other import token_create, is_valid_token
+from src.data_store import data_store
 from src.user import user_profile_v1
 
 
@@ -25,7 +26,7 @@ def dm_name_generate(u_ids):
     '''
 
     # Create a list of user handles
-    datastore = load_data()
+    datastore = data_store.get()
     handle_str_list = [user['handle_str']
                        for user in datastore['users'] if user['u_id'] in u_ids]
     handle_str_list.sort()
@@ -59,7 +60,7 @@ def dm_create_v1(token, u_ids):
     if token_decoded == False:
         raise AccessError(description='False Token!')
 
-    datastore = load_data()
+    datastore = data_store.get()
     # Generate the name of the dm.
     owner_id = token_decoded['u_id']
 
@@ -86,7 +87,7 @@ def dm_create_v1(token, u_ids):
     }
 
     datastore['dms'].append(dm)
-    store_data(datastore)
+    data_store.set(datastore)
     return {
         'dm_id': dm_id
     }
@@ -113,7 +114,7 @@ def dm_list_v1(token):
         raise AccessError(description='False Token!')
 
     user_id = token_decoded['u_id']
-    datastore = load_data()
+    datastore = data_store.get()
 
     dm_list = []
     for dm in datastore['dms']:
@@ -153,7 +154,7 @@ def dm_remove_v1(token, dm_id):
     if token_decoded == False:
         raise AccessError(description='False Token!')
 
-    datastore = load_data()
+    datastore = data_store.get()
     user_id = token_decoded['u_id']
 
     for dm in datastore['dms']:
@@ -173,7 +174,7 @@ def dm_remove_v1(token, dm_id):
 
             datastore['dms'].remove(dm)
 
-            store_data(datastore)
+            data_store.set(datastore)
             return {}
     # If given dm_id does not exist
     raise InputError(description='Given dm does not exist')
@@ -204,7 +205,7 @@ def dm_details_v1(token, dm_id):
         raise AccessError(description='False Token!')
     user_id = token_decoded['u_id']
 
-    datastore = load_data()
+    datastore = data_store.get()
 
     # Test DM ID Exists
     dm_exist = False
@@ -255,7 +256,7 @@ def dm_leave_v1(token, dm_id):
     if token_decoded == False:
         raise AccessError(description='False Token!')
     user_id = token_decoded['u_id']
-    datastore = load_data()
+    datastore = data_store.get()
 
     # Test DM ID Exists
     dm_exist = False
@@ -277,7 +278,7 @@ def dm_leave_v1(token, dm_id):
             if user_id in dm['normal_members']:
                 dm['normal_members'].remove(user_id)
                 user_exist = True
-            store_data(datastore)
+            data_store.set(datastore)
 
     if user_exist == False:
         raise AccessError(description='DM exists, however user is not in DM')
@@ -313,7 +314,7 @@ def dm_messages_v1(token, dm_id, start):
         raise AccessError(description='False Token!')
 
     user_id = token_decoded['u_id']
-    datastore = load_data()
+    datastore = data_store.get()
 
     # Check dm exists
     message_count = -1

@@ -1,8 +1,8 @@
 import hashlib
 import re
 from src.error import InputError, AccessError
-from src.other import token_create, is_valid_token, load_data, store_data
-
+from src.other import token_create, is_valid_token
+from src.data_store import data_store
 SECRET = "RICHARDRYANDANIELMAXTAYLA"
 
 
@@ -47,7 +47,7 @@ def auth_login_v2(email, password):
         }
     '''
 
-    store = load_data()
+    store = data_store.get()
 
     # Hash inputted password with correct secret and encryption code
 
@@ -62,7 +62,7 @@ def auth_login_v2(email, password):
                 new_session_id = max(user['session_id_list']) + 1
                 # Append the newest session id to the list
                 user['session_id_list'].append(new_session_id)
-                store_data(store)
+                data_store.set(store)
                 return {
                     'token': token_create(user['u_id'], new_session_id),
                     'auth_user_id': user['u_id']
@@ -143,7 +143,7 @@ def auth_register_v2(email, password, name_first, name_last):
 
 
     '''
-    store = load_data()
+    store = data_store.get()
 
     # Determine if email matches regular expression.
     regex = r'^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}$'
@@ -194,7 +194,7 @@ def auth_register_v2(email, password, name_first, name_last):
     }
 
     store['users'].append(user)
-    store_data(store)
+    data_store.set(store)
 
     return {
         'auth_user_id': auth_user_id,
@@ -226,11 +226,11 @@ def auth_logout_v1(token):
         raise AccessError(description='False Token!')
 
     data = is_valid_token(token)
-    datastore = load_data()
+    datastore = data_store.get()
 
     for user in datastore['users']:
         if user['u_id'] == data['u_id']:
             user['session_id_list'].remove(data['session_id'])
-    store_data(datastore)
+    data_store.set(datastore)
 
     return {}

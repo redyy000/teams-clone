@@ -1,7 +1,8 @@
 from datetime import timezone
 import datetime
 from src.error import InputError, AccessError
-from src.other import is_valid_token, load_data, store_data
+from src.other import is_valid_token
+from src.data_store import data_store
 
 
 def message_send_v1(token, channel_id, message):
@@ -27,7 +28,7 @@ def message_send_v1(token, channel_id, message):
         {message_id }
     '''
 
-    store = load_data()
+    store = data_store.get()
 
     payload = is_valid_token(token)
     if payload is False:
@@ -85,7 +86,7 @@ def message_send_v1(token, channel_id, message):
         if channel['channel_id'] == channel_id:
             channel['messages'].append(new_message)
 
-    store_data(store)
+    data_store.set(store)
 
     return {'message_id': message_id}
 
@@ -113,7 +114,7 @@ def message_senddm_v1(token, dm_id, message):
         {message_id }
     '''
 
-    store = load_data()
+    store = data_store.get()
 
     payload = is_valid_token(token)
     if payload is False:
@@ -169,8 +170,7 @@ def message_senddm_v1(token, dm_id, message):
         if dms['dm_id'] == dm_id:
             dms['messages'].append(new_message)
 
-    store_data(store)
-
+    data_store.set(store)
     return {'message_id': message_id}
 
 
@@ -198,7 +198,7 @@ def message_edit_v1(token, message_id, message):
         raise AccessError(description='False Token!')
 
     user_id = token_decoded['u_id']
-    datastore = load_data()
+    datastore = data_store.get()
 
     message_found = False
 
@@ -239,7 +239,7 @@ def message_edit_v1(token, message_id, message):
     if message_found == False:
         raise InputError(description="Invalid Message ID")
 
-    store_data(datastore)
+    data_store.set(datastore)
 
     return {}
 
@@ -268,7 +268,7 @@ def message_remove_v1(token, message_id):
         raise AccessError(description='False Token!')
 
     user_id = token_decoded['u_id']
-    datastore = load_data()
+    datastore = data_store.get()
 
     # Naive approach; Scan all channels and dms for the message_id match
     # Break upon done
@@ -303,6 +303,6 @@ def message_remove_v1(token, message_id):
     if message_found == False:
         raise InputError(description="Invalid Message ID")
 
-    store_data(datastore)
+    data_store.set(datastore)
 
     return {}

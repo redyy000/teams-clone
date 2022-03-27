@@ -1,0 +1,39 @@
+{
+    "users": [
+        {
+            "u_id": 1,
+            "email": "user@gmail.com",
+            "password": "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8",
+            "name_first": "FirstName",
+            "name_last": "LastName",
+            "handle_str": "firstnamelastname",
+            "session_id_list": [
+                1
+            ],
+            "permission_id": 1,
+            "is_deleted": false
+        },
+        {
+            "u_id": 2,
+            "email": "xuerichard1@gmail.com",
+            "password": "581ea774842cb2d7a4d9b79a4f76303832d125509cc00b2c7b6c4d7e4523face",
+            "name_first": "Richard",
+            "name_last": "Xue",
+            "handle_str": "richardxue",
+            "session_id_list": [
+                1
+            ],
+            "permission_id": 2,
+            "is_deleted": false
+        }
+    ],
+    "channels": [],
+    "dms": [],
+    "message_ids": [
+        {
+            "message_id": 0,
+            "message_type": 1,
+            "source_id": 0
+        }
+    ]
+}

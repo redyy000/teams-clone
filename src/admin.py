@@ -1,6 +1,8 @@
 
 from src.error import InputError, AccessError
-from src.other import is_valid_token, load_data, store_data
+from src.other import is_valid_token
+
+from src.data_store import data_store
 
 
 def is_u_id_exist(u_id):
@@ -18,7 +20,7 @@ def is_u_id_exist(u_id):
         True/False
     '''
 
-    datastore = load_data()
+    datastore = data_store.get()
     for user in datastore['users']:
         if user['u_id'] == u_id:
             return True
@@ -41,7 +43,7 @@ def is_u_id_final_global_owner(u_id):
         True/False
     '''
 
-    datastore = load_data()
+    datastore = data_store.get()
     owners_list = [user['u_id']
                    for user in datastore['users'] if user['permission_id'] == 1]
     if len(owners_list) == 1:
@@ -65,7 +67,7 @@ def is_global_owner(u_id):
         True/False
     '''
 
-    datastore = load_data()
+    datastore = data_store.get()
     for user in datastore['users']:
         if user['u_id'] == u_id:
             if user['permission_id'] == 1:
@@ -90,7 +92,7 @@ def is_permission_same(u_id, permission_id):
         True/False
     '''
 
-    datastore = load_data()
+    datastore = data_store.get()
     for user in datastore['users']:
         if user['u_id'] == u_id:
             if user['permission_id'] == permission_id:
@@ -124,7 +126,7 @@ def admin_userpermission_change_v1(token, u_id, permission_id):
     if token_decoded == False:
         raise AccessError(description='False Token!')
 
-    datastore = load_data()
+    datastore = data_store.get()
     owner_id = token_decoded['u_id']
 
     if is_u_id_exist(u_id) == False:
@@ -146,7 +148,7 @@ def admin_userpermission_change_v1(token, u_id, permission_id):
         if user['u_id'] == u_id:
             user['permission_id'] = permission_id
 
-    store_data(datastore)
+    data_store.set(datastore)
     return {}
 
 
@@ -178,7 +180,7 @@ def admin_user_remove_v1(token, u_id):
     if token_decoded == False:
         raise AccessError(description='False Token!')
 
-    datastore = load_data()
+    datastore = data_store.get()
     owner_id = token_decoded['u_id']
 
     if is_u_id_exist(u_id) == False:
@@ -236,5 +238,5 @@ def admin_user_remove_v1(token, u_id):
             if message['u_id'] == u_id:
                 message['message'] = 'Removed user'
 
-    store_data(datastore)
+    data_store.set(datastore)
     return {}
