@@ -1,3 +1,5 @@
+import os
+import json
 '''
 data_store.py
 
@@ -34,7 +36,7 @@ initial_object = {
             # Unique universal message id
             'message_id': 0,
             # Message type: 1 for channels, 2 for dms
-            'message_type': 1 or 2,
+            'message_type': 1,
             # Channel id or dm id
             'source_id': 0
         }
@@ -48,8 +50,21 @@ initial_object = {
 
 
 class Datastore:
+
     def __init__(self):
-        self.__store = initial_object
+
+        # If the file already exists, then we load that in
+        if os.path.exists('src/data.json') and os.stat("src/data.json") != 0:
+            with open('src/data.json', 'r', encoding="utf8") as input_file:
+                data = json.load(input_file)
+        else:
+            # Else we use the initial object
+            with open('src/data.json', 'w', encoding="utf8") as input_file:
+                # Put the initial object into the FILE
+                json.dump(initial_object, input_file)
+                data = initial_object
+
+        self.__store = data
 
     def get(self):
         return self.__store
@@ -58,6 +73,13 @@ class Datastore:
         if not isinstance(store, dict):
             raise TypeError('store must be of type dictionary')
         self.__store = store
+
+    def save(self):
+        data = self.__store
+
+        with open('src/data.json', 'w', encoding="utf8") as input_file:
+            # Why do we use indent = 4...
+            json.dump(data, input_file, indent=4)
 
 
 print('Loading Datastore...')

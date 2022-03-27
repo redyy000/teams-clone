@@ -1,7 +1,7 @@
 from src.data_store import data_store
 from src.error import InputError
 from src.error import AccessError
-from src.other import load_data, store_data, is_valid_token
+from src.other import is_valid_token
 
 
 def channels_list_v2(token):
@@ -18,7 +18,7 @@ def channels_list_v2(token):
         'channels'      - A list of dictionaries containing channel ID's and names for each channel they are a part of 
 
     '''
-    store = load_data()
+    store = data_store.get()
 
     token_decoded = is_valid_token(token)
     if token_decoded == False:
@@ -39,7 +39,7 @@ def channels_list_v2(token):
                 }
                 channel_details.append(channel_info)
 
-    store_data(store)
+    data_store.set(store)
     return {
         'channels': channel_details
     }
@@ -63,7 +63,7 @@ def channels_listall_v2(token):
     if token_decoded == False:
         raise AccessError(description='False Token!')
 
-    store = load_data()
+    store = data_store.get()
     channel_details = []
     # For each channel in the list of channels
     for channel in store['channels']:
@@ -94,7 +94,7 @@ def channels_create_v2(token, name, is_public):
 
     '''
     # Check token is valid
-    data = load_data()
+    data = data_store.get()
 
     #  Check for valid user ID i.e. token
     token_decoded = is_valid_token(token)
@@ -134,7 +134,7 @@ def channels_create_v2(token, name, is_public):
 
     # Append the new channel to the list of channels
     data['channels'].append(new_channel)
-    store_data(data)
+    data_store.set(data)
 
     return {
         'channel_id': channel_id
