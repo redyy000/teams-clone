@@ -55,11 +55,11 @@ class Datastore:
 
         # If the file already exists, then we load that in
         if os.path.exists('src/data.json') and os.stat("src/data.json") == 0:
-            with open('src/data.json', 'r') as input_file:
+            with open('src/data.json', 'r', encoding="utf8") as input_file:
                 data = json.load(input_file)
         else:
             # Else we use the initial object
-            with open('src/data.json', 'w') as input_file:
+            with open('src/data.json', 'w', encoding="utf8") as input_file:
                 # Put the initial object into the FILE
                 json.dump(initial_object, input_file)
                 data = initial_object
@@ -77,7 +77,7 @@ class Datastore:
     def save(self):
         data = self.__store
 
-        with open('src/data.json', 'w') as input_file:
+        with open('src/data.json', 'w', encoding="utf8") as input_file:
             # Why do we use indent = 4...
             json.dump(data, input_file, indent=4)
 
