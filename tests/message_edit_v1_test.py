@@ -348,3 +348,45 @@ def test_message_edit_dms_success(setup_users):
         if message_dict['message'] == 'ahahaha u  are being replaced':
             assert message_dict['message_id'] == message_response3.json()[
                 'message_id']
+
+
+def test_message_edit_global_owner(setup_users):
+    owner = setup_users[0]
+    member1 = setup_users[1]
+
+    channel_response = requests.post(f"{config.url}channels/create/v2", json={
+        "token": member1['token'],
+        "name": "general",
+        "is_public": True
+    })
+
+    message_response = requests.post(f'{config.url}message/send/v1', json={
+        'token': member1['token'],
+        'channel_id': channel_response.json()['channel_id'],
+        'message': 'bruh '})
+    assert message_response.status_code == 200
+
+    join_response = requests.post(f'{config.url}channel/join/v2', json={
+        'token': owner['token'],
+        'channel_id':  channel_response.json()['channel_id']
+    })
+    assert join_response.status_code == 200
+
+    edit_response = requests.put(f"{config.url}message/edit/v1", json={
+        "token": owner['token'],
+        "message_id": message_response.json()['message_id'],
+        'message': 'every bruh has its dark'
+    })
+
+    assert edit_response.status_code == 200
+
+    messages_response = requests.get(f'{config.url}/channel/messages/v2', params={
+        'token': owner['token'],
+        'channel_id': channel_response.json()['channel_id'],
+        'start': 0
+    })
+
+    assert len(messages_response.json()['messages']) == 1
+    assert messages_response.status_code == 200
+    assert messages_response.json(
+    )['messages'][0]['message'] == 'every bruh has its dark'
