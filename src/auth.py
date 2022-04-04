@@ -1,5 +1,7 @@
 import hashlib
 import re
+import string
+import random
 from src.error import InputError, AccessError
 from src.other import token_create, is_valid_token
 from src.data_store import data_store
@@ -190,7 +192,9 @@ def auth_register_v2(email, password, name_first, name_last):
         'handle_str': create_handle_str(store, name_first, name_last),
         'session_id_list': [1],
         'permission_id': permission_id,
-        'is_deleted': False
+        'is_deleted': False,
+        'profile_img_url': '',
+        'reset_code_list': []
     }
 
     store['users'].append(user)
@@ -232,5 +236,80 @@ def auth_logout_v1(token):
         if user['u_id'] == data['u_id']:
             user['session_id_list'].remove(data['session_id'])
     data_store.set(datastore)
+
+    return {}
+
+
+def auth_passwordreset_request_v1(email):
+    '''
+    Given an email, email the address, generate a code
+    With an email containing a specific secret code to be used
+    in auth_passwordreset_reset.
+    Logs user out of all sessions.
+
+    ARGUMENTS:
+        email (string)
+    ...
+
+    EXCEPTIONS:
+        None
+
+    RETURN:
+        {}
+
+
+    '''
+    # Generate reset code
+    # Just a random string of length 64: No hashing used
+    reset_code = ''.join(random.choice(string.ascii_letters)
+                         for i in range(64))
+
+    # Append reset code to reset_code list
+    # Logout of all sessions
+    datastore = data_store.get()
+    for user in datastore['users']:
+        if user['email'] == email:
+            user['session_id_list'] = []
+            user['reset_code_list'].append(reset_code)
+
+    # Email to given address
+
+    return {}
+
+
+def auth_passwordreset_reset_v1(reset_code, new_password):
+    '''
+    Given a reset_code contained in the email,
+    Set the user password to new_password.
+    Invalidates reset_code
+
+    ARGUMENTS:
+        reset_code (string), code for resetting password
+        new_password (string), new password for the resetting email
+    ...
+
+    EXCEPTIONS:
+        InputError: reset_code is invalid
+        InputError: new_password < 6 characters
+
+    RETURN:
+        {}
+    '''
+
+    if len(new_password) < 6:
+        raise InputError(description='New password is too short!')
+
+    # Validate reset_code...
+    # Perhaps, append all reset_codes
+    datastore = data_store.get()
+    is_reset_code_exist = False
+    for user in datastore['users']:
+        if reset_code in user['reset_code_list']:
+            is_reset_code_exist = True
+            user['password'] = new_password
+            user['reset_code_list'].remove(reset_code)
+
+    if is_reset_code_exist == False:
+        raise InputError(description='Reset_code does not match!')
 
     return {}

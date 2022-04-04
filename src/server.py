@@ -2,15 +2,15 @@
 # from socket import AF_PPPOX
 
 from src.config import port
-from src.user import user_profile_v1, user_profile_setemail_v1, user_profile_sethandle_v1, user_profile_setname_v1
-from src.users import users_list_all_v1
+from src.user import user_profile_v1, user_profile_setemail_v1, user_profile_sethandle_v1, user_profile_setname_v1, user_profile_uploadphoto_v1, user_stats_v1
+from src.users import users_list_all_v1, users_stats_v1
 import sys
 import signal
 from json import dumps
 from urllib import response
 from flask import Flask, request, abort
 from flask_cors import CORS
-from src.auth import auth_register_v2, auth_login_v2, auth_logout_v1
+from src.auth import auth_register_v2, auth_login_v2, auth_logout_v1, auth_passwordreset_request_v1, auth_passwordreset_reset_v1
 from src.other import clear_v1
 from src.channels import channels_create_v2, channels_list_v2, channels_listall_v2
 from src.channel import channel_details_v2, channel_invite_v2, channel_join_v2, channel_messages_v2, channel_leave_v1, channel_addowner_v1, channel_removeowner_v1
@@ -340,6 +340,50 @@ def admin_user_remove():
     arguments = request.get_json()
     resp = admin_user_remove_v1(
         arguments['token'], arguments['u_id'])
+    data_store.save()
+    return dumps(resp)
+
+
+@APP.route("/auth/passwordreset/request/v1", methods=['POST'])
+def auth_passwordreset_request():
+    arguments = request.get_json()
+    resp = auth_passwordreset_request_v1(arguments['email'])
+    data_store.save()
+    return dumps(resp)
+
+
+@APP.route("/auth/passwordreset/reset/v1", methods=['POST'])
+def auth_passwordreset_reset():
+    arguments = request.get_json()
+    resp = auth_passwordreset_request_v1(
+        arguments['reset_code'], arguments['new_password'])
+    data_store.save()
+    return dumps(resp)
+
+
+@APP.route("/user/profile/uploadphoto/v1", methods=['POST'])
+def user_profile_uploadphoto():
+    arguments = request.get_json()
+    resp = user_profile_uploadphoto_v1(
+        arguments['token'], arguments['img_url'], arguments['x_start'], arguments['y_start'], arguments['x_end'], arguments['y_end'])
+    data_store.save()
+    return dumps(resp)
+
+
+@APP.route("/user/stats/v1", methods=['GET'])
+def user_stats():
+    token = request.args.get('token', type=str)
+
+    resp = user_stats_v1(token)
+    data_store.save()
+    return dumps(resp)
+
+
+@APP.route("/users/stats/v1", methods=['GET'])
+def users_stats():
+    token = request.args.get('token', type=str)
+
+    resp = users_stats_v1(token)
     data_store.save()
     return dumps(resp)
 

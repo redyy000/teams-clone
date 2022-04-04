@@ -316,6 +316,8 @@ def message_remove_v1(token, message_id):
                         description='You are both not a channel owner and sender of message')
 
                 channel['messages'].remove(message)
+
+                # Search for message_ids and delete
                 message_found = True
 
     # Reloop for DMs; If found already this is skipped.
