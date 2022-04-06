@@ -52,7 +52,7 @@ def setup_channel(setup_users):
     }).json()
     requests.post(f'{config.url}channel/invite/v2', json={
         'token': owner['token'],
-        'channel_id': channel('channel_id'),
+        'channel_id': channel['channel_id'],
         'u_id': user1['auth_user_id']
     })
     requests.post(f"{config.url}message/send/v1", json={
@@ -91,7 +91,7 @@ def setup_dm(setup_users):
 def test_search_success(setup_channel, setup_dm, setup_users):
     requests.delete(f"{config.url}/clear/v1")
     owner = setup_users[0]
-    result = requests.get(f'{config.url}/search/v2', params={
+    result = requests.get(f'{config.url}/search/v1', params={
         'token': owner['token'], 'query_str': 'first'}).json()
 
     messages_list = []
@@ -105,7 +105,7 @@ def test_search_success(setup_channel, setup_dm, setup_users):
 
 def test_invalid_token_dm(setup_dm):
     requests.delete(f"{config.url}/clear/v1")
-    response = requests.get(config.url + '/search/v2', params={
+    response = requests.get(config.url + '/search/v1', params={
         'token': 'invalid_token', 'query_str': 'searching messages...'})
     assert response.status_code == 403
 
@@ -113,7 +113,7 @@ def test_invalid_token_dm(setup_dm):
 def test_query_string_short(setup_dm, setup_users):
     requests.delete(f"{config.url}/clear/v1")
     owner = setup_users[0]
-    response = requests.get(config.url + '/search/v2', params={
+    response = requests.get(config.url + '/search/v1', params={
         'token': owner['token'], 'query_str': ''})
     assert response.status_code == 400
 
@@ -121,6 +121,6 @@ def test_query_string_short(setup_dm, setup_users):
 def test_query_string_long(setup_users):
     requests.delete(f"{config.url}/clear/v1")
     owner = setup_users[0]
-    response = requests.get(config.url + '/search/v2', params={
+    response = requests.get(config.url + '/search/v1', params={
         'token': owner['token'], 'query_str': 1001 * 'A'})
     assert response.status_code == 400
