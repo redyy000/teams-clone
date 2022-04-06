@@ -2,6 +2,8 @@ import hashlib
 import re
 import string
 import random
+import smtplib
+import ssl
 from src.error import InputError, AccessError
 from src.other import token_create, is_valid_token
 from src.data_store import data_store
@@ -61,7 +63,10 @@ def auth_login_v2(email, password):
                 # Newest session id is equal to the max session id in the user's session id list + 1
                 # This means that if a session id is removed,
                 # then that session id number will not be reused.
-                new_session_id = max(user['session_id_list']) + 1
+                if len(user['session_id_list']) == 0:
+                    new_session_id = 1
+                else:
+                    new_session_id = max(user['session_id_list']) + 1
                 # Append the newest session id to the list
                 user['session_id_list'].append(new_session_id)
                 data_store.set(store)
@@ -156,7 +161,8 @@ def auth_register_v2(email, password, name_first, name_last):
     # Determine if email already exists in users list.
     for user in store['users']:
         if user['email'] == email:
-            raise InputError(description="Email already exists within system!")
+            raise InputError(
+                description="Email already exists within system!")
 
     # Determine if password length is 6 or more letters long
 
@@ -261,6 +267,7 @@ def auth_passwordreset_request_v1(email):
     '''
     # Generate reset code
     # Just a random string of length 64: No hashing used
+
     reset_code = ''.join(random.choice(string.ascii_letters)
                          for i in range(64))
 
@@ -273,6 +280,21 @@ def auth_passwordreset_request_v1(email):
             user['reset_code_list'].append(reset_code)
 
     # Email to given address
+    # Code borrowed from Corey Schafer
+    context = ssl.create_default_context()
+    with smtplib.SMTP('smtp.gmail.com', 587) as smtp:
+
+        smtp.ehlo()
+        smtp.starttls(context=context)
+        smtp.ehlo()
+        # Email address just for Iteration 3
+        smtp.login("h11abadger@gmail.com", "H11ABADGER123")
+
+        subject = f'Password change request for {email}'
+        body = f'Your password reset code is {reset_code}.'
+
+        msg = f'Subject: {subject}\n\n{body}'
+        smtp.sendmail("h11abadger@gmail.com", email, msg)
 
     return {}
 
@@ -306,7 +328,7 @@ def auth_passwordreset_reset_v1(reset_code, new_password):
     for user in datastore['users']:
         if reset_code in user['reset_code_list']:
             is_reset_code_exist = True
-            user['password'] = new_password
+            user['password'] = hash(new_password)
             user['reset_code_list'].remove(reset_code)
 
     if is_reset_code_exist == False:

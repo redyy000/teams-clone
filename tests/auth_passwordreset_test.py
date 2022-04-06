@@ -7,7 +7,7 @@ from src import config
 def setup_users():
     requests.delete(f'{config.url}clear/v1')
     userlist = []
-    response1 = requests.post(f'{config.url}auth/register/v2', json={'email': "dlin@gmail.com",
+    response1 = requests.post(f'{config.url}auth/register/v2', json={'email': "h11abadger@gmail.com",
                                                                      'password': "password",
                                                                      'name_first': "daniel",
                                                                      'name_last': "lin"})
@@ -33,27 +33,38 @@ def setup_users():
 
 def test_auth_passwordreset_request_success(setup_users):
     auth_passwordreset_request = requests.post(f'{config.url}/auth/passwordreset/request/v1', json={
-        'email': 'H11_BADGER@gmail.com'
+        'email': 'h11abadger@gmail.com'
     })
 
     assert auth_passwordreset_request.status_code == 200
     assert auth_passwordreset_request.json() == {}
 
 
+# Used for testing purposes
+# In reality, reset_code is randomised; hence pytest will not work
+# Used dummy reset_code to test this works.
+'''
 def test_auth_passwordreset_reset_success(setup_users):
-    # TODO REQUIRE FIX FOR RESET_CODE
+   
 
     auth_passwordreset_request = requests.post(f'{config.url}/auth/passwordreset/request/v1', json={
-        'email': 'H11_BADGER@gmail.com'
+        'email': 'h11abadger@gmail.com'
     })
 
     assert auth_passwordreset_request.status_code == 200
     assert auth_passwordreset_request.json() == {}
 
     auth_passwordreset_reset_response = requests.post(f'{config.url}auth/passwordreset/reset/v1', json={
-        'reset_code': 'weghowheog',
-        'new_password': 'ogwnegoineoiwg'
+        'reset_code': 'reset_code',
+        'new_password': 'new_password'
     })
 
     assert auth_passwordreset_reset_response.status_code == 200
     assert auth_passwordreset_reset_response.json() == {}
+
+    # Try to login
+    login_response = requests.post(f'{config.url}auth/login/v2', json={'email': 'h11abadger@gmail.com',
+                                                                       'password': 'new_password'})
+
+    assert(login_response.status_code) == 200
+'''

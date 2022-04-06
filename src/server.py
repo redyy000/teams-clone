@@ -8,7 +8,7 @@ import sys
 import signal
 from json import dumps
 from urllib import response
-from flask import Flask, request, abort
+from flask import Flask, request, abort, send_from_directory
 from flask_cors import CORS
 from src.auth import auth_register_v2, auth_login_v2, auth_logout_v1, auth_passwordreset_request_v1, auth_passwordreset_reset_v1
 from src.other import clear_v1
@@ -355,7 +355,7 @@ def auth_passwordreset_request():
 @APP.route("/auth/passwordreset/reset/v1", methods=['POST'])
 def auth_passwordreset_reset():
     arguments = request.get_json()
-    resp = auth_passwordreset_request_v1(
+    resp = auth_passwordreset_reset_v1(
         arguments['reset_code'], arguments['new_password'])
     data_store.save()
     return dumps(resp)
@@ -368,6 +368,11 @@ def user_profile_uploadphoto():
         arguments['token'], arguments['img_url'], arguments['x_start'], arguments['y_start'], arguments['x_end'], arguments['y_end'])
     data_store.save()
     return dumps(resp)
+
+
+@APP.route("/static/<path:path>")
+def return_photo_static(path):
+    return send_from_directory('', path)
 
 
 @APP.route("/user/stats/v1", methods=['GET'])
