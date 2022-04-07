@@ -164,7 +164,7 @@ def channel_addowner():
     payload = request.get_json()
     token = payload['token']
     channel_id = payload['channel_id']
-    u_id = payload['user_id']
+    u_id = payload['u_id']
     channel_addowner_v1(token, channel_id, u_id)
     data_store.save()
     return dumps({})
@@ -175,7 +175,7 @@ def channel_removeowner():
     payload = request.get_json()
     token = payload['token']
     channel_id = payload['channel_id']
-    u_id = payload['user_id']
+    u_id = payload['u_id']
     channel_removeowner_v1(token, channel_id, u_id)
     data_store.save()
     return dumps({})
