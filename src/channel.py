@@ -1,3 +1,4 @@
+
 from src.data_store import data_store
 from src.channels import channels_create_v2, channels_list_v2
 from src.error import InputError, AccessError
@@ -122,6 +123,7 @@ def channel_messages_v2(token, channel_id, start):
         InputError - Occurs when channel_id is not an integer
         InputError - Occurs when starting index is not an integer
         AccessError - Occurs when token is invalid
+        AccessError - Occurs when user is not a member of channel
 
     Return Value:
         Returns dictionary containing list of messages, the starting index (start) and
@@ -134,6 +136,8 @@ def channel_messages_v2(token, channel_id, start):
         raise AccessError(
             description=f"User ID token is invalid. Unable to access any details with this ID.")
 
+    u_id = token_decoded['u_id']
+
     # check channel_id invalid
     channels_list = store["channels"]
 
@@ -141,6 +145,17 @@ def channel_messages_v2(token, channel_id, start):
             or channel_id <= 0:
         raise InputError(
             description=f"Channel_id {type(channel_id)} is not valid!")
+
+    is_member = False
+    for channel in store['channels']:
+        if channel['channel_id'] == channel_id:
+            for member_dict in channel['all_members']:
+                if member_dict['user_id'] == u_id:
+                    is_member = True
+
+    if is_member == False:
+        raise AccessError(
+            description="You cannot call messages, you are not a member!")
 
     # get channel and messages list from data_store
     channel = channels_list[channel_id - 1]
