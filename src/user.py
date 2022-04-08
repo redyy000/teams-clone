@@ -36,6 +36,7 @@ def user_profile_v1(token, u_id):
 
     datastore = data_store.get()
     return_dict = {}
+    user_found = False
     for user in datastore['users']:
         if user['u_id'] == u_id:
             return_dict = {
@@ -48,7 +49,10 @@ def user_profile_v1(token, u_id):
                     'handle_str': user['handle_str']
                 }
             }
+            user_found = True
 
+    if user_found == False:
+        raise InputError(description="Non-existant user!")
     return return_dict
 
 

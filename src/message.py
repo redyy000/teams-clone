@@ -5,6 +5,26 @@ from src.other import is_valid_token
 from src.data_store import data_store
 
 
+def permission_id_given_user(auth_user_id):
+    store = data_store.get()
+    permission = 0
+    for user in store['users']:
+        if user['u_id'] == auth_user_id:
+            permission = user['permission_id']
+    return permission
+
+
+def user_in_channel_all_members(auth_user_id):
+    store = data_store.get()
+
+    for channel in store['channels']:
+        for member_dict in channel['all_members']:
+            if member_dict['user_id'] == auth_user_id:
+                return True
+
+    return False
+
+
 def message_send_v1(token, channel_id, message):
     '''
     Send a message from authorised_user to the channel specified by channel_id
@@ -210,7 +230,11 @@ def message_edit_v1(token, message_id, message):
     for channel in datastore['channels']:
         for message_dict in channel['messages']:
             if message_dict['message_id'] == message_id:
-                if user_id not in channel['owner_members'] and user_id != message_dict['u_id']:
+
+                user_in_channel = user_in_channel_all_members(user_id)
+                if permission_id_given_user(user_id) == 1 and user_in_channel == True:
+                    pass
+                elif user_id not in channel['owner_members'] and user_id != message_dict['u_id']:
                     raise AccessError(
                         description='You are both not a channel owner and sender of message')
                 if len(message) == 0:
@@ -281,12 +305,19 @@ def message_remove_v1(token, message_id):
     for channel in datastore['channels']:
         for message in channel['messages']:
             if message['message_id'] == message_id:
-                if user_id not in channel['owner_members'] and user_id != message['u_id']:
+
+                user_in_channel = user_in_channel_all_members(user_id)
+                if permission_id_given_user(user_id) == 1 and user_in_channel == True:
+                    pass
+                elif user_id not in channel['owner_members'] and user_id != message['u_id']:
                     raise AccessError(
                         description='You are both not a channel owner and sender of message')
                 else:
                     channel['messages'].remove(message)
                     message_found = True
+
+                channel['messages'].remove(message)
+                message_found = True
 
     # Reloop for DMs; If found already this is skipped.
     if message_found == False:
