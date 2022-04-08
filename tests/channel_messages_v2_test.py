@@ -116,6 +116,22 @@ def test_invalid_token(setup_users):
     assert response.status_code == 403
 
 
+def test_invalid_user(setup_users):
+    channel1 = requests.post(f'{config.url}channels/create/v2', json={
+        'token': setup_users[0]['token'],
+        'name': "Public",
+        'is_public': True
+    }).json()
+
+    response = requests.get(f'{config.url}channel/messages/v2', params={
+        'token': setup_users[1]['token'],
+        'channel_id': channel1['channel_id'],
+        'start': 0
+    })
+
+    assert response.status_code == 403
+
+
 def test_channel_message_success(setup_users):
     channel1 = requests.post(f'{config.url}channels/create/v2', json={
         'token': setup_users[0]['token'],
