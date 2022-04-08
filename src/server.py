@@ -370,23 +370,27 @@ def user_profile_uploadphoto():
     return dumps(resp)
 
 
+'''
 @APP.route("/static/<path:path>")
 def return_photo_static(path):
     return send_from_directory('', path)
+'''
 
 
 @APP.route("/user/stats/v1", methods=['GET'])
 def user_stats():
-    token = request.args.get('token', type=str)
+    token = request.args.get('token')
 
     resp = user_stats_v1(token)
     data_store.save()
+    print(resp)
+    print(type(resp))
     return dumps(resp)
 
 
 @APP.route("/users/stats/v1", methods=['GET'])
 def users_stats():
-    token = request.args.get('token', type=str)
+    token = request.args.get('token')
 
     resp = users_stats_v1(token)
     data_store.save()

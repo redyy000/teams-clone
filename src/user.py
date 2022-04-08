@@ -226,34 +226,36 @@ def user_stats_v1(token):
                 num_msgs_sent = num_msgs_sent + 1
 
     # Denominator
-    denominator = sum(num_channels_exist, num_dms_exist, num_messages_exist)
+    denominator = sum([num_channels_exist, num_dms_exist, num_messages_exist])
     if denominator == 0:
         involvement = 0
     else:
-        involvement = sum(num_channels_joined, num_dms_joined,
-                          num_msgs_sent)/denominator
+        involvement = float(sum([num_channels_joined, num_dms_joined,
+                                num_msgs_sent]))/float(denominator)
     if involvement > 1:
         involvement = 1
-
-    '''
-    Dictionary of shape {
-     channels_joined: [{num_channels_joined, time_stamp}],
-     dms_joined: [{num_dms_joined, time_stamp}], 
-     messages_sent: [{num_messages_sent, time_stamp}], 
-     involvement_rate 
-    }'''
 
     dt = datetime.datetime.now(timezone.utc)
     utc_time = dt.replace(tzinfo=timezone.utc)
     time_stamp = int(utc_time.timestamp())
 
+    '''As UNSW is very interested in its users' engagement, the analytics must be time-series data. 
+    This means every change to the above metrics (excluding involvement_rate and utilization_rate) must be timestamped, rather than just the most recent change. 
+    For users, the first data point should be 0 for all metrics at the time that their account was created. 
+    Similarly, for the workspace, the first data point should be 0 for all metrics at the time that the first user registers. 
+    The first element in each list should be the first metric. The latest metric should be the last element in the list.'''
+
     stats = {
-        'channels_joined': [{num_channels_joined, time_stamp}],
-        'dms_joined': [{num_dms_joined, time_stamp}],
-        'messages_sent': [{num_msgs_sent, time_stamp}],
+        'channels_joined': [{'num_channels_joined': num_channels_joined, 'time_stamp': time_stamp}],
+        'dms_joined': [{'num_dms_joined': num_dms_joined, 'time_stamp': time_stamp}],
+        'messages_sent': [{'num_messsages_sent': num_msgs_sent, 'time_stamp': time_stamp}],
         'involvement_rate': involvement
     }
-    return {'user_stats': stats}
+
+    return {
+        'user_stats': stats
+
+    }
 
 
 def user_profile_sethandle_v1(token, handle_str):

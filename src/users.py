@@ -101,7 +101,7 @@ def users_stats_v1(token):
         if is_joined == True:
             num_users_joined = num_users_joined + 1
 
-    utilization = num_users_joined/num_users
+    utilization = float(num_users_joined)/float(num_users)
     '''
     Dictionary of shape {
      channels_exist: [{num_channels_exist, time_stamp}], 

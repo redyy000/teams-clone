@@ -68,3 +68,41 @@ def test_auth_passwordreset_reset_success(setup_users):
 
     assert(login_response.status_code) == 200
 '''
+
+
+# Test that a reset code is removed
+
+'''
+def test_auth_passwordreset_reset_success(setup_users):
+   
+
+    auth_passwordreset_request = requests.post(f'{config.url}/auth/passwordreset/request/v1', json={
+        'email': 'h11abadger@gmail.com'
+    })
+
+    assert auth_passwordreset_request.status_code == 200
+    assert auth_passwordreset_request.json() == {}
+
+    auth_passwordreset_reset_response = requests.post(f'{config.url}auth/passwordreset/reset/v1', json={
+        'reset_code': 'reset_code',
+        'new_password': 'new_password'
+    })
+
+    assert auth_passwordreset_reset_response.status_code == 200
+    assert auth_passwordreset_reset_response.json() == {}
+
+    # Try to login
+    login_response = requests.post(f'{config.url}auth/login/v2', json={'email': 'h11abadger@gmail.com',
+                                                                       'password': 'new_password'})
+
+    assert(login_response.status_code) == 200
+    
+    
+    # Try to login with invalid reset code
+    auth_passwordreset_reset_response_fail = requests.post(f'{config.url}auth/passwordreset/reset/v1', json={
+        'reset_code': 'reset_code',
+        'new_password': 'new_password'
+    })
+    
+    assert auth_passwordreset_reset_response_fail.status_code = 400
+'''
