@@ -35,7 +35,7 @@ def test_channel_removeowner_v1_invalid_channel(initialise_member):
     u_id2 = register2.json()['auth_user_id']
     removeowner = requests.post(f"{config.url}channel/removeowner/v1", json= {'token': token,
                                                                               'channel_id': 1,
-                                                                              'user_id': u_id2})
+                                                                              'u_id': u_id2})
     assert removeowner.status_code == 400
 
 def test_channel_removeowner_v1_invalid_token(initialise_member):
@@ -50,7 +50,7 @@ def test_channel_removeowner_v1_invalid_token(initialise_member):
     u_id2 = register2.json()['auth_user_id']
     removeowner = requests.post(f"{config.url}channel/removeowner/v1", json= {'token': 3,
                                                                               'channel_id': channel_id,
-                                                                              'user_id': u_id2})
+                                                                              'u_id': u_id2})
     assert removeowner.status_code == 403
 
 def test_channel_removeowner_v1_invalid_user(initialise_member):
@@ -60,7 +60,7 @@ def test_channel_removeowner_v1_invalid_user(initialise_member):
     channel_id = variable['channel_id']
     removeowner = requests.post(f"{config.url}channel/removeowner/v1", json= {'token': token,
                                                                               'channel_id': channel_id,
-                                                                              'user_id': 3})
+                                                                              'u_id': 3})
     assert removeowner.status_code == 400
 
 def test_channel_removeowner_v1_non_member(initialise_member):
@@ -75,7 +75,7 @@ def test_channel_removeowner_v1_non_member(initialise_member):
     u_id2 = register2.json()['auth_user_id']
     removeowner = requests.post(f"{config.url}channel/removeowner/v1", json= {'token': token,
                                                                               'channel_id': channel_id,
-                                                                              'user_id': u_id2})
+                                                                              'u_id': u_id2})
     assert removeowner.status_code == 400
 
 def test_channel_removeowner_v1_non_owner(initialise_member):
@@ -93,7 +93,7 @@ def test_channel_removeowner_v1_non_owner(initialise_member):
                                                           'u_id': u_id2})
     removeowner = requests.post(f"{config.url}channel/removeowner/v1", json= {'token': token,
                                                                               'channel_id': channel_id,
-                                                                              'user_id': u_id2})
+                                                                              'u_id': u_id2})
     assert removeowner.status_code == 400
 
 def test_channel_removeowner_v1_only_owner(initialise_member):
@@ -104,7 +104,7 @@ def test_channel_removeowner_v1_only_owner(initialise_member):
     channel_id = variable['channel_id']
     removeowner = requests.post(f"{config.url}channel/removeowner/v1", json= {'token': token,
                                                                               'channel_id': channel_id,
-                                                                              'user_id': u_id1})
+                                                                              'u_id': u_id1})
     assert removeowner.status_code == 400
 
 def test_channel_removeowner_v1_no_owner_permissions(initialise_member):
@@ -132,7 +132,7 @@ def test_channel_removeowner_v1_no_owner_permissions(initialise_member):
                                                           'u_id': u_id3})
     removeowner = requests.post(f"{config.url}channel/removeowner/v1", json= {'token': token2,
                                                                               'channel_id': channel_id,
-                                                                              'user_id': u_id1})
+                                                                              'u_id': u_id1})
     assert removeowner.status_code == 403
 
 def test_channel_removeowner_v1_success(initialise_member):
@@ -152,10 +152,10 @@ def test_channel_removeowner_v1_success(initialise_member):
                                                           'u_id': u_id2})
     requests.post(f"{config.url}channel/addowner/v1", json= {'token': token,
                                                              'channel_id': channel_id,
-                                                             'user_id': u_id2})
+                                                             'u_id': u_id2})
     requests.post(f"{config.url}channel/removeowner/v1", json= {'token': token,
                                                                 'channel_id': channel_id,
-                                                                'user_id': u_id2})
+                                                                'u_id': u_id2})
     details = requests.get(f'{config.url}channel/details/v2', params= {'token': token,
                                                                        'channel_id': channel_id})
     details_data = details.json()
@@ -198,7 +198,7 @@ def test_channel_removeowner_v1_success2(initialise_member):
                                                           'u_id': u_id2})
     requests.post(f"{config.url}channel/addowner/v1", json= {'token': token,
                                                              'channel_id': channel_id2,
-                                                             'user_id': u_id2})
+                                                             'u_id': u_id2})
     requests.post(f"{config.url}channel/removeowner/v1", json= {'token': token,
                                                                 'channel_id': channel_id2,
-                                                                'user_id': u_id2})
+                                                                'u_id': u_id2})
