@@ -225,3 +225,42 @@ def test_message_remove_dms_non_sender(setup_users):
     })
 
     assert remove_response.status_code == 403
+
+
+def test_message_remove_global_owner(setup_users):
+    owner = setup_users[0]
+    member1 = setup_users[1]
+
+    channel_response = requests.post(f"{config.url}channels/create/v2", json={
+        "token": member1['token'],
+        "name": "general",
+        "is_public": True
+    })
+
+    message_response = requests.post(f'{config.url}message/send/v1', json={
+        'token': member1['token'],
+        'channel_id': channel_response.json()['channel_id'],
+        'message': 'bruh '})
+    assert message_response.status_code == 200
+
+    join_response = requests.post(f'{config.url}channel/join/v2', json={
+        'token': owner['token'],
+        'channel_id':  channel_response.json()['channel_id']
+    })
+    assert join_response.status_code == 200
+
+    remove_response = requests.delete(f"{config.url}message/remove/v1", json={
+        "token": owner['token'],
+        "message_id": message_response.json()['message_id'],
+    })
+
+    assert remove_response.status_code == 200
+
+    messages_response = requests.get(f'{config.url}/channel/messages/v2', params={
+        'token': owner['token'],
+        'channel_id': channel_response.json()['channel_id'],
+        'start': 0
+    })
+
+    assert len(messages_response.json()['messages']) == 0
+    assert messages_response.status_code == 200

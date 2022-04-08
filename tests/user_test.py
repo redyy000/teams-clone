@@ -76,6 +76,19 @@ def test_user_profile_invalid_token(post_test_user):
     assert response.status_code == 403
 
 
+def test_user_profile_invalid_id(post_test_user):
+    '''
+    Tests if user token is valid i.e. if user exists
+    '''
+
+    response = requests.get(f"{config.url}/user/profile/v1", params={
+        'token': post_test_user['token'],
+        'u_id': -1
+    })
+    # 403 for AccessError
+    assert response.status_code == 400
+
+
 def test_user_profile_valid_users(post_test_user):
 
     george_info = post_george()
