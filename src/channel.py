@@ -31,6 +31,7 @@ def permission_id_given_user(auth_user_id):
 
 
 def channel_invite_v2(token, channel_id, u_id):
+    # TODO FIX FOR USER STATS
     '''
     Invites a user with ID u_id to join a channel with ID channel_id. 
     Once invited, the user is added to the channel immediately. 
@@ -110,11 +111,11 @@ def channel_invite_v2(token, channel_id, u_id):
     # Update user stats for channels_joined
     time_stamp = create_time_stamp()
     user_channel_entry = {
-        'num_channels_joined': data_store['users'][u_id - 1]['stats']['channels_joined'][-1]['num_channels_joined'] + 1,
+        'num_channels_joined': store['users'][u_id - 1]['stats']['channels_joined'][-1]['num_channels_joined'] + 1,
         'time_stamp': time_stamp
     }
-    data_store['users'][u_id -
-                        1]['stats']['channels_joined'].append(user_channel_entry)
+    store['users'][u_id -
+                   1]['stats']['channels_joined'].append(user_channel_entry)
 
     data_store.set(store)
     return {
@@ -383,11 +384,11 @@ def channel_leave_v1(token, channel_id):
 
     time_stamp = create_time_stamp()
     user_channel_entry = {
-        'num_channels_joined': data_store['users'][u_id - 1]['stats']['channels_joined'][-1]['num_channels_joined'] - 1,
+        'num_channels_joined': store['users'][u_id - 1]['stats']['channels_joined'][-1]['num_channels_joined'] - 1,
         'time_stamp': time_stamp
     }
-    data_store['users'][u_id -
-                        1]['stats']['channels_joined'].append(user_channel_entry)
+    store['users'][u_id -
+                   1]['stats']['channels_joined'].append(user_channel_entry)
 
     data_store.set(store)
     return
