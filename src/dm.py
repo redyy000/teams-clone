@@ -226,6 +226,17 @@ def dm_remove_v1(token, dm_id):
             }
             datastore['workplace_stats']['dms_exist'].append(seams_dm_entry)
 
+            # Update seams stats for messages sent
+
+            # Update seams messages sent
+            num_dm_messages = len(dm['messages'])
+            seams_message_entry = {
+                'num_messages_exist': data_store['workplace_stats']['messages_exist'][-1]['num_messages_exist'] - num_dm_messages,
+                'time_stamp': time_stamp
+            }
+            data_store['workplace_stats']['messages_exist'].append(
+                seams_message_entry)
+
             data_store.set(datastore)
             return {}
     # If given dm_id does not exist

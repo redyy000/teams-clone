@@ -157,15 +157,14 @@ def channels_create_v2(token, name, is_public):
     data['workplace_stats']['channels_exist'].append(seams_channel_entry)
 
     # Increase amount of channels joined for each member of channel.
-    for member_dict in new_channel['all_members']:
-        # Increase channels_joined stat for each one....
-        # Suspicious usage of u_id to find user index
-        user_channel_entry = {
-            'num_channels_joined': data['users'][auth_user_id - 1]['stats']['channels_joined'][-1]['num_channels_joined'] + 1,
-            'time_stamp': time_stamp
-        }
-        data['users'][member_dict['user_id'] -
-                      1]['stats']['channels_joined'].append(user_channel_entry)
+    # Increase channels_joined stat for each one....
+    # Suspicious usage of u_id to find user index
+    user_channel_entry = {
+        'num_channels_joined': data['users'][auth_user_id - 1]['stats']['channels_joined'][-1]['num_channels_joined'] + 1,
+        'time_stamp': time_stamp
+    }
+    data['users'][auth_user_id -
+                  1]['stats']['channels_joined'].append(user_channel_entry)
 
     data_store.set(data)
 
