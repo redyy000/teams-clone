@@ -29,3 +29,6 @@ print(utc_timestamp)
 
 - 
 
+Users/Stats:
+    - For seams stats, since admin/remove does not decrease the number of messages sent in the seams system, calling admin remove in where the removed user has sent multiple messages does not create a new timestamped data dict for messages_exist in workspace_stats.
+
