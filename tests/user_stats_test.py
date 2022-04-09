@@ -50,16 +50,11 @@ def test_user_stats_invalid_token(setup_users):
     assert user_stat_response.status_code == 403
 
 
+'''
 def test_user_stats_functionality(setup_users):
-    '''
-    stats = {
-        'channels_joined': [{num_channels_joined, time_stamp}],
-        'dms_joined': [{num_dms_joined, time_stamp}],
-        'messages_sent': [{num_msgs_sent, time_stamp}],
-        'involvement_rate': involvement
-    }
-    return {'user_stats': stats}
-    '''
+
+    
+    
     owner = setup_users[0]
     member1 = setup_users[1]
     member2 = setup_users[2]
@@ -121,7 +116,7 @@ def test_user_stats_functionality(setup_users):
     assert stats['messages_sent'] == [{1, time_stamp}]
     assert stats['involvement_rate'] == 0.5
 
-
+'''
 # More user stats tests with extra options.......
 
 

@@ -92,6 +92,7 @@ def test_channel_details_v2_success():
             'name_first': 'FirstName',
             'name_last': 'LastName',
             'handle_str': 'firstnamelastname',
+            'profile_img_url': ''
         }],
         'all_members': [{
             'u_id': user_data1['auth_user_id'],
@@ -99,12 +100,14 @@ def test_channel_details_v2_success():
             'name_first': 'FirstName',
             'name_last': 'LastName',
             'handle_str': 'firstnamelastname',
+            'profile_img_url': ''
         }, {
             'u_id': user_data2['auth_user_id'],
             'email': 'userrandom@gmail.com',
             'name_first': 'FirstName2',
             'name_last': 'LastName2',
             'handle_str': 'firstname2lastname2',
+            'profile_img_url': ''
 
         }
         ]

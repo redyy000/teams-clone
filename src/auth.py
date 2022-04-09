@@ -200,7 +200,13 @@ def auth_register_v2(email, password, name_first, name_last):
         'permission_id': permission_id,
         'is_deleted': False,
         'profile_img_url': '',
-        'reset_code_list': []
+        'reset_code_list': [],
+        'stats': {
+            'channels_joined': [],
+            'dms_joined': [],
+            'messages_sent': [],
+            'involvement_rate': []
+        }
     }
 
     store['users'].append(user)
