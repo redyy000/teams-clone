@@ -372,16 +372,17 @@ def user_profile_uploadphoto_v1(token, img_url, x_start, y_start, x_end, y_end):
     # Download image from url, save it to images folder as a jpg
     try:
         urllib.request.urlretrieve(img_url, img_file)
-    except:
-        raise InputError(description='Failed while retrieving image from URL!')
+    except InputError as failure:
+        raise InputError(
+            description='Failed while retrieving image from URL!') from failure
 
     # Cropping part
     imageObject = Image.open(img_file)
     try:
         cropped = imageObject.crop((x_start, y_start, x_end, y_end))
-    except:
+    except InputError as failure:
         raise InputError(
-            description='Failed to crop, given crop size is invalid!')
+            description='Failed to crop, given crop size is invalid!') from failure
 
     cropped.save(img_file)
     # Set as new profile pic
