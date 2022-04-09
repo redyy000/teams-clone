@@ -131,8 +131,8 @@ def test_channel_addowner_v1_owner(initialise_member):
                                                             'channel_id': channel_id,
                                                             'u_id': u_id2})
     addowner = requests.post(f"{config.url}channel/addowner/v1", json={'token': token,
-                                                            'channel_id': channel_id,
-                                                            'u_id': u_id2})  
+                                                                       'channel_id': channel_id,
+                                                                       'u_id': u_id2})
     assert addowner.status_code == 400
 
 
@@ -171,23 +171,27 @@ def test_channel_addowner_v1_no_owner_permissions(initialise_member):
                                                'email': 'test@email.com',
                                                'name_first': 'first_name',
                                                'name_last': 'last_name',
-                                               'handle_str': 'firstnamelastname'}
+                                               'handle_str': 'firstnamelastname',
+                                               'profile_img_url': ''}
                                               ],
                             'all_members': [{'u_id': u_id1,
                                              'email': 'test@email.com',
                                              'name_first': 'first_name',
                                              'name_last': 'last_name',
-                                             'handle_str': 'firstnamelastname'},
+                                             'handle_str': 'firstnamelastname',
+                                             'profile_img_url': ''},
                                             {'u_id': u_id2,
-                                               'email': 'anothertest@gmail.com',
-                                               'name_first': 'Jane',
-                                               'name_last': 'Doe',
-                                               'handle_str': 'janedoe'},
-                                              {'u_id': u_id3,
-                                               'email': 'testagain@gmail.com',
-                                               'name_first': 'John',
-                                               'name_last': 'Win',
-                                               'handle_str': 'johnwin'}]}
+                                             'email': 'anothertest@gmail.com',
+                                             'name_first': 'Jane',
+                                             'name_last': 'Doe',
+                                             'handle_str': 'janedoe',
+                                             'profile_img_url': ''},
+                                            {'u_id': u_id3,
+                                             'email': 'testagain@gmail.com',
+                                             'name_first': 'John',
+                                             'name_last': 'Win',
+                                             'handle_str': 'johnwin',
+                                             'profile_img_url': ''}]}
 
 
 def test_channel_addowner_v1_success(initialise_member):
@@ -216,23 +220,27 @@ def test_channel_addowner_v1_success(initialise_member):
                                                'email': 'test@email.com',
                                                'name_first': 'first_name',
                                                'name_last': 'last_name',
-                                               'handle_str': 'firstnamelastname'},
+                                               'handle_str': 'firstnamelastname',
+                                               'profile_img_url': ''},
                                               {'u_id': u_id2,
                                               'email': 'anothertest@gmail.com',
                                                'name_first': 'Jane',
                                                'name_last': 'Doe',
-                                               'handle_str': 'janedoe'}
+                                               'handle_str': 'janedoe',
+                                               'profile_img_url': ''}
                                               ],
                             'all_members': [{'u_id': u_id1,
                                              'email': 'test@email.com',
                                              'name_first': 'first_name',
                                              'name_last': 'last_name',
-                                             'handle_str': 'firstnamelastname'},
+                                             'handle_str': 'firstnamelastname',
+                                            'profile_img_url': ''},
                                             {'u_id': u_id2,
                                              'email': 'anothertest@gmail.com',
                                              'name_first': 'Jane',
                                              'name_last': 'Doe',
-                                             'handle_str': 'janedoe'}]}
+                                             'handle_str': 'janedoe',
+                                             'profile_img_url': ''}]}
 
 
 def test_channel_addowner_v1_success2(initialise_member):
@@ -265,23 +273,27 @@ def test_channel_addowner_v1_success2(initialise_member):
                                                'email': 'test@email.com',
                                                'name_first': 'first_name',
                                                'name_last': 'last_name',
-                                               'handle_str': 'firstnamelastname'},
+                                               'handle_str': 'firstnamelastname',
+                                               'profile_img_url': ''},
                                               {'u_id': u_id2,
                                               'email': 'test@bing.com',
                                                'name_first': 'bing',
                                                'name_last': 'rong',
-                                               'handle_str': 'bingrong'}
+                                               'handle_str': 'bingrong',
+                                               'profile_img_url': ''}
                                               ],
                             'all_members': [{'u_id': u_id1,
-                                               'email': 'test@email.com',
-                                               'name_first': 'first_name',
-                                               'name_last': 'last_name',
-                                               'handle_str': 'firstnamelastname'},
-                                              {'u_id': u_id2,
-                                              'email': 'test@bing.com',
-                                               'name_first': 'bing',
-                                               'name_last': 'rong',
-                                               'handle_str': 'bingrong'}]}
+                                             'email': 'test@email.com',
+                                             'name_first': 'first_name',
+                                             'name_last': 'last_name',
+                                             'handle_str': 'firstnamelastname',
+                                             'profile_img_url': ''},
+                                            {'u_id': u_id2,
+                                             'email': 'test@bing.com',
+                                             'name_first': 'bing',
+                                             'name_last': 'rong',
+                                             'handle_str': 'bingrong',
+                                             'profile_img_url': ''}]}
 
 
 def test_channel_addowner_v1_non_global_nor_normal_owner(setup_users):

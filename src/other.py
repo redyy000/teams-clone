@@ -21,6 +21,14 @@ def clear_v1():
         # Channel id or dm id
         'source_id': 0
     }]
+
+    data['workplace_stats'] = {
+        'channels_exist': [],
+        'dms_exist': [],
+        'messages_exist': [],
+        'utilization_rate': 0,
+    }
+
     data_store.set(data)
 
 

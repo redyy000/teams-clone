@@ -240,7 +240,6 @@ def message_edit_v1(token, message_id, message):
                 if len(message) == 0:
                     channel['messages'].remove(message_dict)
                 else:
-
                     message_dict['message'] = message
 
                 message_found = True
@@ -312,11 +311,10 @@ def message_remove_v1(token, message_id):
                 elif user_id not in channel['owner_members'] and user_id != message['u_id']:
                     raise AccessError(
                         description='You are both not a channel owner and sender of message')
-                else:
-                    channel['messages'].remove(message)
-                    message_found = True
 
                 channel['messages'].remove(message)
+
+                # Search for message_ids and delete
                 message_found = True
 
     # Reloop for DMs; If found already this is skipped.
