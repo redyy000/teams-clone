@@ -317,9 +317,6 @@ def message_remove_v1(token, message_id):
                 # Search for message_ids and delete
                 message_found = True
 
-                channel['messages'].remove(message)
-                message_found = True
-
     # Reloop for DMs; If found already this is skipped.
     if message_found == False:
         for dm in datastore['dms']:
