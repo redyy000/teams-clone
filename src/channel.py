@@ -7,6 +7,18 @@ from src.other import is_valid_token
 from src.admin import is_global_owner
 from src.user import user_profile_v1
 from src.data_store import data_store
+from datetime import timezone
+import datetime
+
+
+def create_time_stamp():
+    '''
+    Return the current UTC time_stamp
+    '''
+    dt = datetime.datetime.now(timezone.utc)
+    utc_time = dt.replace(tzinfo=timezone.utc)
+    utc_timestamp = utc_time.timestamp()
+    return utc_timestamp
 
 
 def permission_id_given_user(auth_user_id):
@@ -94,6 +106,15 @@ def channel_invite_v2(token, channel_id, u_id):
     for channels in channel_info:
         if channels['channel_id'] == channel_id:
             channels['all_members'].append(new_member)
+
+    # Update user stats for channels_joined
+    time_stamp = create_time_stamp()
+    user_channel_entry = {
+        'num_channels_joined': data_store['users'][auth_user_id - 1]['stats']['channels_joined'][-1]['num_channels_joined'] + 1,
+        'time_stamp': time_stamp
+    }
+    data_store['users'][auth_user_id -
+                        1]['stats']['channels_joined'].append(user_channel_entry)
 
     data_store.set(store)
     return {
@@ -227,6 +248,14 @@ def channel_join_v2(token, channel_id):
         if channels['channel_id'] == channel_id:
             channels['all_members'].append(new_member)
 
+    time_stamp = create_time_stamp()
+    user_channel_entry = {
+        'num_channels_joined': data_store['users'][auth_user_id - 1]['stats']['channels_joined'][-1]['num_channels_joined'] + 1,
+        'time_stamp': time_stamp
+    }
+    data_store['users'][auth_user_id -
+                        1]['stats']['channels_joined'].append(user_channel_entry)
+
     data_store.set(store)
 
     return {
@@ -350,6 +379,15 @@ def channel_leave_v1(token, channel_id):
                     channels['all_members'].remove(member)
                     if u_id in channels['owner_members']:
                         channels['owner_members'].remove(u_id)
+
+    time_stamp = create_time_stamp()
+    user_channel_entry = {
+        'num_channels_joined': data_store['users'][u_id - 1]['stats']['channels_joined'][-1]['num_channels_joined'] - 1,
+        'time_stamp': time_stamp
+    }
+    data_store['users'][u_id -
+                        1]['stats']['channels_joined'].append(user_channel_entry)
+
     data_store.set(store)
     return
 

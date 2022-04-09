@@ -99,7 +99,7 @@ def dm_create_v1(token, u_ids):
     # Increase amount of dms for seams stats
     time_stamp = create_time_stamp()
     seams_dm_entry = {
-        'nums_dm_exist': len(datastore['workplace_stats']['dms_exist']),
+        'num_dms_exist': datastore['workplace_stats']['dms_exist'][-1]['num_dms_exist'] + 1,
         'time_stamp': time_stamp
     }
     datastore['workplace_stats']['dms_exist'].append(seams_dm_entry)
@@ -109,7 +109,7 @@ def dm_create_v1(token, u_ids):
         # Increase dms_joined stat for each one....
         # Suspicious usage of u_id to find user index
         user_dm_entry = {
-            'num_dms_joined': len(datastore['users'][u_id - 1]['stats']['dms_joined']),
+            'num_dms_joined': datastore['users'][u_id - 1]['stats']['dms_joined'][-1]['num_dms_joined'] + 1,
             'time_stamp': time_stamp
         }
         datastore['users'][u_id -
@@ -207,7 +207,7 @@ def dm_remove_v1(token, dm_id):
                 # Increase dms_joined stat for each one....
                 # Suspicious usage of u_id to find user index
                 user_dm_entry = {
-                    'num_dms_joined': len(datastore['users'][u_id - 1]['stats']['dms_joined']) - 1,
+                    'num_dms_joined': datastore['users'][u_id - 1]['stats']['dms_joined'][-1]['num_dms_joined'] - 1,
                     'time_stamp': time_stamp
                 }
                 datastore['users'][u_id -
@@ -221,7 +221,7 @@ def dm_remove_v1(token, dm_id):
             # Decrease amount of dms for seams stats
 
             seams_dm_entry = {
-                'nums_dm_exist': len(datastore['workplace_stats']['dms_exist']),
+                'num_dms_exist': datastore['workplace_stats']['dms_exist'][-1]['num_dms_exist'] - 1,
                 'time_stamp': time_stamp
             }
             datastore['workplace_stats']['dms_exist'].append(seams_dm_entry)
@@ -334,7 +334,7 @@ def dm_leave_v1(token, dm_id):
             # Update user stats by decreasing
             time_stamp = create_time_stamp()
             user_dm_entry = {
-                'num_dms_joined': len(datastore['users'][user_id - 1]['stats']['dms_joined']) - 1,
+                'num_dms_joined': datastore['users'][user_id - 1]['stats']['dms_joined'][-1]['num_dms_joined'] - 1,
                 'time_stamp': time_stamp
             }
             datastore['users'][user_id -
