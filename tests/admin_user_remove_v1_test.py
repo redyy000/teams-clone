@@ -233,13 +233,13 @@ def test_admin_user_remove_from_channel_owner(setup_users):
     add_owner_response1 = requests.post(f"{config.url}channel/addowner/v1", json={
         'token': owner['token'],
         'channel_id': channel_response.json()['channel_id'],
-        'user_id': member1['auth_user_id']})
+        'u_id': member1['auth_user_id']})
     assert add_owner_response1.status_code == 200
 
     add_owner_response2 = requests.post(f"{config.url}channel/addowner/v1", json={
         'token': owner['token'],
         'channel_id': channel_response.json()['channel_id'],
-        'user_id': member2['auth_user_id']})
+        'u_id': member2['auth_user_id']})
     assert add_owner_response2.status_code == 200
 
     # Ban member 2 :(

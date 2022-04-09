@@ -68,7 +68,7 @@ def test_channel_addowner_v1_invalid_token(initialise_member):
     u_id2 = register2.json()['auth_user_id']
     addowner = requests.post(f"{config.url}channel/addowner/v1", json={'token': 3,
                                                                        'channel_id': channel_id,
-                                                                       'user_id': u_id2})
+                                                                       'u_id': u_id2})
     assert addowner.status_code == 403
 
 
@@ -82,7 +82,7 @@ def test_channel_addowner_v1_invalid_channel(initialise_member):
     u_id2 = register2.json()['auth_user_id']
     addowner = requests.post(f"{config.url}channel/addowner/v1", json={'token': token,
                                                                        'channel_id': 1,
-                                                                       'user_id': u_id2})
+                                                                       'u_id': u_id2})
     assert addowner.status_code == 400
 
 
@@ -93,7 +93,7 @@ def test_channel_addowner_v1_invalid_user(initialise_member):
     channel_id = variable['channel_id']
     addowner = requests.post(f"{config.url}channel/addowner/v1", json={'token': token,
                                                                        'channel_id': channel_id,
-                                                                       'user_id': 3})
+                                                                       'u_id': 3})
     assert addowner.status_code == 400
 
 
@@ -109,7 +109,7 @@ def test_channel_addowner_v1_non_member(initialise_member):
     u_id2 = register2.json()['auth_user_id']
     addowner = requests.post(f"{config.url}channel/addowner/v1", json={'token': token,
                                                                        'channel_id': channel_id,
-                                                                       'user_id': u_id2})
+                                                                       'u_id': u_id2})
     assert addowner.status_code == 400
 
 
@@ -129,7 +129,7 @@ def test_channel_addowner_v1_owner(initialise_member):
                                                           'u_id': u_id2})
     requests.post(f"{config.url}channel/addowner/v1", json={'token': token,
                                                             'channel_id': channel_id,
-                                                            'user_id': u_id2})
+                                                            'u_id': u_id2})
     addowner = requests.post(f"{config.url}channel/addowner/v1", json={'token': token,
                                                                        'channel_id': channel_id,
                                                                        'user_id': u_id2})
@@ -161,7 +161,7 @@ def test_channel_addowner_v1_no_owner_permissions(initialise_member):
                                                           'u_id': u_id3})
     requests.post(f"{config.url}channel/addowner/v1", json={'token': token2,
                                                             'channel_id': channel_id,
-                                                            'user_id': u_id3})
+                                                            'u_id': u_id3})
     details = requests.get(f'{config.url}channel/details/v2', params={'token': token,
                                                                       'channel_id': channel_id})
     details_data = details.json()
@@ -210,7 +210,7 @@ def test_channel_addowner_v1_success(initialise_member):
                                                           'u_id': u_id2})
     requests.post(f"{config.url}channel/addowner/v1", json={'token': token,
                                                             'channel_id': channel_id,
-                                                            'user_id': u_id2})
+                                                            'u_id': u_id2})
     details = requests.get(f'{config.url}channel/details/v2', params={'token': token,
                                                                       'channel_id': channel_id})
     details_data = details.json()
@@ -262,7 +262,7 @@ def test_channel_addowner_v1_success2(initialise_member):
                                                           'u_id': u_id2})
     requests.post(f"{config.url}channel/addowner/v1", json={'token': token,
                                                             'channel_id': channel_id2,
-                                                            'user_id': u_id2})
+                                                            'u_id': u_id2})
 
     details = requests.get(f'{config.url}channel/details/v2', params={'token': token,
                                                                       'channel_id': channel_id2})
@@ -316,6 +316,6 @@ def test_channel_addowner_v1_non_global_nor_normal_owner(setup_users):
     add_owner_response = requests.post(f"{config.url}channel/addowner/v1", json={
         'token': member1['token'],
         'channel_id': channel_id.json()['channel_id'],
-        'user_id': member1['auth_user_id']})
+        'u_id': member1['auth_user_id']})
 
     assert add_owner_response.status_code == 403

@@ -231,7 +231,6 @@ def message_edit_v1(token, message_id, message):
         for message_dict in channel['messages']:
             if message_dict['message_id'] == message_id:
 
-                # Check for global owner status
                 user_in_channel = user_in_channel_all_members(user_id)
                 if permission_id_given_user(user_id) == 1 and user_in_channel == True:
                     pass
@@ -306,8 +305,6 @@ def message_remove_v1(token, message_id):
         for message in channel['messages']:
             if message['message_id'] == message_id:
 
-                # If a global owner, then its allowed.
-                # Check for global owner status
                 user_in_channel = user_in_channel_all_members(user_id)
                 if permission_id_given_user(user_id) == 1 and user_in_channel == True:
                     pass
@@ -318,6 +315,9 @@ def message_remove_v1(token, message_id):
                 channel['messages'].remove(message)
 
                 # Search for message_ids and delete
+                message_found = True
+
+                channel['messages'].remove(message)
                 message_found = True
 
     # Reloop for DMs; If found already this is skipped.
