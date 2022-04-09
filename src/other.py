@@ -29,7 +29,7 @@ def clear_v1():
         'source_id': 0
     }]
 
-    data['workplace_stats'] = {
+    data['workspace_stats'] = {
         'channels_exist': [{'num_channels_exist': 0, 'time_stamp': time_stamp}],
         'dms_exist': [{'num_dms_exist': 0, 'time_stamp': time_stamp}],
         'messages_exist': [{'num_messages_exist': 0, 'time_stamp': time_stamp}],

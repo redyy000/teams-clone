@@ -250,11 +250,12 @@ def channel_join_v2(token, channel_id):
 
     time_stamp = create_time_stamp()
     user_channel_entry = {
-        'num_channels_joined': data_store['users'][auth_user_id - 1]['stats']['channels_joined'][-1]['num_channels_joined'] + 1,
+        'num_channels_joined': store['users'][auth_user_id - 1]['stats']['channels_joined'][-1]['num_channels_joined'] + 1,
         'time_stamp': time_stamp
     }
-    data_store['users'][auth_user_id -
-                        1]['stats']['channels_joined'].append(user_channel_entry)
+
+    store['users'][auth_user_id -
+                   1]['stats']['channels_joined'].append(user_channel_entry)
 
     data_store.set(store)
 

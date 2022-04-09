@@ -12,7 +12,7 @@ def create_time_stamp():
     '''
     dt = datetime.datetime.now(timezone.utc)
     utc_time = dt.replace(tzinfo=timezone.utc)
-    utc_timestamp = utc_time.timestamp()
+    utc_timestamp = int(utc_time.timestamp())
     return utc_timestamp
 
 
@@ -99,10 +99,10 @@ def dm_create_v1(token, u_ids):
     # Increase amount of dms for seams stats
     time_stamp = create_time_stamp()
     seams_dm_entry = {
-        'num_dms_exist': datastore['workplace_stats']['dms_exist'][-1]['num_dms_exist'] + 1,
+        'num_dms_exist': datastore['workspace_stats']['dms_exist'][-1]['num_dms_exist'] + 1,
         'time_stamp': time_stamp
     }
-    datastore['workplace_stats']['dms_exist'].append(seams_dm_entry)
+    datastore['workspace_stats']['dms_exist'].append(seams_dm_entry)
 
     # Increase amount of dms joined for each member of dm.
     for u_id in all_member_id_list:
@@ -203,7 +203,7 @@ def dm_remove_v1(token, dm_id):
 
             # Update user stats
             # Increase amount of dms joined for each member of dm.
-            for u_id in dm['all_member_id_list']:
+            for u_id in dm['all_members']:
                 # Increase dms_joined stat for each one....
                 # Suspicious usage of u_id to find user index
                 user_dm_entry = {
@@ -221,20 +221,20 @@ def dm_remove_v1(token, dm_id):
             # Decrease amount of dms for seams stats
 
             seams_dm_entry = {
-                'num_dms_exist': datastore['workplace_stats']['dms_exist'][-1]['num_dms_exist'] - 1,
+                'num_dms_exist': datastore['workspace_stats']['dms_exist'][-1]['num_dms_exist'] - 1,
                 'time_stamp': time_stamp
             }
-            datastore['workplace_stats']['dms_exist'].append(seams_dm_entry)
+            datastore['workspace_stats']['dms_exist'].append(seams_dm_entry)
 
             # Update seams stats for messages sent
 
             # Update seams messages sent
             num_dm_messages = len(dm['messages'])
             seams_message_entry = {
-                'num_messages_exist': data_store['workplace_stats']['messages_exist'][-1]['num_messages_exist'] - num_dm_messages,
+                'num_messages_exist': datastore['workspace_stats']['messages_exist'][-1]['num_messages_exist'] - num_dm_messages,
                 'time_stamp': time_stamp
             }
-            data_store['workplace_stats']['messages_exist'].append(
+            datastore['workspace_stats']['messages_exist'].append(
                 seams_message_entry)
 
             data_store.set(datastore)

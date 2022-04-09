@@ -11,7 +11,7 @@ def create_time_stamp():
     '''
     dt = datetime.datetime.now(timezone.utc)
     utc_time = dt.replace(tzinfo=timezone.utc)
-    utc_timestamp = utc_time.timestamp()
+    utc_timestamp = int(utc_time.timestamp())
     return utc_timestamp
 
 
@@ -103,7 +103,7 @@ def message_send_v1(token, channel_id, message):
     # and time
     dt = datetime.datetime.now(timezone.utc)
     utc_time = dt.replace(tzinfo=timezone.utc)
-    utc_timestamp = utc_time.timestamp()
+    utc_timestamp = int(utc_time.timestamp())
 
     new_message = {
         'message_id': message_id,
@@ -118,10 +118,10 @@ def message_send_v1(token, channel_id, message):
 
     # Update seams and user messages sent
     seams_message_entry = {
-        'num_messages_exist': store['workplace_stats']['messages_exist'][-1]['num_messages_exist'] + 1,
+        'num_messages_exist': store['workspace_stats']['messages_exist'][-1]['num_messages_exist'] + 1,
         'time_stamp': utc_timestamp
     }
-    store['workplace_stats']['messages_exist'].append(seams_message_entry)
+    store['workspace_stats']['messages_exist'].append(seams_message_entry)
 
     # Increase amount of user messages sent
     user_member_entry = {
@@ -200,7 +200,7 @@ def message_senddm_v1(token, dm_id, message):
     # and time
     dt = datetime.datetime.now(timezone.utc)
     utc_time = dt.replace(tzinfo=timezone.utc)
-    utc_timestamp = utc_time.timestamp()
+    utc_timestamp = int(utc_time.timestamp())
 
     new_message = {
         'message_id': message_id,
@@ -217,10 +217,10 @@ def message_senddm_v1(token, dm_id, message):
 
     # Update seams and user messages sent
     seams_message_entry = {
-        'num_messages_exist': store['workplace_stats']['messages_exist'][-1]['num_messages_exist'] + 1,
+        'num_messages_exist': store['workspace_stats']['messages_exist'][-1]['num_messages_exist'] + 1,
         'time_stamp': utc_timestamp
     }
-    store['workplace_stats']['messages_exist'].append(seams_message_entry)
+    store['workspace_stats']['messages_exist'].append(seams_message_entry)
 
     # Increase amount of user messages sent
     user_member_entry = {
@@ -379,10 +379,10 @@ def message_remove_v1(token, message_id):
     utc_timestamp = create_time_stamp()
     # Update seams messages sent
     seams_message_entry = {
-        'num_messages_exist': data_store['workplace_stats']['messages_exist'][-1]['num_messages_exist'] - 1,
+        'num_messages_exist': datastore['workspace_stats']['messages_exist'][-1]['num_messages_exist'] - 1,
         'time_stamp': utc_timestamp
     }
-    data_store['workplace_stats']['messages_exist'].append(seams_message_entry)
+    datastore['workspace_stats']['messages_exist'].append(seams_message_entry)
 
     data_store.set(datastore)
 

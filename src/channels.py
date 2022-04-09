@@ -151,10 +151,10 @@ def channels_create_v2(token, name, is_public):
     # Increase amount of channels for seams stats
     time_stamp = create_time_stamp()
     seams_channel_entry = {
-        'num_channels_exist': data['workplace_stats']['channels_exist'][-1]['num_channels_exist'] + 1,
+        'num_channels_exist': data['workspace_stats']['channels_exist'][-1]['num_channels_exist'] + 1,
         'time_stamp': time_stamp
     }
-    data['workplace_stats']['channels_exist'].append(seams_channel_entry)
+    data['workspace_stats']['channels_exist'].append(seams_channel_entry)
 
     # Increase amount of channels joined for each member of channel.
     # Increase channels_joined stat for each one....
