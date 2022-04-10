@@ -60,13 +60,13 @@ def test_user_stats_channels(setup_users):
 
     # Create Channels
 
-    channel1 = requests.post(f"{config.url}channels/create/v2", json={
+    requests.post(f"{config.url}channels/create/v2", json={
         "token": owner['token'],
         "name": "1",
         "is_public": True
     })
 
-    channel2 = requests.post(f"{config.url}channels/create/v2", json={
+    requests.post(f"{config.url}channels/create/v2", json={
         "token": owner['token'],
         "name": "2",
         "is_public": True
@@ -201,7 +201,7 @@ def test_user_stats_dms(setup_users):
 
     # DM Remove
 
-    remove_response = requests.delete(f"{config.url}/dm/remove/v1", json={
+    requests.delete(f"{config.url}/dm/remove/v1", json={
         'token': owner['token'],
         'dm_id': dm2.json()['dm_id']
     })
@@ -220,7 +220,6 @@ def test_user_stats_messages(setup_users):
 
     owner = setup_users[0]
     member1 = setup_users[1]
-    member2 = setup_users[2]
 
     # Channel, DM
 

@@ -148,7 +148,7 @@ def test_users_stats_dms(setup_users):
 def test_users_stats_utilization(setup_users):
     owner = setup_users[0]
     member1 = setup_users[1]
-    member2 = setup_users[2]
+
     # Ban Users
 
     dm_info = requests.post(f'{config.url}dm/create/v1', json={
@@ -339,7 +339,7 @@ def test_users_stats_messages(setup_users):
 
     # Test banning ppl doesn't decrease message count
 
-    dm_info_2 = requests.post(f'{config.url}dm/create/v1', json={
+    requests.post(f'{config.url}dm/create/v1', json={
         'token': owner['token'],
         'u_ids': [member2['auth_user_id']]
     })
@@ -374,6 +374,7 @@ def test_users_stats_messages(setup_users):
     # Test
 
 
+'''
 def test_users_stats_standup(setup_users):
     owner = setup_users[0]
     member1 = setup_users[1]
@@ -386,3 +387,4 @@ def test_users_stats_sendlater(setup_users):
     member1 = setup_users[1]
     member2 = setup_users[2]
     pass
+'''
