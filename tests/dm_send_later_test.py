@@ -44,7 +44,7 @@ def test_messages_senddm_invalid_dm_id(setup_users):
         'token': token_id1,
         'u_ids': [u_id2, u_id3]})
 
-    time_now = int(datetime.datetime.now().timestamp())
+    time_now = datetime.datetime.now().timestamp()
     response = requests.post(f'{config.url}message/sendlaterdm/v1', json={
         'token': token_id1,
         'dm_id': 99999,
@@ -67,7 +67,7 @@ def test_messages_senddm_negative_dm_id(setup_users):
         'token': token_id1,
         'u_ids': [u_id2, u_id3]})
 
-    time_now = int(datetime.datetime.now().timestamp())
+    time_now = datetime.datetime.now().timestamp()
     response = requests.post(f'{config.url}message/sendlaterdm/v1', json={
         'token': token_id1,
         'dm_id': -1,
@@ -90,7 +90,7 @@ def test_messages_senddm_invalid_message_length(setup_users):
         'token': token_id1,
         'u_ids': [u_id2, u_id3]})
 
-    time_now = int(datetime.datetime.now().timestamp())
+    time_now = datetime.datetime.now().timestamp()
     response = requests.post(f'{config.url}message/sendlaterdm/v1', json={
         'token': token_id1,
         'dm_id': dm_id_1.json()['dm_id'],
@@ -112,7 +112,7 @@ def test_messages_senddm_invalid_auth_user(setup_users):
         'token': token_id1,
         'u_ids': [u_id2]})
 
-    time_now = int(datetime.datetime.now().timestamp())
+    time_now = datetime.datetime.now().timestamp()
     response = requests.post(f'{config.url}message/sendlaterdm/v1', json={
         'token': user3['token'],
         'dm_id': dm_id_1.json()['dm_id'],
@@ -136,7 +136,7 @@ def test_messages_senddm_invalid_token(setup_users):
         'token': token_id1,
         'u_ids': [u_id2, u_id3]})
 
-    time_now = int(datetime.datetime.now().timestamp())
+    time_now = datetime.datetime.now().timestamp()
     response = requests.post(f'{config.url}message/sendlaterdm/v1', json={
         'token': "THISAINTATOKEN!!",
         'dm_id': dm_id_1.json()['dm_id'],
@@ -159,7 +159,7 @@ def test_messages_senddm_invalid_time(setup_users):
         'token': token_id1,
         'u_ids': [u_id2, u_id3]})
 
-    time_now = int(datetime.datetime.now().timestamp())
+    time_now = datetime.datetime.now().timestamp()
     response = requests.post(f'{config.url}message/sendlaterdm/v1', json={
         'token': token_id1,
         'dm_id': dm_id_1.json()['dm_id'],
@@ -183,7 +183,7 @@ def test_dm_removed(setup_users):
         'token': token_id1,
         'u_ids': [u_id2, u_id3]})
 
-    time_now = int(datetime.datetime.now().timestamp())
+    time_now = datetime.datetime.now().timestamp()
     response = requests.post(f'{config.url}message/sendlaterdm/v1', json={
         'token': token_id1,
         'dm_id': dm_id_1.json()['dm_id'],

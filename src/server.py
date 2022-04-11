@@ -412,6 +412,8 @@ def message_sendlater_dm():
     arguments = request.get_json()
     resp = message_sendlater_dm_v1(
         arguments['token'], arguments['dm_id'], arguments['message'], arguments['time_sent'])
+    data_store.save()
+    return dumps(resp)
 
 
 # NO NEED TO MODIFY BELOW THIS POINT

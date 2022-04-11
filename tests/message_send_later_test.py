@@ -61,7 +61,7 @@ def test_message_send_invalid_token(setup_users):
         "is_public": True
     })
 
-    time_now = int(datetime.datetime.now().timestamp())
+    time_now = datetime.datetime.now().timestamp()
     message_response = requests.post(f"{config.url}message/sendlater/v1", json={
         "token": 'hwgowehgiowehgoihwoiehg',
         "channel_id": channel_response.json()['channel_id'],
