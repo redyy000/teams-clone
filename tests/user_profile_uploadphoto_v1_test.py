@@ -59,18 +59,6 @@ def test_user_profile_uploadphoto_success(setup_users):
     stats = response.json()['user']
     assert stats['profile_img_url'] == f'{config.url}static/'
     '''
-    image_2 = requests.post(f'{config.url}/user/profile/uploadphoto/v1', json={
-        'token': owner['token'],
-        'img_url': 'https://i.imgur.com/CP6LCZT.png',
-        'x_start': 0,
-        'y_start': 0,
-        'x_end': 100,
-        'y_end': 100
-
-    })
-
-    assert image_2.status_code == 200
-    assert image_2.json() == {}
 
 
 def test_user_profile_uploadphoto_invalid_token(setup_users):
@@ -86,6 +74,21 @@ def test_user_profile_uploadphoto_invalid_token(setup_users):
     })
 
     assert photo_response.status_code == 403
+
+
+def test_user_profile_uploadphoto_non_jpg(setup_users):
+    owner = setup_users[0]
+    image_2 = requests.post(f'{config.url}/user/profile/uploadphoto/v1', json={
+        'token': owner['token'],
+        'img_url': 'https://i.imgur.com/CP6LCZT.png',
+        'x_start': 0,
+        'y_start': 0,
+        'x_end': 100,
+        'y_end': 100
+
+    })
+
+    assert image_2.status_code == 400
 
 
 def test_user_profile_uploadphoto_x_small(setup_users):
