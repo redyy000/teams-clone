@@ -113,7 +113,13 @@ def channels_create_v2(token, name, is_public):
                         'permission_id': 1}  # owner has permission_id = 1
                    ],
                    'is_public': is_public,
-                   'messages': []
+                   'messages': [],
+                   'standup': {
+                            'is_active': False,
+                            'u_id': 0,
+                            'time_finish': 0,
+                            'buffer': [],
+                    },
                    }
 
     # Check for valid channel name, between 1 and 20 characters
