@@ -370,11 +370,9 @@ def user_profile_uploadphoto():
     return dumps(resp)
 
 
-'''
 @APP.route("/static/<path:path>")
 def return_photo_static(path):
     return send_from_directory('', path)
-'''
 
 
 @APP.route("/user/stats/v1", methods=['GET'])
