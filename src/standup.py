@@ -41,7 +41,10 @@ def standup_thread(token, channel_id, length):
     store = data_store.get()
 
     #get channel and standup
-    channel = next(c for c in store["channels"] if c["channel_id"] == channel_id)
+    channel = next((c for c in store["channels"] if c["channel_id"] == channel_id), None)
+    if channel == None:
+        return 
+
     standup = channel["standup"]
 
     #convert buffer to string
@@ -60,7 +63,7 @@ def standup_thread(token, channel_id, length):
     #clear standup data
     standup["is_active"] = False
     standup["u_id"] = 0
-    standup["time_finish"] = 0
+    standup["time_finish"] = None
     standup["buffer"] = []
 
     #store data
@@ -160,7 +163,7 @@ def standup_start_v1(token, channel_id, length):
     #return finishing time (now + length as unix)
     return {"time_finish": standup["time_finish"]}
 
-def standup_active_v1(is_active, time_finish):
+def standup_active_v1(token, channel_id):
     '''
     Given a valid channel and valid token 
     check whether a return is active and return the status of the standup
@@ -180,16 +183,39 @@ def standup_active_v1(is_active, time_finish):
     '''
 
     #load data
+    store = data_store.get()
 
     #check token 
+    payload = is_valid_token(token)
+    if payload is False:
+        raise AccessError(description="Invalid token")
+
+    user_id = payload['u_id']
+
+    #check channel valid
+    channels_list = store["channels"]
+
+    if isinstance(channel_id, int) == False or channel_id > len(channels_list) \
+            or channel_id <= 0:
+        raise InputError(
+            description=f"Channel_id {type(channel_id)} is not valid!")
 
     #check user not in channel
+    user_found = False
+    for channel in channels_list:
+        if channel["channel_id"] == channel_id:
+            curr_channel = channel
+        for member in channel['all_members']:
+            if member['user_id'] == user_id:
+                user_found = True
 
-    #check channel_id
+    if user_found == False:
+        raise AccessError(description = "f{user_id} not in channel!")
 
     #return status of standup
+    standup = curr_channel["standup"]
 
-    return {}
+    return {"is_active": standup["is_active"], "time_finish": standup["time_finish"]}
 
 def standup_send_v1(token, channel_id, message):
     '''
