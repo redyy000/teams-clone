@@ -365,6 +365,15 @@ def standup_send():
     data_store.save()
     return dumps(resp)
 
+@APP.route("/standup/active/v1", methods=['GET'])
+def standup_active():
+    token = request.args.get('token', type=str)
+    channel_id = request.args.get('channel_id', type=int)
+    print(channel_id)
+    resp = standup_active_v1(token, channel_id)
+    data_store.save()
+    return dumps(resp)
+
 # NO NEED TO MODIFY BELOW THIS POINT
 if __name__ == "__main__":
     signal.signal(signal.SIGINT, quit_gracefully)  # For coverage

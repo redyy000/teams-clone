@@ -86,6 +86,7 @@ def test_standup_start_invalid_standup(init):
     
 def test_standup_start_invalid_user_access(init):
     #test user not in channel --> access error 
+
     user2 = requests.post(f'{config.url}auth/register/v2', json={'email': "movington@gmail.com",
                                                                      'password': "newpassword",
                                                                      'name_first': "Max",
@@ -113,14 +114,14 @@ def test_standup_start_invalid_token(init):
 
 def test_standup_start_success_thread(init):
     #note set thread time < 3 seconds
-    dt = datetime.datetime.now(timezone.utc)
-    utc_time = dt.replace(tzinfo=timezone.utc)
-    current_time = utc_time.timestamp() + 1.5
     response = requests.post(f'{config.url}standup/start/v1', json = {
         "token": init["user"],
         "channel_id": init["channel1"],
         "length": 1.5,   
     })
+    dt = datetime.datetime.now(timezone.utc)
+    utc_time = dt.replace(tzinfo=timezone.utc)
+    current_time = utc_time.timestamp() + 1.5
     #test successful endpoints
     assert response.status_code == 200
     #test by correct finish time

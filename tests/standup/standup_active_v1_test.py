@@ -1,30 +1,118 @@
 import pytest
 import src.standup
 import src.error
+import threading
+import json
+import requests
+import time
+from src import config
+from src import auth
+from src import channels
+from src import other
+from src import standup
+from datetime import timezone
+import datetime
+
+
 
 @pytest.fixture
-def init_function():
-    pass
-    #register user
-    #make channels
-    #start standup
+def init():
+    requests.delete(f'{config.url}clear/v1')    
+    user1 = requests.post(f'{config.url}auth/register/v2', json={'email': "dlin@gmail.com",
+                                                                     'password': "password",
+                                                                     'name_first': "daniel",
+                                                                     'name_last': "lin"}).json()
+    channel1 = requests.post(f'{config.url}channels/create/v2', json={
+        'token': user1['token'],
+        'name': "Channel 1",
+        'is_public': True
+    }).json()                         
+    return {"user": user1['token'], "channel1": channel1["channel_id"]}
 
-def test_standup_active_channel_invalid():
+def test_standup_active_channel_invalid(init):
     #channel id invalid --> input error
-    pass
+    response = requests.post(f'{config.url}standup/start/v1', json = {
+        "token": init["user"],
+        "channel_id": init["channel1"],
+        "length": 1.5,   
+    })
+    assert response.status_code == 200
+    response = requests.get(f'{config.url}standup/active/v1', params = {
+        "token": init["user"],
+        "channel_id": 200,
+    })
+    assert response.status_code == 400
+    response = requests.get(f'{config.url}standup/active/v1', params = {
+        "token": init["user"],
+        "channel_id": "invalid_name",
+    })
+    assert response.status_code == 400
 
-def test_standup_active_invalid_token():
+def test_standup_active_invalid_token(init):
     #test token invalid --> access error
-    pass
+    response = requests.post(f'{config.url}standup/start/v1', json = {
+        "token": init["user"],
+        "channel_id": init["channel1"],
+        "length": 1.5,   
+    })    
+    assert response.status_code == 200
+    response = requests.get(f'{config.url}standup/active/v1', params = {
+        "token": "invalid token",
+        "channel_id": init["channel1"],  
+    })
+    assert response.status_code == 403
+    response = requests.get(f'{config.url}standup/active/v1', params = {
+        "token": 200,
+        "channel_id": init["channel1"],
+    })
+    assert response.status_code == 403
 
-def test_standup_active_user_invalid():
-    #test user not in channel --> access error
-    pass
+def test_standup_active_user_invalid(init):
+    user2 = requests.post(f'{config.url}auth/register/v2', json={'email': "movington@gmail.com",
+                                                                     'password': "newpassword",
+                                                                     'name_first': "max",
+                                                                     'name_last': "ovington"}).json()
+    response = requests.post(f'{config.url}standup/start/v1', json = {
+        "token": init["user"],
+        "channel_id": init["channel1"],
+        "length": 1.5,   
+    })    
+    assert response.status_code == 200
+    response = requests.get(f'{config.url}standup/active/v1', params = {
+        "token": user2["token"],
+        "channel_id": init["channel1"],  
+    })
+    assert response.status_code == 403                                                                
 
-def test_standup_active_success():
-    #note thread test time < 3 seconds
-
-    #test endpoints
-    #test shows correct status when active
-    #test shows correct status when invalid 
-    pass
+def test_standup_active_success(init):
+    #test nothing has been initialized
+    response = requests.get(f'{config.url}standup/active/v1', params = {
+        "token": init["user"],
+        "channel_id": init["channel1"],  
+    })
+    assert response.status_code == 200
+    assert response.json() == {"is_active": False, "time_finish": None}
+    #basic test --> should pass true for active
+    response = requests.post(f'{config.url}standup/start/v1', json = {
+        "token": init["user"],
+        "channel_id": init["channel1"],
+        "length": 1.5,   
+    })    
+    dt = datetime.datetime.now(timezone.utc)
+    utc_time = dt.replace(tzinfo=timezone.utc)
+    current_time = int(utc_time.timestamp() + 1.5)
+    assert response.status_code == 200
+    response = requests.get(f'{config.url}standup/active/v1', params = {
+        "token": init["user"],
+        "channel_id": init["channel1"],  
+    })
+    assert response.status_code == 200
+    assert response.json() == {"is_active": True, "time_finish": current_time}
+    #test status inactive
+    time.sleep(1.5)
+    response = requests.get(f'{config.url}standup/active/v1', params = {
+        "token": init["user"],
+        "channel_id": init["channel1"],  
+    })
+    assert response.status_code == 200
+    assert response.json() == {"is_active": False, "time_finish": None}

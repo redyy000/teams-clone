@@ -177,7 +177,6 @@ def test_standup_send_success(init):
         "channel_id": init["channel1"],
         "length": 1.5,   
     })    
-    finish = response.json()["time_finish"]
     assert response.status_code == 200
     requests.post(f'{config.url}standup/send/v1', json = {
         "token": init["user"],
