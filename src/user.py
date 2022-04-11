@@ -2,10 +2,15 @@ import re
 from src.error import InputError, AccessError
 from src.other import is_valid_token
 from src.data_store import data_store
+from src.config import url
 from datetime import timezone
+from flask import request
+import requests
 import datetime
 import urllib.request
 from PIL import Image
+import random
+import string
 
 
 def get_user_from_store(u_id):
@@ -290,7 +295,6 @@ def photo_crop(img_file, x_start, y_start, x_end, y_end):
 
 
 def user_profile_uploadphoto_v1(token, img_url, x_start, y_start, x_end, y_end):
-    pass
     '''
     Given a token and and a img_url
     Decode and evaluate the token to find authorised user
@@ -326,11 +330,21 @@ def user_profile_uploadphoto_v1(token, img_url, x_start, y_start, x_end, y_end):
     datastore = data_store.get()
     u_id = token_decoded['u_id']
 
-    # Retrieve handle_str
-    user_handle_str = get_user_from_store(u_id)['handle_str']
+    # Determine if the online image exists, and is a .jpg file
+    try:
+        resp = requests.get(img_url)
+        if resp.status_code != 200:
+            raise InputError(description='img_url http response is not 200!')
+    except InputError as failure:
+        raise InputError(
+            description='Failed to connect to given img_url') from failure
 
-    img_file = 'src/images/' + user_handle_str + '_profile_pic.jpg'
-    # Download image from url, save it to images folder as a jpg
+    # Construct path for where to save the cropped image
+    random_string = ''.join(random.choice(string.ascii_letters)
+                            for i in range(64))
+    img_file = 'src/' + 'static/' + random_string + '.jpg'
+
+    # Download image
     try:
         urllib.request.urlretrieve(img_url, img_file)
     except InputError as failure:
@@ -339,16 +353,25 @@ def user_profile_uploadphoto_v1(token, img_url, x_start, y_start, x_end, y_end):
 
     # Cropping part
     imageObject = Image.open(img_file)
-    try:
-        cropped = imageObject.crop((x_start, y_start, x_end, y_end))
-    except InputError as failure:
-        raise InputError(
-            description='Failed to crop, given crop size is invalid!') from failure
+    # Check for format
+    if imageObject.format != 'JPEG':
+        raise InputError(description='Not a JPEG file!')
 
+    x_width, y_height = imageObject.size
+    # Check for cropping issues with size:
+    if x_start > x_end or x_start < 0 or x_end > x_width:
+        raise InputError(description='X crop values are wrong!')
+    elif y_start > y_end or y_start < 0 or y_end > y_height:
+        raise InputError(description='Y crop values are wrong!')
+
+    cropped = imageObject.crop((x_start, y_start, x_end, y_end))
     cropped.save(img_file)
-    # Set as new profile pic
 
-    get_user_from_store(u_id)['profile_img_url'] = imageObject
+    # Set as new profile pic
+    # Correct this...
+    # Currently pastes in the file location into the url
+    static_img_url = url + 'static/' + random_string + '.jpg'
+    get_user_from_store(u_id)['profile_img_url'] = static_img_url
     data_store.set(datastore)
 
     return {}
