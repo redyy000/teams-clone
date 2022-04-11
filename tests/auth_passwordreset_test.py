@@ -106,3 +106,21 @@ def test_auth_passwordreset_reset_success(setup_users):
     
     assert auth_passwordreset_reset_response_fail.status_code = 400
 '''
+
+
+def test_auth_passwordreset_reset_short(setup_users):
+    auth_passwordreset_reset_response = requests.post(f'{config.url}auth/passwordreset/reset/v1', json={
+        'reset_code': 'reset_code',
+        'new_password': 'eee'
+    })
+
+    assert auth_passwordreset_reset_response.status_code == 400
+
+
+def test_auth_passwordreset_reset_false_code(setup_users):
+    auth_passwordreset_reset_response = requests.post(f'{config.url}auth/passwordreset/reset/v1', json={
+        'reset_code': 'lmao this does"wg',
+        'new_password': 'ekjgeog'
+    })
+
+    assert auth_passwordreset_reset_response.status_code == 400

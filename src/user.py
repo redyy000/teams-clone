@@ -189,41 +189,18 @@ def user_stats_v1(token):
 
     u_id = token_decoded['u_id']
 
+    seam_stats = datastore['workspace_stats']
     # Used for calculating user involvement
     # General stats of seams
     num_channels_exist = len(datastore['channels'])
     num_dms_exist = len(datastore['dms'])
-    num_messages_exist = 0
-    for channel in datastore['channels']:
-        num_messages_exist = num_messages_exist + len(channel['messages'])
-
-    for dm in datastore['dms']:
-        num_messages_exist = num_messages_exist + len(dm['messages'])
-
+    num_messages_exist = seam_stats['messages_exist'][-1]['num_messages_exist']
     # User specific stats
-    num_channels_joined = 0
-    num_dms_joined = 0
-    num_msgs_sent = 0
 
-    # Calculating channels joined and channel msgs sent
-    for channel in datastore['channels']:
-        for member_dict in channel['all_members']:
-            if u_id == member_dict['user_id']:
-                num_channels_joined = num_channels_joined + 1
-                break
-
-        for message_dict in channel['messages']:
-            if message_dict['u_id'] == u_id:
-                num_msgs_sent = num_msgs_sent + 1
-
-    # Calculating dms joined and dm msgs sent
-    for dm in datastore['dms']:
-        if u_id in dm['all_members']:
-            num_dms_joined = num_dms_joined + 1
-
-        for message_dict in dm['messages']:
-            if message_dict['u_id'] == u_id:
-                num_msgs_sent = num_msgs_sent + 1
+    user_stats = datastore['users'][u_id - 1]['stats']
+    num_channels_joined = user_stats['channels_joined'][-1]['num_channels_joined']
+    num_dms_joined = user_stats['dms_joined'][-1]['num_dms_joined']
+    num_msgs_sent = user_stats['messages_sent'][-1]['num_messages_sent']
 
     # Denominator
     denominator = sum([num_channels_exist, num_dms_exist, num_messages_exist])
@@ -235,26 +212,10 @@ def user_stats_v1(token):
     if involvement > 1:
         involvement = 1
 
-    dt = datetime.datetime.now(timezone.utc)
-    utc_time = dt.replace(tzinfo=timezone.utc)
-    time_stamp = int(utc_time.timestamp())
-
-    '''As UNSW is very interested in its users' engagement, the analytics must be time-series data. 
-    This means every change to the above metrics (excluding involvement_rate and utilization_rate) must be timestamped, rather than just the most recent change. 
-    For users, the first data point should be 0 for all metrics at the time that their account was created. 
-    Similarly, for the workspace, the first data point should be 0 for all metrics at the time that the first user registers. 
-    The first element in each list should be the first metric. The latest metric should be the last element in the list.'''
-
-    stats = {
-        'channels_joined': [{'num_channels_joined': num_channels_joined, 'time_stamp': time_stamp}],
-        'dms_joined': [{'num_dms_joined': num_dms_joined, 'time_stamp': time_stamp}],
-        'messages_sent': [{'num_messsages_sent': num_msgs_sent, 'time_stamp': time_stamp}],
-        'involvement_rate': involvement
-    }
+    user_stats['involvement_rate'] = involvement
 
     return {
-        'user_stats': stats
-
+        'user_stats': user_stats
     }
 
 

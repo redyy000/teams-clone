@@ -1,4 +1,6 @@
 import hashlib
+from datetime import timezone
+import datetime
 import re
 import string
 import random
@@ -188,6 +190,10 @@ def auth_register_v2(email, password, name_first, name_last):
     if len(store['users']) == 0:
         permission_id = 1
 
+    dt = datetime.datetime.now(timezone.utc)
+    utc_time = dt.replace(tzinfo=timezone.utc)
+    time_stamp = int(utc_time.timestamp())
+
     # Create user dictionary
     user = {
         'u_id': auth_user_id,
@@ -202,10 +208,10 @@ def auth_register_v2(email, password, name_first, name_last):
         'profile_img_url': '',
         'reset_code_list': [],
         'stats': {
-            'channels_joined': [],
-            'dms_joined': [],
-            'messages_sent': [],
-            'involvement_rate': []
+            'channels_joined': [{'num_channels_joined': 0, 'time_stamp': time_stamp}],
+            'dms_joined': [{'num_dms_joined': 0, 'time_stamp': time_stamp}],
+            'messages_sent': [{'num_messages_sent': 0, 'time_stamp': time_stamp}],
+            'involvement_rate': 0
         }
     }
 

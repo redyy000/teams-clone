@@ -1,11 +1,18 @@
 import json
 import jwt
 from src.data_store import data_store, initial_object
+from datetime import timezone
+import datetime
 
 SECRET = "RICHARDRYANDANIELMAXTAYLA"
 
 
 BASE_URL = "http://127.0.0.1:{config.port}"
+
+
+dt = datetime.datetime.now(timezone.utc)
+utc_time = dt.replace(tzinfo=timezone.utc)
+time_stamp = int(utc_time.timestamp())
 
 
 def clear_v1():
@@ -22,10 +29,10 @@ def clear_v1():
         'source_id': 0
     }]
 
-    data['workplace_stats'] = {
-        'channels_exist': [],
-        'dms_exist': [],
-        'messages_exist': [],
+    data['workspace_stats'] = {
+        'channels_exist': [{'num_channels_exist': 0, 'time_stamp': time_stamp}],
+        'dms_exist': [{'num_dms_exist': 0, 'time_stamp': time_stamp}],
+        'messages_exist': [{'num_messages_exist': 0, 'time_stamp': time_stamp}],
         'utilization_rate': 0,
     }
 

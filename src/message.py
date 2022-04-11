@@ -1,8 +1,18 @@
-from datetime import timezone
-import datetime
 from src.error import InputError, AccessError
 from src.other import is_valid_token
 from src.data_store import data_store
+from datetime import timezone
+import datetime
+
+
+def create_time_stamp():
+    '''
+    Return the current UTC time_stamp
+    '''
+    dt = datetime.datetime.now(timezone.utc)
+    utc_time = dt.replace(tzinfo=timezone.utc)
+    utc_timestamp = int(utc_time.timestamp())
+    return utc_timestamp
 
 
 def permission_id_given_user(auth_user_id):
@@ -93,7 +103,7 @@ def message_send_v1(token, channel_id, message):
     # and time
     dt = datetime.datetime.now(timezone.utc)
     utc_time = dt.replace(tzinfo=timezone.utc)
-    utc_timestamp = utc_time.timestamp()
+    utc_timestamp = int(utc_time.timestamp())
 
     new_message = {
         'message_id': message_id,
@@ -106,6 +116,20 @@ def message_send_v1(token, channel_id, message):
         if channel['channel_id'] == channel_id:
             channel['messages'].append(new_message)
 
+    # Update seams and user messages sent
+    seams_message_entry = {
+        'num_messages_exist': store['workspace_stats']['messages_exist'][-1]['num_messages_exist'] + 1,
+        'time_stamp': utc_timestamp
+    }
+    store['workspace_stats']['messages_exist'].append(seams_message_entry)
+
+    # Increase amount of user messages sent
+    user_member_entry = {
+        'num_messages_sent': store['users'][u_id - 1]['stats']['messages_sent'][-1]['num_messages_sent'] + 1,
+        'time_stamp': utc_timestamp
+    }
+    store['users'][u_id -
+                   1]['stats']['messages_sent'].append(user_member_entry)
     data_store.set(store)
 
     return {'message_id': message_id}
@@ -175,9 +199,8 @@ def message_senddm_v1(token, dm_id, message):
     # Getting the current date
     # and time
     dt = datetime.datetime.now(timezone.utc)
-
     utc_time = dt.replace(tzinfo=timezone.utc)
-    utc_timestamp = utc_time.timestamp()
+    utc_timestamp = int(utc_time.timestamp())
 
     new_message = {
         'message_id': message_id,
@@ -189,6 +212,24 @@ def message_senddm_v1(token, dm_id, message):
     for dms in dm_data:
         if dms['dm_id'] == dm_id:
             dms['messages'].append(new_message)
+
+    # Update stats
+
+    # Update seams and user messages sent
+    seams_message_entry = {
+        'num_messages_exist': store['workspace_stats']['messages_exist'][-1]['num_messages_exist'] + 1,
+        'time_stamp': utc_timestamp
+    }
+    store['workspace_stats']['messages_exist'].append(seams_message_entry)
+
+    # Increase amount of user messages sent
+    user_member_entry = {
+        'num_messages_sent': store['users'][u_id - 1]['stats']['messages_sent'][-1]['num_messages_sent'] + 1,
+        'time_stamp': utc_timestamp
+    }
+    store['users'][u_id -
+                   1]['stats']['messages_sent'].append(user_member_entry)
+    data_store.set(store)
 
     data_store.set(store)
     return {'message_id': message_id}
@@ -331,6 +372,14 @@ def message_remove_v1(token, message_id):
 
     if message_found == False:
         raise InputError(description="Invalid Message ID")
+
+    utc_timestamp = create_time_stamp()
+    # Update seams messages sent
+    seams_message_entry = {
+        'num_messages_exist': datastore['workspace_stats']['messages_exist'][-1]['num_messages_exist'] - 1,
+        'time_stamp': utc_timestamp
+    }
+    datastore['workspace_stats']['messages_exist'].append(seams_message_entry)
 
     data_store.set(datastore)
 

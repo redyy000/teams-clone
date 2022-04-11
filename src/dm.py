@@ -1,9 +1,19 @@
-from datetime import timezone
-import datetime
 from src.error import InputError, AccessError
 from src.other import token_create, is_valid_token
 from src.data_store import data_store
 from src.user import user_profile_v1
+from datetime import timezone
+import datetime
+
+
+def create_time_stamp():
+    '''
+    Return the current UTC time_stamp
+    '''
+    dt = datetime.datetime.now(timezone.utc)
+    utc_time = dt.replace(tzinfo=timezone.utc)
+    utc_timestamp = int(utc_time.timestamp())
+    return utc_timestamp
 
 
 def dm_name_generate(u_ids):
@@ -85,6 +95,25 @@ def dm_create_v1(token, u_ids):
         'all_members': all_member_id_list,
         'messages': []
     }
+
+    # Increase amount of dms for seams stats
+    time_stamp = create_time_stamp()
+    seams_dm_entry = {
+        'num_dms_exist': datastore['workspace_stats']['dms_exist'][-1]['num_dms_exist'] + 1,
+        'time_stamp': time_stamp
+    }
+    datastore['workspace_stats']['dms_exist'].append(seams_dm_entry)
+
+    # Increase amount of dms joined for each member of dm.
+    for u_id in all_member_id_list:
+        # Increase dms_joined stat for each one....
+        # Suspicious usage of u_id to find user index
+        user_dm_entry = {
+            'num_dms_joined': datastore['users'][u_id - 1]['stats']['dms_joined'][-1]['num_dms_joined'] + 1,
+            'time_stamp': time_stamp
+        }
+        datastore['users'][u_id -
+                           1]['stats']['dms_joined'].append(user_dm_entry)
 
     datastore['dms'].append(dm)
     data_store.set(datastore)
@@ -170,9 +199,43 @@ def dm_remove_v1(token, dm_id):
             if user_id not in dm['owners']:
                 raise AccessError(description='User is not the owner!')
 
+            time_stamp = create_time_stamp()
+
+            # Update user stats
+            # Increase amount of dms joined for each member of dm.
+            for u_id in dm['all_members']:
+                # Increase dms_joined stat for each one....
+                # Suspicious usage of u_id to find user index
+                user_dm_entry = {
+                    'num_dms_joined': datastore['users'][u_id - 1]['stats']['dms_joined'][-1]['num_dms_joined'] - 1,
+                    'time_stamp': time_stamp
+                }
+                datastore['users'][u_id -
+                                   1]['stats']['dms_joined'].append(user_dm_entry)
+
             # DM is fully removed.
 
             datastore['dms'].remove(dm)
+
+            # Update seams stats
+            # Decrease amount of dms for seams stats
+
+            seams_dm_entry = {
+                'num_dms_exist': datastore['workspace_stats']['dms_exist'][-1]['num_dms_exist'] - 1,
+                'time_stamp': time_stamp
+            }
+            datastore['workspace_stats']['dms_exist'].append(seams_dm_entry)
+
+            # Update seams stats for messages sent
+
+            # Update seams messages sent
+            num_dm_messages = len(dm['messages'])
+            seams_message_entry = {
+                'num_messages_exist': datastore['workspace_stats']['messages_exist'][-1]['num_messages_exist'] - num_dm_messages,
+                'time_stamp': time_stamp
+            }
+            datastore['workspace_stats']['messages_exist'].append(
+                seams_message_entry)
 
             data_store.set(datastore)
             return {}
@@ -278,6 +341,15 @@ def dm_leave_v1(token, dm_id):
             if user_id in dm['normal_members']:
                 dm['normal_members'].remove(user_id)
                 user_exist = True
+
+            # Update user stats by decreasing
+            time_stamp = create_time_stamp()
+            user_dm_entry = {
+                'num_dms_joined': datastore['users'][user_id - 1]['stats']['dms_joined'][-1]['num_dms_joined'] - 1,
+                'time_stamp': time_stamp
+            }
+            datastore['users'][user_id -
+                               1]['stats']['dms_joined'].append(user_dm_entry)
             data_store.set(datastore)
 
     if user_exist == False:
