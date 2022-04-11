@@ -169,14 +169,15 @@ def test_standup_send_success(init):
     #note set thread time < 3 seconds
     dt = datetime.datetime.now(timezone.utc)
     utc_time = dt.replace(tzinfo=timezone.utc)
-    current_time = utc_time.timestamp() + 1.5
+    
     #current_time = utc_time.timestamp() + 1.5
 
     response = requests.post(f'{config.url}standup/start/v1', json = {
         "token": init["user"],
         "channel_id": init["channel1"],
         "length": 1.5,   
-    })    
+    })
+    current_time = utc_time.timestamp() + 1.5    
     assert response.status_code == 200
     requests.post(f'{config.url}standup/send/v1', json = {
         "token": init["user"],
@@ -208,6 +209,6 @@ def test_standup_send_success(init):
     assert messages[0]['u_id'] == 1
     assert messages[0]['message'] == "daniellin: Message 1\ndaniellin: Message 2\ndaniellin: Message 3\n"
 
-    #margin of error less than half a second
+    #margin of error less than half a second, may be some differences due to calculations
     assert messages[0]['time_sent'] == int(current_time)
 
