@@ -41,7 +41,7 @@ def test_message_send_success(setup_users):
         "is_public": True
     })
 
-    time_now = int(datetime.datetime.now().timestamp())
+    time_now = datetime.datetime.now().timestamp()
     message_response1 = requests.post(f"{config.url}message/sendlater/v1", json={
         "token": owner['token'],
         "channel_id": channel_response.json()['channel_id'],
@@ -82,7 +82,7 @@ def test_message_send_invalid_channel_id(setup_users):
         "is_public": True
     })
 
-    time_now = int(datetime.datetime.now().timestamp())
+    time_now = datetime.datetime.now().timestamp()
     message_response = requests.post(f"{config.url}message/sendlater/v1", json={
         "token": owner['token'],
         "channel_id": 999999999999,
@@ -102,7 +102,7 @@ def test_message_send_message_length_short(setup_users):
         "is_public": True
     })
 
-    time_now = int(datetime.datetime.now().timestamp())
+    time_now = datetime.datetime.now().timestamp()
     message_response = requests.post(f"{config.url}message/sendlater/v1", json={
         "token": owner['token'],
         "channel_id": channel_response.json()['channel_id'],
@@ -123,7 +123,7 @@ def test_message_send_message_length_long(setup_users):
         "is_public": True
     })
 
-    time_now = int(datetime.datetime.now().timestamp())
+    time_now = datetime.datetime.now().timestamp()
     message_response = requests.post(f"{config.url}message/sendlater/v1", json={
         "token": owner['token'],
         "channel_id": channel_response.json()['channel_id'],
@@ -144,7 +144,7 @@ def test_message_send_unauthorised_user(setup_users):
         "is_public": True
     })
 
-    time_now = int(datetime.datetime.now().timestamp())
+    time_now = datetime.datetime.now().timestamp()
     message_response = requests.post(f"{config.url}message/sendlater/v1", json={
         "token": member1['token'],
         "channel_id": channel_response.json()['channel_id'],
@@ -164,7 +164,7 @@ def test_message_send_invalid_time(setup_users):
         "is_public": True
     })
 
-    time_now = int(datetime.datetime.now().timestamp())
+    time_now = datetime.datetime.now().timestamp()
     message_response1 = requests.post(f"{config.url}message/sendlater/v1", json={
         "token": owner['token'],
         "channel_id": channel_response.json()['channel_id'],
