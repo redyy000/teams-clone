@@ -41,7 +41,10 @@ def standup_thread(token, channel_id, length):
     store = data_store.get()
 
     #get channel and standup
-    channel = next(c for c in store["channels"] if c["channel_id"] == channel_id)
+    channel = next((c for c in store["channels"] if c["channel_id"] == channel_id), None)
+    if channel == None:
+        return 
+
     standup = channel["standup"]
 
     #convert buffer to string

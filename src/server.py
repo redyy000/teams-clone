@@ -369,7 +369,6 @@ def standup_send():
 def standup_active():
     token = request.args.get('token', type=str)
     channel_id = request.args.get('channel_id', type=int)
-    print(channel_id)
     resp = standup_active_v1(token, channel_id)
     data_store.save()
     return dumps(resp)
