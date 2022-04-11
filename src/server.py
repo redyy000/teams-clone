@@ -18,7 +18,7 @@ from src.dm import dm_create_v1, dm_details_v1, dm_list_v1, dm_remove_v1, dm_lea
 from src.message import message_send_v1, message_senddm_v1, message_remove_v1, message_edit_v1
 from src.admin import admin_userpermission_change_v1, admin_user_remove_v1
 from src.data_store import data_store
-
+from src.standup import standup_start_v1, standup_send_v1, standup_active_v1, standup_thread
 
 APP = Flask(__name__)
 
@@ -343,6 +343,35 @@ def admin_user_remove():
     data_store.save()
     return dumps(resp)
 
+@APP.route("/standup/start/v1", methods=['POST'])
+def standup_start():
+    payload = request.get_json()
+    print(payload['token'])
+    token = payload['token']
+    channel_id = payload['channel_id']
+    length = payload['length']
+    resp = standup_start_v1(token, channel_id, length)
+    data_store.save()
+    return dumps(resp)
+
+@APP.route("/standup/send/v1", methods=['POST'])
+def standup_send():
+    payload = request.get_json()
+    print(payload['token'])
+    token = payload['token']
+    channel_id = payload['channel_id']
+    message = payload['message']
+    resp = standup_send_v1(token, channel_id, message)
+    data_store.save()
+    return dumps(resp)
+
+@APP.route("/standup/active/v1", methods=['GET'])
+def standup_active():
+    token = request.args.get('token', type=str)
+    channel_id = request.args.get('channel_id', type=int)
+    resp = standup_active_v1(token, channel_id)
+    data_store.save()
+    return dumps(resp)
 
 @APP.route("/auth/passwordreset/request/v1", methods=['POST'])
 def auth_passwordreset_request():
