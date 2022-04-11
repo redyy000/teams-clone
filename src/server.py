@@ -17,6 +17,7 @@ from src.channel import channel_details_v2, channel_invite_v2, channel_join_v2, 
 from src.dm import dm_create_v1, dm_details_v1, dm_list_v1, dm_remove_v1, dm_leave_v1, dm_messages_v1
 from src.message import message_send_v1, message_senddm_v1, message_remove_v1, message_edit_v1
 from src.admin import admin_userpermission_change_v1, admin_user_remove_v1
+from src.message_send_later import message_sendlater_dm_v1, message_sendlater_v1
 from src.data_store import data_store
 
 
@@ -395,6 +396,22 @@ def users_stats():
     resp = users_stats_v1(token)
     data_store.save()
     return dumps(resp)
+
+
+@APP.route("/message/sendlater/v1", methods=['POST'])
+def message_sendlater():
+    arguments = request.get_json()
+    resp = message_sendlater_v1(
+        arguments['token'], arguments['channel_id'], arguments['message'], arguments['time_sent'])
+    data_store.save()
+    return dumps(resp)
+
+
+@APP.route("/message/sendlaterdm/v1", methods=['POST'])
+def message_sendlater_dm():
+    arguments = request.get_json()
+    resp = message_sendlater_dm_v1(
+        arguments['token'], arguments['dm_id'], arguments['message'], arguments['time_sent'])
 
 
 # NO NEED TO MODIFY BELOW THIS POINT
