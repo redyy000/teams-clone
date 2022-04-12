@@ -109,4 +109,5 @@ def test_react_success(setup_users):
         'channel_id': channel_response.json()['channel_id'],
         'start': 0
     })
-    assert messages_response.json()['messages'][0]['reacts'] == 1
+    assert messages_response.json()['messages'][0]['reacts'][0]['react_id'] == 1
+    assert messages_response.json()['messages'][0]['reacts'][0]['u_ids'] == [user1['auth_user_id']]
