@@ -429,7 +429,22 @@ def message_react_v1(token, message_id, react_id):
         raise AccessError(description="Invalid token")
     
     u_id = payload['u_id']
+    channel_list = store['channels']
 
+    channel_found = False
+    user_found = False
+    for channel in channel_list:
+        if channel['channel_id'] == channel_id:
+            channel_found = True
+        for member in channel['all_members']:
+            if member['user_id'] == u_id:
+                user_found = True 
+
+    if channel_found == False:
+        raise InputError(description="Invalid channel ID")
+    if user_found == False:
+        raise AccessError(description="User not in channel")
+    
     # Naive approach; Scan all channels and dms for the message_id match
     # Break upon done
 
@@ -492,7 +507,22 @@ def message_unreact_v1(token, message_id, react_id):
         raise AccessError(description="Invalid token")
     
     u_id = payload['u_id']
+    channel_list = store['channels']
 
+    channel_found = False
+    user_found = False
+    for channel in channel_list:
+        if channel['channel_id'] == channel_id:
+            channel_found = True
+        for member in channel['all_members']:
+            if member['user_id'] == u_id:
+                user_found = True 
+
+    if channel_found == False:
+        raise InputError(description="Invalid channel ID")
+    if user_found == False:
+        raise AccessError(description="User not in channel")
+    
     # Naive approach; Scan all channels and dms for the message_id match
     # Break upon done
 
