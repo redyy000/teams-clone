@@ -100,20 +100,19 @@ def search_v1(token, query_str):
     if len(query_str) < 1:
         raise InputError(description='Query string empty.')
 
-    message_list = []
+    messages = []
 
     store = data_store.get()  # check this is how we are still retrieving data
 
     for channel in store['channels']:
         is_in_channel = False
         for member in channel['all_members']:
-            if member['u_id'] == decoded_token['u_id']:
-                is_in_channel = True
+            if member['user_id'] == decoded_token['u_id']:
                 break
         if is_in_channel:
             for channel_message in channel['messages']:
                 if query_str in channel_message['message']:
-                    message_list.append(channel_message)
+                    messages.append(channel_message)
 
     for dm in store['dms']:
         is_in_dm = False
@@ -122,19 +121,19 @@ def search_v1(token, query_str):
         if is_in_dm:
             for dm_message in dm['messages']:
                 if query_str in dm_message['message']:
-                    message_list.append(dm_message)
+                    messages.append(dm_message)
 
     return {
-        'messages': message_list
+        'messages': messages
     }
 
 
 def notifications_get_v1(token):
     '''
-    Return the user's most recent 20 notifications
+    Return the user's most recent 20 notifications, ordered from most recent to least recent
 
     Arguments:
-        token (string)      - an authorisation hash of the user who is adding the ownership of the user with u_id
+        token (string)      - an authorisation hash of the user 
     Exceptions:
         AccessError - token is invalid
     Return Value:
