@@ -179,7 +179,7 @@ def message_sendlater_dm_v1(token, dm_id, message, time_sent):
     if dm_exists == False:
         return {}
     else:
-        return {'message_id': message_id}
+        return (f"dm exsits? - {dm_exists}")
 
 
 # Wrapper that checks if dm has been removed
