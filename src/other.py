@@ -100,7 +100,7 @@ def search_v1(token, query_str):
     if len(query_str) < 1:
         raise InputError(description='Query string empty.')
 
-    messages = []
+    message_list = []
 
     store = data_store.get()  # check this is how we are still retrieving data
 
@@ -108,32 +108,33 @@ def search_v1(token, query_str):
         is_in_channel = False
         for member in channel['all_members']:
             if member['user_id'] == decoded_token['u_id']:
+                is_in_channel = True
                 break
         if is_in_channel:
             for channel_message in channel['messages']:
                 if query_str in channel_message['message']:
-                    messages.append(channel_message)
+                    message_list.append(channel_message)
 
     for dm in store['dms']:
         is_in_dm = False
-        if decoded_token['u_id'] in dm['members']:
+        if decoded_token['u_id'] in dm['all_members']:
             is_in_dm = True
         if is_in_dm:
             for dm_message in dm['messages']:
                 if query_str in dm_message['message']:
-                    messages.append(dm_message)
+                    message_list.append(dm_message)
 
     return {
-        'messages': messages
+        'messages': message_list
     }
 
 
 def notifications_get_v1(token):
     '''
-    Return the user's most recent 20 notifications, ordered from most recent to least recent
+    Return the user's most recent 20 notifications
 
     Arguments:
-        token (string)      - an authorisation hash of the user 
+        token (string)      - an authorisation hash of the user who is adding the ownership of the user with u_id
     Exceptions:
         AccessError - token is invalid
     Return Value:
@@ -144,5 +145,37 @@ def notifications_get_v1(token):
         raise AccessError(description='Token not authorised to search.')
     data = data_store.get()
     user = next(user for user in data['users']
-                if user['u_id'] == token['u_id'])
+                if user['u_id'] == decoded_token['u_id'])
     return {'notifications': user['notifications'][:20]}
+
+
+# ADDED THESE 12APR 2100
+def invite_notification(u_id, id, name, is_channel):
+    data = data_store.get()
+
+    for user in data['users']:
+        if user['u_id'] == u_id:
+            invited_user = user
+        else:
+            raise AccessError(description="User does not exist. ")
+
+    if is_channel:  # invite to a channel
+        return {"channel_id": id, "dm_id": -1, "notification_message": f"{invited_user['account_handle']} added you to {name}"}
+    else:  # invite to a dm
+        return {"channel_id": -1, "dm_id": id, "notification_message": f"{invited_user['account_handle']} added you to {name}"}
+
+
+def message_notification(u_id, id, name, is_channel, message):
+    data = data_store.get()
+    for user in data['users']:
+        if user['u_id'] == u_id:
+            message_user = user
+        else:
+            raise AccessError(description="User does not exist. ")
+
+    if is_channel:  # if being sent to a channel
+        notification_message = f"{message_user['account_handle']} tagged you in {name}: {message[:20]}"
+        return {'channel_id': id, 'dm_id': -1, 'notification_message': notification_message}
+    else:  # if being sent to a dm
+        notification_message = f"{message_user['account_handle']} tagged you in {name}: {message[:20]}"
+        return {'channel_id': -1, 'dm_id': id, 'notification_message': notification_message}

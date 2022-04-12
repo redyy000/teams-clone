@@ -1,7 +1,7 @@
 from datetime import timezone
 import datetime
 from src.error import InputError, AccessError
-from src.other import token_create, is_valid_token
+from src.other import token_create, is_valid_token, invite_notification
 from src.data_store import data_store
 from src.user import user_profile_v1
 
@@ -85,6 +85,11 @@ def dm_create_v1(token, u_ids):
         'all_members': all_member_id_list,
         'messages': []
     }
+
+    # notification
+    user = next(user for user in datastore['users'] if user['user_id'] == u_id)
+    user['notifications'].insert(
+        0, invite_notification(token, dm_id, dm['name'], False))
 
     datastore['dms'].append(dm)
     data_store.set(datastore)
