@@ -15,6 +15,7 @@ from src import config
 
 @pytest.fixture
 def setup_users():
+    requests.delete(f'{config.url}clear/v1')
     userlist = []
     response1 = requests.post(f'{config.url}auth/register/v2', json={'email': "dlin@gmail.com",
                                                                      'password': "password",
@@ -90,7 +91,6 @@ def setup_users():
 
 
 def test_search_success(setup_users):
-    requests.delete(f"{config.url}/clear/v1")
     owner = setup_users[0]
     user1 = setup_users[1]
     user2 = setup_users[2]
@@ -100,21 +100,22 @@ def test_search_success(setup_users):
         'token': owner['token'],
         'name': "Public Channel",
         'is_public': True
-    }).json()
+    })
+    assert channel1.status_code == 200
 
     requests.post(f'{config.url}channel/invite/v2', json={
         'token': owner['token'],
-        'channel_id': channel1['channel_id'],
+        'channel_id': channel1.json()['channel_id'],
         'u_id': user1['auth_user_id']
     })
     requests.post(f"{config.url}message/send/v1", json={
         "token": owner['token'],
-        "channel_id": channel1['channel_id'],
+        "channel_id": channel1.json()['channel_id'],
         "message": "Test channel message first"
     })
     requests.post(f"{config.url}message/send/v1", json={
         "token": user1['token'],
-        "channel_id": channel1['channel_id'],
+        "channel_id": channel1.json()['channel_id'],
         "message": "Test channel message second"
     })
 
@@ -135,10 +136,12 @@ def test_search_success(setup_users):
     })
 
     search = requests.get(f'{config.url}/search/v1', params={
-        'token': owner['token'], 'query_str': 'first'}).json()
+        'token': owner['token'], 'query_str': 'first'})
+
+    assert search.status_code == 200
 
     messages_list = []
-    for message in search['messages']:
+    for message in search.json()['messages']:
         messages_list.append(message['message'])
 
     assert 'Test channel message first' in messages_list

@@ -17,6 +17,7 @@ from src import config
 
 @pytest.fixture
 def george_token():
+    requests.delete(f"{config.url}/clear/v1")
     '''
     Creates test user named George Monkey, email george@gmail.com.
     '''
@@ -49,7 +50,6 @@ def test_notifications_get_invalid_token():
 
 
 def test_notifications_get_no_new_notifications(george_token):
-    requests.delete(f"{config.url}/clear/v1")
     # should return an empty list
     notifications = requests.get(f'{config.url}/notifications/get/v1', params={
         'token': george_token
@@ -58,7 +58,6 @@ def test_notifications_get_no_new_notifications(george_token):
 
 
 def test_notifications_get_one_notification(george_token, channel_id):
-    requests.delete(f"{config.url}/clear/v1")
     requests.post(config.url + '/message/send/v2', json={
         'token': george_token,
         'channel_id': channel_id,
@@ -71,8 +70,6 @@ def test_notifications_get_one_notification(george_token, channel_id):
 
 
 def test_notifications_get_correct_type(george_token, channel_id):
-    requests.delete(f"{config.url}/clear/v1")
-
     requests.post(config.url + '/message/send/v2', json={
         'token': george_token,
         'channel_id': channel_id,
@@ -88,7 +85,6 @@ def test_notifications_get_correct_type(george_token, channel_id):
 
 
 def test_notfications_get_multiple_tagged_with_1_valid_user(george_token, channel_id):
-    requests.delete(f"{config.url}/clear/v1")
     requests.post(config.url + '/message/send/v2', json={
         'token': george_token,
         'channel_id': channel_id,
@@ -101,7 +97,6 @@ def test_notfications_get_multiple_tagged_with_1_valid_user(george_token, channe
 
 
 def test_notifications_get_at_most_20_returned(george_token, channel_id):
-    requests.delete(f"{config.url}/clear/v1")
     for i in range(0, 30):
         requests.post(f'{config.url}/message/send/v2', json={
             'token': george_token,
@@ -109,5 +104,6 @@ def test_notifications_get_at_most_20_returned(george_token, channel_id):
             'message': f"Test {i} message @georgemonkey"})
     notifications = requests.get(f'{config.url}/notifications/get/v1', params={
         'token': george_token
-    }).json()
-    assert len(notifications['notifications']) == 20
+    })
+    assert notifications.status_code == 200
+    assert len(notifications.json()['notifications']) == 20

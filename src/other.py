@@ -107,7 +107,7 @@ def search_v1(token, query_str):
     for channel in store['channels']:
         is_in_channel = False
         for member in channel['all_members']:
-            if member['u_id'] == decoded_token['u_id']:
+            if member['user_id'] == decoded_token['u_id']:
                 is_in_channel = True
                 break
         if is_in_channel:
@@ -117,7 +117,7 @@ def search_v1(token, query_str):
 
     for dm in store['dms']:
         is_in_dm = False
-        if decoded_token['u_id'] in dm['members']:
+        if decoded_token['u_id'] in dm['all_members']:
             is_in_dm = True
         if is_in_dm:
             for dm_message in dm['messages']:
@@ -145,5 +145,5 @@ def notifications_get_v1(token):
         raise AccessError(description='Token not authorised to search.')
     data = data_store.get()
     user = next(user for user in data['users']
-                if user['u_id'] == token['u_id'])
+                if user['u_id'] == decoded_token['u_id'])
     return {'notifications': user['notifications'][:20]}
