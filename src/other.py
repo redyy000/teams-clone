@@ -3,6 +3,7 @@ import jwt
 from src.data_store import data_store, initial_object
 from datetime import timezone
 import datetime
+from src.error import InputError, AccessError
 
 SECRET = "RICHARDRYANDANIELMAXTAYLA"
 
@@ -13,6 +14,39 @@ BASE_URL = "http://127.0.0.1:{config.port}"
 dt = datetime.datetime.now(timezone.utc)
 utc_time = dt.replace(tzinfo=timezone.utc)
 time_stamp = int(utc_time.timestamp())
+
+
+def is_channel_member(u_id, channel_id):
+    datastore = data_store.get()
+    for channel in datastore['channels']:
+        if channel['channel_id'] == channel_id:
+            for member_dict in channel['all_members']:
+                if member_dict['user_id'] == u_id:
+                    return True
+    return False
+
+
+def is_dm_member(u_id, dm_id):
+    datastore = data_store.get()
+    for dm in datastore['dms']:
+        if dm['dm_id'] == dm_id:
+            if u_id in dm['all_members']:
+                return True
+    return False
+
+
+def get_channel_name(channel_id):
+    datastore = data_store.get()
+    for channel in datastore['channels']:
+        if channel['channel_id'] == 'channel_id':
+            return channel['name']
+
+
+def get_dm_name(dm_id):
+    datastore = data_store.get()
+    for dm in datastore['dms']:
+        if dm['dm_id'] == dm_id:
+            return dm['name']
 
 
 def clear_v1():
@@ -89,3 +123,98 @@ def is_valid_token(token):
             if user['session_id_list'].count(payload['session_id']) != 0:
                 return payload
         return False
+
+
+def search_v1(token, query_str):
+    '''
+    Given a query string, return a collection of messages in all of the channels/DMs that the user has joined that match the query
+    Arguments:
+        token (string)      - an authorisation hash of the user conducting the search
+        query_str (string)  - case insensitive search query
+    Exceptions:
+        InputError  - query string is more than 1000 characters
+        AccessError - token is invalid
+    Return Value:
+        Returns {messages}
+    '''
+    decoded_token = is_valid_token(token)
+    if decoded_token is False:
+        raise AccessError(description='Token not authorised to search.')
+
+    if len(query_str) > 1000:
+        raise InputError(
+            description='Query string too long, 1000 characters or under only.')
+
+    if len(query_str) < 1:
+        raise InputError(description='Query string empty.')
+
+    message_list = []
+
+    store = data_store.get()  # check this is how we are still retrieving data
+
+    for channel in store['channels']:
+        is_in_channel = False
+        for member in channel['all_members']:
+            if member['user_id'] == decoded_token['u_id']:
+                is_in_channel = True
+                break
+        if is_in_channel:
+            for channel_message in channel['messages']:
+                if query_str in channel_message['message']:
+                    message_list.append(channel_message)
+
+    for dm in store['dms']:
+        is_in_dm = False
+        if decoded_token['u_id'] in dm['all_members']:
+            is_in_dm = True
+        if is_in_dm:
+            for dm_message in dm['messages']:
+                if query_str in dm_message['message']:
+                    message_list.append(dm_message)
+
+    return {
+        'messages': message_list
+    }
+
+
+def notifications_get_v1(token):
+    '''
+    Return the user's most recent 20 notifications
+
+    Arguments:
+        token (string)      - an authorisation hash of the user who is adding the ownership of the user with u_id
+    Exceptions:
+        AccessError - token is invalid
+    Return Value:
+        Returns {notifications}
+    '''
+    decoded_token = is_valid_token(token)
+    if decoded_token is False:
+        raise AccessError(description='Token not authorised to search.')
+    data = data_store.get()
+    user = next(user for user in data['users']
+                if user['u_id'] == decoded_token['u_id'])
+    return {'notifications': user['notifications'][:20]}
+
+
+# ADDED THESE 12APR 2100
+def invite_notification(u_id, id, name, is_channel):
+    datastore = data_store.get()
+    for user_dict in datastore['users']:
+        if user_dict['u_id'] == u_id:
+            if is_channel:  # invite to a channel
+                return {"channel_id": id, "dm_id": -1, "notification_message": f"{user_dict['handle_str']} added you to {name}"}
+            else:  # invite to a dm
+                return {"channel_id": -1, "dm_id": id, "notification_message": f"{user_dict['handle_str']} added you to {name}"}
+
+
+def message_notification(u_id, id, name, is_channel, message):
+    datastore = data_store.get()
+    for user_dict in datastore['users']:
+        if user_dict['u_id'] == u_id:
+            if is_channel:  # if being sent to a channel
+                notification_message = f"{user_dict['handle_str']} tagged you in {name}: {message[:20]}"
+                return {'channel_id': id, 'dm_id': -1, 'notification_message': notification_message}
+            else:  # if being sent to a dm
+                notification_message = f"{user_dict['handle_str']} tagged you in {name}: {message[:20]}"
+                return {'channel_id': -1, 'dm_id': id, 'notification_message': notification_message}

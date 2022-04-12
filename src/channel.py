@@ -4,7 +4,7 @@ from src.channels import channels_create_v2, channels_list_v2
 from src.error import InputError, AccessError
 from json import dumps, dump, load
 from flask import Flask, request
-from src.other import is_valid_token
+from src.other import is_valid_token, notifications_get_v1, invite_notification, is_channel_member, get_channel_name
 from src.admin import is_global_owner
 from src.user import user_profile_v1
 from src.data_store import data_store
@@ -117,6 +117,11 @@ def channel_invite_v2(token, channel_id, u_id):
     }
     store['users'][u_id -
                    1]['stats']['channels_joined'].append(user_channel_entry)
+    # notification message
+    for user in user_info:
+        if user['u_id'] == u_id:
+            user['notifications'].append(invite_notification(
+                u_id, channel_id, get_channel_name(channel_id), True))
 
     data_store.set(store)
     return {
