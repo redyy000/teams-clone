@@ -239,10 +239,10 @@ def user_stats_v1(token):
     utc_time = dt.replace(tzinfo=timezone.utc)
     time_stamp = int(utc_time.timestamp())
 
-    '''As UNSW is very interested in its users' engagement, the analytics must be time-series data. 
-    This means every change to the above metrics (excluding involvement_rate and utilization_rate) must be timestamped, rather than just the most recent change. 
-    For users, the first data point should be 0 for all metrics at the time that their account was created. 
-    Similarly, for the workspace, the first data point should be 0 for all metrics at the time that the first user registers. 
+    '''As UNSW is very interested in its users' engagement, the analytics must be time-series data.
+    This means every change to the above metrics (excluding involvement_rate and utilization_rate) must be timestamped, rather than just the most recent change.
+    For users, the first data point should be 0 for all metrics at the time that their account was created.
+    Similarly, for the workspace, the first data point should be 0 for all metrics at the time that the first user registers.
     The first element in each list should be the first metric. The latest metric should be the last element in the list.'''
 
     stats = {
@@ -333,7 +333,7 @@ def user_profile_uploadphoto_v1(token, img_url, x_start, y_start, x_end, y_end):
     '''
     Given a token and and a img_url
     Decode and evaluate the token to find authorised user
-    Change user's profile_img_url to img_url, 
+    Change user's profile_img_url to img_url,
     Cropped within the given bounds
 
     Arguments:
