@@ -31,7 +31,7 @@ def setup_users():
 
 def test_invalid_message_id(setup_users):
     user1 = setup_users[0]
-    channel_response = requests.post(f"{config.url}channels/create/v2", json={
+     requests.post(f"{config.url}channels/create/v2", json={
         "token": user1['token'],
         "name": "general",
         "is_public": True
