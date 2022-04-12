@@ -103,7 +103,7 @@ def test_react_success(setup_users):
         "message_id": message_response.json()['message_id'],
         "react_id": 1
     })
-    assert react_response == 200
+    assert react_response.status_code == 200
     messages_response = requests.get(f'{config.url}/channel/messages/v2', params={
         'token': user1['token'],
         'channel_id': channel_response.json()['channel_id'],
