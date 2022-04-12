@@ -127,3 +127,23 @@ def search_v1(token, query_str):
     return {
         'messages': message_list
     }
+
+
+def notifications_get_v1(token):
+    '''
+    Return the user's most recent 20 notifications
+
+    Arguments:
+        token (string)      - an authorisation hash of the user who is adding the ownership of the user with u_id
+    Exceptions:
+        AccessError - token is invalid
+    Return Value:
+        Returns {notifications}
+    '''
+    decoded_token = is_valid_token(token)
+    if decoded_token is False:
+        raise AccessError(description='Token not authorised to search.')
+    data = data_store.get()
+    user = next(user for user in data['users']
+                if user['u_id'] == token['u_id'])
+    return {'notifications': user['notifications'][:20]}

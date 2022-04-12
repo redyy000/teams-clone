@@ -8,10 +8,10 @@ import sys
 import signal
 from json import dumps
 from urllib import response
-from flask import Flask, request, abort
+from flask import Flask, request, abort, jsonify
 from flask_cors import CORS
 from src.auth import auth_register_v2, auth_login_v2, auth_logout_v1
-from src.other import clear_v1, search_v1
+from src.other import clear_v1, search_v1, notifications_get_v1
 from src.channels import channels_create_v2, channels_list_v2, channels_listall_v2
 from src.channel import channel_details_v2, channel_invite_v2, channel_join_v2, channel_messages_v2, channel_leave_v1, channel_addowner_v1, channel_removeowner_v1
 from src.dm import dm_create_v1, dm_details_v1, dm_list_v1, dm_remove_v1, dm_leave_v1, dm_messages_v1
@@ -352,6 +352,13 @@ def search():
         token, query_str)
     data_store.save()
     return dumps(resp)
+
+
+@APP.route("/notifications/get/v1", methods=['GET'])
+def notifications():
+    token = request.args.get('token')
+    notifications = notifications_get_v1(token)
+    return jsonify(notifications)
 
 
 # NO NEED TO MODIFY BELOW THIS POINT
