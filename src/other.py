@@ -35,7 +35,7 @@ def get_channel_name(channel_id):
             return channel['name']
 
 
-def get_dm_name(u_id, dm_id):
+def get_dm_name(dm_id):
     datastore = data_store.get()
     for dm in datastore['dms']:
         if dm['dm_id'] == dm_id:

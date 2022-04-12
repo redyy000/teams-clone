@@ -191,7 +191,6 @@ def message_senddm_v1(token, dm_id, message):
         tag = '@' + user['handle_str']
         # Check if tag in message
         # Check if member in channel
-
         if tag in message and is_dm_member(u_id, dm_id):
             user['notifications'].append(message_notification(
                 u_id, dm_id, get_dm_name(dm_id), False, message))
