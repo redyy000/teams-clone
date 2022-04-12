@@ -88,6 +88,7 @@ def test_notifications_get_correct_type(george_token, channel_id):
 
 
 def test_notfications_get_multiple_tagged_with_1_valid_user(george_token, channel_id):
+    requests.delete(f"{config.url}/clear/v1")
     requests.post(config.url + '/message/send/v2', json={
         'token': george_token,
         'channel_id': channel_id,
@@ -100,6 +101,7 @@ def test_notfications_get_multiple_tagged_with_1_valid_user(george_token, channe
 
 
 def test_notifications_get_at_most_20_returned(george_token, channel_id):
+    requests.delete(f"{config.url}/clear/v1")
     for i in range(0, 30):
         requests.post(f'{config.url}/message/send/v2', json={
             'token': george_token,
