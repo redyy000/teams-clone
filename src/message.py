@@ -1,5 +1,5 @@
 from src.error import InputError, AccessError
-from src.other import is_valid_token
+from src.other import is_valid_token, message_notification, is_channel_member, is_dm_member, get_channel_name, get_dm_name
 from src.data_store import data_store
 from datetime import timezone
 import datetime
@@ -140,6 +140,21 @@ def message_send_v1(token, channel_id, message):
     }
     store['users'][u_id -
                    1]['stats']['messages_sent'].append(user_member_entry)
+    # Add message notification if tagged...
+    # Some sort of tagging function.
+    # Check for @handle in string
+    # Only should fire once for a single tag in a message
+
+    for user in store['users']:
+        tag = '@' + user['handle_str']
+        # Check if tag in message
+        # Check if member in channel
+
+        is_member = is_channel_member(u_id, channel_id)
+        if tag in message and is_member:
+            user['notifications'].append(message_notification(
+                u_id, channel_id, get_channel_name(channel_id), True, message))
+
     data_store.set(store)
 
     return {'message_id': message_id}
@@ -250,6 +265,15 @@ def message_senddm_v1(token, dm_id, message):
     store['users'][u_id -
                    1]['stats']['messages_sent'].append(user_member_entry)
     data_store.set(store)
+    # Add notifications for tag
+
+    for user in store['users']:
+        tag = '@' + user['handle_str']
+        # Check if tag in message
+        # Check if member in channel
+        if tag in message and is_dm_member(u_id, dm_id):
+            user['notifications'].append(message_notification(
+                u_id, dm_id, get_dm_name(dm_id), False, message))
 
     data_store.set(store)
     return {'message_id': message_id}
