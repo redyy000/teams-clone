@@ -105,11 +105,21 @@ def message_send_v1(token, channel_id, message):
     utc_time = dt.replace(tzinfo=timezone.utc)
     utc_timestamp = int(utc_time.timestamp())
 
+    # Set reacts
+    default_reacts = {
+        'react_id': 1,
+        'u_ids': [],
+        'is_this_user_reacted': False
+    }
+
+    reacts = [default_reacts]
+
     new_message = {
         'message_id': message_id,
         'u_id': u_id,
         'message': message,
-        'time_sent': int(utc_timestamp)
+        'time_sent': int(utc_timestamp),
+        'reacts': reacts
     }
 
     for channel in channel_list:
@@ -202,11 +212,21 @@ def message_senddm_v1(token, dm_id, message):
     utc_time = dt.replace(tzinfo=timezone.utc)
     utc_timestamp = int(utc_time.timestamp())
 
+    # Set reacts
+    default_reacts = {
+        'react_id': 1,
+        'u_ids': [],
+        'is_this_user_reacted': False
+    }
+
+    reacts = [default_reacts]
+    
     new_message = {
         'message_id': message_id,
         'u_id': u_id,
         'message': message,
-        'time_sent': int(utc_timestamp)
+        'time_sent': int(utc_timestamp),
+        'reacts': reacts
     }
 
     for dms in dm_data:
@@ -384,3 +404,5 @@ def message_remove_v1(token, message_id):
     data_store.set(datastore)
 
     return {}
+
+
