@@ -188,7 +188,7 @@ def test_dm_removed(setup_users):
         'token': token_id1,
         'dm_id': dm_id_1.json()['dm_id'],
         'message': "Hello World",
-        'time_sent': time_now + 2
+        'time_sent': time_now + 20
     })
 
     requests.delete(f"{config.url}/dm/remove/v1", json={
