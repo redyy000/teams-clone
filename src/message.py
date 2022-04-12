@@ -105,11 +105,21 @@ def message_send_v1(token, channel_id, message):
     utc_time = dt.replace(tzinfo=timezone.utc)
     utc_timestamp = int(utc_time.timestamp())
 
+    # Set reacts
+    default_reacts = {
+        'react_id': 1,
+        'u_ids': [],
+        'is_this_user_reacted': False
+    }
+
+    reacts = [default_reacts]
+
     new_message = {
         'message_id': message_id,
         'u_id': u_id,
         'message': message,
-        'time_sent': int(utc_timestamp)
+        'time_sent': int(utc_timestamp),
+        'reacts': reacts
     }
 
     for channel in channel_list:
@@ -202,11 +212,21 @@ def message_senddm_v1(token, dm_id, message):
     utc_time = dt.replace(tzinfo=timezone.utc)
     utc_timestamp = int(utc_time.timestamp())
 
+    # Set reacts
+    default_reacts = {
+        'react_id': 1,
+        'u_ids': [],
+        'is_this_user_reacted': False
+    }
+
+    reacts = [default_reacts]
+    
     new_message = {
         'message_id': message_id,
         'u_id': u_id,
         'message': message,
-        'time_sent': int(utc_timestamp)
+        'time_sent': int(utc_timestamp),
+        'reacts': reacts
     }
 
     for dms in dm_data:
@@ -382,5 +402,132 @@ def message_remove_v1(token, message_id):
     datastore['workspace_stats']['messages_exist'].append(seams_message_entry)
 
     data_store.set(datastore)
+
+    return {}
+
+
+def message_react_v1(token, message_id, react_id):
+    '''
+    Given a message within a channel or DM the authorised user is part of, add a "react" to that particular message.
+    Arguments:
+        Token (token), user token
+        message_id (int), id of the message which is being reacted to
+        react_id (int), id of the reaction
+
+    Exceptions:
+        InputError -  message_id is invalid
+        InputError -  react_id is an invalid reaction
+        InputError -  Message already contains a react with this react_id
+
+    Return Value:
+        {}
+    '''
+    store = data_store.get()
+
+    payload = is_valid_token(token)
+    if payload is False:
+        raise AccessError(description="Invalid token")
+    
+    u_id = payload['u_id']
+
+    # Naive approach; Scan all channels and dms for the message_id match
+    # Break upon done
+
+    # Message_found remains false if message cannot be found, otherwise
+    # message_found is changed to the message
+    message_found = False
+
+    # Since channel stores all_members as a list of dicts
+    # Large nesting due to how all_members are stored in channels
+    for channel in store['channels']:
+        for message in channel['messages']:
+            if message['message_id'] == message_id:
+                message_found = message
+
+    # Reloop for DMs; If found already this is skipped.
+    if message_found == False:
+        for dm in store['dms']:
+            for message in dm['messages']:
+                if message['message_id'] == message_id:
+                    message_found = message
+
+    if message_found == False:
+        raise InputError(description="Invalid Message ID")
+    
+    # Check if react_id is a valid reaction
+    if react_id != 1:
+        raise InputError(description="Invalid React ID")
+
+    if u_id in message_found['reacts'][0]['u_ids']:
+        raise InputError(description="Message already contains your reaction with this React ID!")
+    
+    message_found['reacts'][0]['react_id'] = 1
+    message_found['reacts'][0]['u_ids'].append(u_id)
+    message_found['reacts'][0]['is_this_user_reacted'] == True
+
+    data_store.set(store)
+
+    return {}
+
+def message_unreact_v1(token, message_id, react_id):
+    '''
+    Given a message within a channel or DM the authorised user is part of, remove a "react" to that particular message.
+    Arguments:
+        Token (token), user token
+        message_id (int), id of the message which is being reacted to
+        react_id (int), id of the reaction
+
+    Exceptions:
+        InputError -  message_id is invalid
+        InputError -  react_id is an invalid reaction
+        InputError -  Message does not contain a react with this react_id
+
+    Return Value:
+        {}
+    '''
+    store = data_store.get()
+
+    payload = is_valid_token(token)
+    if payload is False:
+        raise AccessError(description="Invalid token")
+    
+    u_id = payload['u_id']
+
+    # Naive approach; Scan all channels and dms for the message_id match
+    # Break upon done
+
+    # Message_found remains false if message cannot be found, otherwise
+    # message_found is changed to the message
+    message_found = False
+
+    # Since channel stores all_members as a list of dicts
+    # Large nesting due to how all_members are stored in channels
+    for channel in store['channels']:
+        for message in channel['messages']:
+            if message['message_id'] == message_id:
+                message_found = message
+
+    # Reloop for DMs; If found already this is skipped.
+    if message_found == False:
+        for dm in store['dms']:
+            for message in dm['messages']:
+                if message['message_id'] == message_id:
+                    message_found = message
+
+    if message_found == False:
+        raise InputError(description="Invalid Message ID")
+    
+    # Check if react_id is a valid reaction
+    if react_id != 1:
+        raise InputError(description="Invalid React ID")
+
+    if u_id not in message_found['reacts'][0]['u_ids']:
+        raise InputError(description="You have not reacted to this message with this React ID!")
+    
+    message_found['reacts'][0]['react_id'] = 1
+    message_found['reacts'][0]['u_ids'].remove(u_id)
+    message_found['reacts'][0]['is_this_user_reacted'] == False
+
+    data_store.set(store)
 
     return {}
