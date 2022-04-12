@@ -16,6 +16,34 @@ from src import config
 
 
 @pytest.fixture
+def setup_users():
+    requests.delete(f'{config.url}clear/v1')
+    userlist = []
+    response1 = requests.post(f'{config.url}auth/register/v2', json={'email': "dlin@gmail.com",
+                                                                     'password': "password",
+                                                                     'name_first': "daniel",
+                                                                     'name_last': "lin"})
+
+    response2 = requests.post(f'{config.url}auth/register/v2', json={'email': "rxue@gmail.com",
+                                                                     'password': "password",
+                                                                     'name_first': "richard",
+                                                                     'name_last': "xue"})
+
+    response3 = requests.post(f'{config.url}auth/register/v2', json={'email': "ryan@gmail.com",
+                                                                     'password': "password",
+                                                                     'name_first': "ryan",
+                                                                     'name_last': "godakanda"})
+
+    user1_info = response1.json()
+    user2_info = response2.json()
+    user3_info = response3.json()
+    userlist.append(user1_info)
+    userlist.append(user2_info)
+    userlist.append(user3_info)
+    return userlist
+
+
+@pytest.fixture
 def george_token():
     requests.delete(f"{config.url}/clear/v1")
     '''
@@ -58,11 +86,12 @@ def test_notifications_get_no_new_notifications(george_token):
 
 
 def test_notifications_get_one_notification(george_token, channel_id):
-    requests.post(config.url + '/message/send/v2', json={
+    send = requests.post(config.url + '/message/send/v1', json={
         'token': george_token,
         'channel_id': channel_id,
         'message': "Hi @georgemonkey"
     })
+    assert send.status_code == 200
     notifications = requests.get(f'{config.url}/notifications/get/v1', params={
         'token': george_token
     })
@@ -70,7 +99,7 @@ def test_notifications_get_one_notification(george_token, channel_id):
 
 
 def test_notifications_get_correct_type(george_token, channel_id):
-    requests.post(config.url + '/message/send/v2', json={
+    requests.post(config.url + '/message/send/v1', json={
         'token': george_token,
         'channel_id': channel_id,
         'message': "Hi @georgemonkey"
@@ -85,7 +114,7 @@ def test_notifications_get_correct_type(george_token, channel_id):
 
 
 def test_notfications_get_multiple_tagged_with_1_valid_user(george_token, channel_id):
-    requests.post(config.url + '/message/send/v2', json={
+    requests.post(config.url + '/message/send/v1', json={
         'token': george_token,
         'channel_id': channel_id,
         'message': "Hi @georgemonkey and @randomname and @otherrandomname"
@@ -98,7 +127,7 @@ def test_notfications_get_multiple_tagged_with_1_valid_user(george_token, channe
 
 def test_notifications_get_at_most_20_returned(george_token, channel_id):
     for i in range(0, 30):
-        requests.post(f'{config.url}/message/send/v2', json={
+        requests.post(f'{config.url}/message/send/v1', json={
             'token': george_token,
             'channel_id': channel_id,
             'message': f"Test {i} message @georgemonkey"})
@@ -107,3 +136,15 @@ def test_notifications_get_at_most_20_returned(george_token, channel_id):
     })
     assert notifications.status_code == 200
     assert len(notifications.json()['notifications']) == 20
+
+# DM Based Tests
+
+
+def test_notifications_get_dm_invite(setup_users):
+    pass
+
+# Channel based tests
+
+
+def test_notifications_get_channel_invite(setup_users):
+    pass

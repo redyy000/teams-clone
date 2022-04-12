@@ -9,6 +9,39 @@ SECRET = "RICHARDRYANDANIELMAXTAYLA"
 BASE_URL = "http://127.0.0.1:{config.port}"
 
 
+def is_channel_member(u_id, channel_id):
+    datastore = data_store.get()
+    for channel in datastore['channels']:
+        if channel['channel_id'] == channel_id:
+            for member_dict in channel['all_members']:
+                if member_dict['user_id'] == u_id:
+                    return True
+    return False
+
+
+def is_dm_member(u_id, dm_id):
+    datastore = data_store.get()
+    for dm in datastore['dms']:
+        if dm['dm_id'] == dm_id:
+            if u_id in dm['all_members']:
+                return True
+    return False
+
+
+def get_channel_name(channel_id):
+    datastore = data_store.get()
+    for channel in datastore['channels']:
+        if channel['channel_id'] == 'channel_id':
+            return channel['name']
+
+
+def get_dm_name(u_id, dm_id):
+    datastore = data_store.get()
+    for dm in datastore['dms']:
+        if dm['dm_id'] == dm_id:
+            return dm['name']
+
+
 def clear_v1():
     data = data_store.get()
     data['users'].clear()
@@ -151,31 +184,22 @@ def notifications_get_v1(token):
 
 # ADDED THESE 12APR 2100
 def invite_notification(u_id, id, name, is_channel):
-    data = data_store.get()
-
-    for user in data['users']:
-        if user['u_id'] == u_id:
-            invited_user = user
-        else:
-            raise AccessError(description="User does not exist. ")
-
-    if is_channel:  # invite to a channel
-        return {"channel_id": id, "dm_id": -1, "notification_message": f"{invited_user['account_handle']} added you to {name}"}
-    else:  # invite to a dm
-        return {"channel_id": -1, "dm_id": id, "notification_message": f"{invited_user['account_handle']} added you to {name}"}
+    datastore = data_store.get()
+    for user_dict in datastore['users']:
+        if user_dict['u_id'] == u_id:
+            if is_channel:  # invite to a channel
+                return {"channel_id": id, "dm_id": -1, "notification_message": f"{user_dict['handle_str']} added you to {name}"}
+            else:  # invite to a dm
+                return {"channel_id": -1, "dm_id": id, "notification_message": f"{user_dict['handle_str']} added you to {name}"}
 
 
 def message_notification(u_id, id, name, is_channel, message):
-    data = data_store.get()
-    for user in data['users']:
-        if user['u_id'] == u_id:
-            message_user = user
-        else:
-            raise AccessError(description="User does not exist. ")
-
-    if is_channel:  # if being sent to a channel
-        notification_message = f"{message_user['account_handle']} tagged you in {name}: {message[:20]}"
-        return {'channel_id': id, 'dm_id': -1, 'notification_message': notification_message}
-    else:  # if being sent to a dm
-        notification_message = f"{message_user['account_handle']} tagged you in {name}: {message[:20]}"
-        return {'channel_id': -1, 'dm_id': id, 'notification_message': notification_message}
+    datastore = data_store.get()
+    for user_dict in datastore['users']:
+        if user_dict['u_id'] == u_id:
+            if is_channel:  # if being sent to a channel
+                notification_message = f"{user_dict['handle_str']} tagged you in {name}: {message[:20]}"
+                return {'channel_id': id, 'dm_id': -1, 'notification_message': notification_message}
+            else:  # if being sent to a dm
+                notification_message = f"{user_dict['handle_str']} tagged you in {name}: {message[:20]}"
+                return {'channel_id': -1, 'dm_id': id, 'notification_message': notification_message}

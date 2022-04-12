@@ -87,9 +87,14 @@ def dm_create_v1(token, u_ids):
     }
 
     # notification
-    user = next(user for user in datastore['users'] if user['user_id'] == u_id)
-    user['notifications'].insert(
-        0, invite_notification(token, dm_id, dm['name'], False))
+    # Should apply to invited members,
+    # Get_user doesn't work...
+
+    for member_id in u_ids:
+        for user_dict in datastore['users']:
+            if user_dict['u_id'] == member_id:
+                user_dict['notifications'].append(
+                    invite_notification(member_id, dm_id, dm['name'], False))
 
     datastore['dms'].append(dm)
     data_store.set(datastore)
