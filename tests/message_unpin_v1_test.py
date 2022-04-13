@@ -68,7 +68,7 @@ def test_unpin_with_no_owner_permissions(setup_users):
         "name": "general",
         "is_public": True
     })
-    invite_response = requests.post(f'{config.url}channel/invite/v2', json={
+    requests.post(f'{config.url}channel/invite/v2', json={
         'token': setup_users[0]['token'],
         'channel_id': channel_response.json()['channel_id'],
         'u_id': setup_users[1]['auth_user_id']
@@ -96,7 +96,7 @@ def test_unpin_success(setup_users):
         "channel_id": channel_response.json()['channel_id'],
         "message": 'First message of the channel!'
     })
-    pin_response = requests.post(f"{config.url}/message/pin/v1", json={
+    requests.post(f"{config.url}/message/pin/v1", json={
         "token": user1['token'],
         "message_id": message_response.json()['message_id']
     })

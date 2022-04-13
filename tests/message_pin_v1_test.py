@@ -72,7 +72,7 @@ def test_pin_with_no_owner_permissions(setup_users):
         "name": "general",
         "is_public": True
     })
-    invite_response = requests.post(f'{config.url}channel/invite/v2', json={
+    requests.post(f'{config.url}channel/invite/v2', json={
         'token': setup_users[0]['token'],
         'channel_id': channel_response.json()['channel_id'],
         'u_id': setup_users[1]['auth_user_id']
