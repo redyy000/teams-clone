@@ -408,6 +408,158 @@ def message_remove_v1(token, message_id):
     return {}
 
 
+def message_react_v1(token, message_id, react_id):
+    '''
+    Given a message within a channel or DM the authorised user is part of, add a "react" to that particular message.
+    Arguments:
+        Token (token), user token
+        message_id (int), id of the message which is being reacted to
+        react_id (int), id of the reaction
+
+    Exceptions:
+        InputError -  message_id is invalid
+        InputError -  react_id is an invalid reaction
+        InputError -  Message already contains a react with this react_id
+
+    Return Value:
+        {}
+    '''
+    store = data_store.get()
+
+    payload = is_valid_token(token)
+    if payload is False:
+        raise AccessError(description="Invalid token")
+    
+    u_id = payload['u_id']
+
+    # Naive approach; Scan all channels and dms for the message_id match
+    # Break upon done
+
+    # Message_found remains false if message cannot be found, otherwise
+    # message_found is changed to the message
+    # User_found checks to see whether user is in the channel/dm
+
+    message_found = False
+    user_found = False
+    
+    # Since channel stores all_members as a list of dicts
+    # Large nesting due to how all_members are stored in channels
+    for channel in store['channels']:
+        for message in channel['messages']:
+            if message['message_id'] == message_id:
+                message_found = message
+                for user in channel['all_members']:
+                    if user['user_id'] == u_id:
+                        user_found = True
+            
+    # Reloop for DMs; If found already this is skipped.
+    if message_found == False:
+        for dm in store['dms']:
+            for message in dm['messages']:
+                if message['message_id'] == message_id:
+                    message_found = message
+                    for user in dm['all_members']:
+                        if user['user_id'] == u_id:
+                            user_found = True
+
+    if message_found == False:
+        raise InputError(description="Invalid Message ID")
+
+    if user_found == False:
+        raise AccessError(description="User not in channel/dm")
+
+    # Check if react_id is a valid reaction
+    if react_id != 1:
+        raise InputError(description="Invalid React ID")
+
+    if u_id in message_found['reacts'][0]['u_ids']:
+        raise InputError(description="Message already contains your reaction with this React ID!")
+    
+    message_found['reacts'][0]['react_id'] = 1
+    message_found['reacts'][0]['u_ids'].append(u_id)
+    message_found['reacts'][0]['is_this_user_reacted'] == True
+
+    data_store.set(store)
+
+    return {}
+
+
+def message_unreact_v1(token, message_id, react_id):
+    '''
+    Given a message within a channel or DM the authorised user is part of, remove a "react" to that particular message.
+    Arguments:
+        Token (token), user token
+        message_id (int), id of the message which is being reacted to
+        react_id (int), id of the reaction
+
+    Exceptions:
+        InputError -  message_id is invalid
+        InputError -  react_id is an invalid reaction
+        InputError -  Message does not contain a react with this react_id
+
+    Return Value:
+        {}
+    '''
+    store = data_store.get()
+
+    payload = is_valid_token(token)
+    if payload is False:
+        raise AccessError(description="Invalid token")
+    
+    u_id = payload['u_id']
+    
+    # Naive approach; Scan all channels and dms for the message_id match
+    # Break upon done
+
+    # Message_found remains false if message cannot be found, otherwise
+    # message_found is changed to the message
+    # User_found checks to see whether user is in the channel/dm
+
+    message_found = False
+    user_found = False
+    
+    # Since channel stores all_members as a list of dicts
+    # Large nesting due to how all_members are stored in channels
+    for channel in store['channels']:
+        for message in channel['messages']:
+            if message['message_id'] == message_id:
+                message_found = message
+                for user in channel['all_members']:
+                    if user['user_id'] == u_id:
+                        user_found = True
+            
+    # Reloop for DMs; If found already this is skipped.
+    if message_found == False:
+        for dm in store['dms']:
+            for message in dm['messages']:
+                if message['message_id'] == message_id:
+                    message_found = message
+                    for user in dm['all_members']:
+                        if user['user_id'] == u_id:
+                            user_found = True
+
+    if message_found == False:
+        raise InputError(description="Invalid Message ID")
+
+    if user_found == False:
+        raise AccessError(description="User not in channel/dm")
+    
+    # Check if react_id is a valid reaction
+    if react_id != 1:
+        raise InputError(description="Invalid React ID")
+
+    if u_id not in message_found['reacts'][0]['u_ids']:
+        raise InputError(description="You have not reacted to this message with this React ID!")
+    
+    message_found['reacts'][0]['react_id'] = 1
+    message_found['reacts'][0]['u_ids'].remove(u_id)
+    message_found['reacts'][0]['is_this_user_reacted'] == False
+
+    data_store.set(store)
+
+    return {}
+
+
 def message_pin_v1(token, message_id):
     '''
     Given a message within a channel or DM, mark it as "pinned".
@@ -485,6 +637,7 @@ def message_pin_v1(token, message_id):
     data_store.set(store)
 
     return {}
+
 
 def message_unpin_v1(token, message_id):
     '''
