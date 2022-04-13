@@ -457,20 +457,30 @@ def channel_addowner_v1(token, channel_id, u_id):
         raise InputError(description=f"User ID {u_id} is invalid.")
 
     # Given a channel ID, find the correct channel and see if user is member
+    # Similarly check if auth_user_id is a legitimate member
     is_member = False
+    is_auth_member = False
     for channels in store['channels']:
         if channels['channel_id'] == channel_id:
             for member in channels['all_members']:
                 if u_id == member['user_id']:
                     is_member = True
+                if auth_user_id == member['user_id']:
+                    is_auth_member = True
+
     if is_member == False:
         raise InputError(
             description=f"User ID {u_id} is not a member of channel (Channel ID {channel_id}).")
 
+    if is_auth_member == False:
+        raise InputError(
+            description=f"User ID {auth_user_id} is not a member of channel (Channel ID {channel_id}).")
+
     for channels in store['channels']:
         if channels['channel_id'] == channel_id:
             # Check if auth_user_id has owner permissions
-            if auth_user_id not in channels['owner_members'] or permission_id_given_user(auth_user_id) != 1:
+            # Raise access error if they are both NOT a channel owner and NOT a seams owner
+            if auth_user_id not in channels['owner_members'] and permission_id_given_user(auth_user_id) != 1:
                 raise AccessError(
                     description=f"User ID {auth_user_id} does not have owner permissions in this channel.")
             # Check if u_id is already an owner
@@ -481,7 +491,11 @@ def channel_addowner_v1(token, channel_id, u_id):
             else:
                 channels['owner_members'].append(u_id)
     data_store.set(store)
-    return
+    return {
+
+    }
+
+
 
 
 def channel_removeowner_v1(token, channel_id, u_id):
@@ -527,20 +541,27 @@ def channel_removeowner_v1(token, channel_id, u_id):
         raise InputError(description=f"User ID {u_id} is invalid.")
 
     # Given a channel ID, find the correct channel and see if user is member
+    # Same fix for addowner; if not in all_members, then token cannot work
     is_member = False
+    is_auth_member = False
     for channels in store['channels']:
         if channels['channel_id'] == channel_id:
             for member in channels['all_members']:
                 if u_id == member['user_id']:
                     is_member = True
+                if auth_user_id == member['user_id']:
+                    is_auth_member = True
     if is_member == False:
         raise InputError(
             description=f"User ID {u_id} is not an owner of the channel.")
+    if is_auth_member == False:
+        raise InputError(
+            description=f"User ID {auth_user_id} is not an owner of the channel.")
 
     for channels in store['channels']:
         if channels['channel_id'] == channel_id:
             # Check if auth_user_id does not have owner permissions
-            if auth_user_id not in channels['owner_members'] or permission_id_given_user(auth_user_id) != 1:
+            if auth_user_id not in channels['owner_members'] and permission_id_given_user(auth_user_id) != 1:
                 raise AccessError(
                     description=f"User ID {auth_user_id} does not have owner permissions in this channel.")
             # Check if u_id is not an owner
@@ -555,4 +576,6 @@ def channel_removeowner_v1(token, channel_id, u_id):
             else:
                 channels['owner_members'].remove(u_id)
     data_store.set(store)
-    return
+    return {
+
+    }
