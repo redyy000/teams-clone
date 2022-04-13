@@ -15,7 +15,7 @@ from src.other import clear_v1
 from src.channels import channels_create_v2, channels_list_v2, channels_listall_v2
 from src.channel import channel_details_v2, channel_invite_v2, channel_join_v2, channel_messages_v2, channel_leave_v1, channel_addowner_v1, channel_removeowner_v1
 from src.dm import dm_create_v1, dm_details_v1, dm_list_v1, dm_remove_v1, dm_leave_v1, dm_messages_v1
-from src.message import message_send_v1, message_senddm_v1, message_remove_v1, message_edit_v1
+from src.message import message_send_v1, message_senddm_v1, message_remove_v1, message_edit_v1, message_pin_v1, message_unpin_v1
 from src.admin import admin_userpermission_change_v1, admin_user_remove_v1
 from src.data_store import data_store
 from src.standup import standup_start_v1, standup_send_v1, standup_active_v1, standup_thread
@@ -321,6 +321,24 @@ def message_edit():
 def message_remove():
     arguments = request.get_json()
     resp = message_remove_v1(
+        arguments['token'], arguments['message_id'])
+    data_store.save()
+    return dumps(resp)
+
+
+@APP.route("/message/pin/v1", methods=['POST'])
+def message_pin():
+    arguments = request.get_json()
+    resp = message_pin_v1(
+        arguments['token'], arguments['message_id'])
+    data_store.save()
+    return dumps(resp)
+
+
+@APP.route("/message/unpin/v1", methods=['POST'])
+def message_unpin():
+    arguments = request.get_json()
+    resp = message_unpin_v1(
         arguments['token'], arguments['message_id'])
     data_store.save()
     return dumps(resp)
