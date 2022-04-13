@@ -119,7 +119,8 @@ def message_send_v1(token, channel_id, message):
         'u_id': u_id,
         'message': message,
         'time_sent': int(utc_timestamp),
-        'reacts': reacts
+        'reacts': reacts,
+        'is_pinned': False
     }
 
     for channel in channel_list:
@@ -241,7 +242,8 @@ def message_senddm_v1(token, dm_id, message):
         'u_id': u_id,
         'message': message,
         'time_sent': int(utc_timestamp),
-        'reacts': reacts
+        'reacts': reacts,
+        'is_pinned': False
     }
 
     for dms in dm_data:
@@ -489,7 +491,7 @@ def message_react_v1(token, message_id, react_id):
                     sender_id = message['u_id']
                     channel_dm_id = dm['dm_id']
                     for user in dm['all_members']:
-                        if user['user_id'] == u_id:
+                        if user == u_id:
                             user_found = True
 
     if message_found == False:
@@ -572,7 +574,7 @@ def message_unreact_v1(token, message_id, react_id):
                 if message['message_id'] == message_id:
                     message_found = message
                     for user in dm['all_members']:
-                        if user['user_id'] == u_id:
+                        if user == u_id:
                             user_found = True
 
     if message_found == False:
@@ -596,3 +598,162 @@ def message_unreact_v1(token, message_id, react_id):
     data_store.set(store)
 
     return {}
+
+
+def message_pin_v1(token, message_id):
+    '''
+    Given a message within a channel or DM, mark it as "pinned".
+    
+    Arguments:
+        Token (token), user token
+        Message_id (int), id of the message
+    Exceptions:
+        AccessError - Invalid token
+        InputError -  message_id is invalid
+        AccessError - User not in channel/dm
+        InputError -  Message has already been pinned
+        AccessError -  User does not have owner permissions in channel/DM
+
+    Return Value:
+        {}
+    '''
+    store = data_store.get()
+
+    payload = is_valid_token(token)
+    if payload is False:
+        raise AccessError(description="Invalid token")
+    
+    u_id = payload['u_id']
+
+    # Naive approach; Scan all channels and dms for the message_id match
+    # Break upon done
+
+    # Message_found remains false if message cannot be found, otherwise
+    # message_found is changed to the message
+    # User_found checks to see whether user is in the channel/dm
+
+    message_found = False
+    user_found = False
+    has_perms = True
+
+    # Since channel stores all_members as a list of dicts
+    # Large nesting due to how all_members are stored in channels
+    for channel in store['channels']:
+        for message in channel['messages']:
+            if message['message_id'] == message_id:
+                message_found = message
+                for user in channel['all_members']:
+                    if user['user_id'] == u_id:
+                        user_found = True
+                if u_id not in channel['owner_members'] or permission_id_given_user(u_id) != 1:
+                    has_perms = False
+
+    # Reloop for DMs; If found already this is skipped.
+    if message_found == False:
+        for dm in store['dms']:
+            for message in dm['messages']:
+                if message['message_id'] == message_id:
+                    message_found = message
+                    for user in dm['all_members']:
+                        if user == u_id:
+                            user_found = True
+                    if u_id not in dm['owners'] or permission_id_given_user(u_id) != 1:
+                        has_perms = False
+
+    if message_found == False:
+        raise InputError(description="Invalid Message ID")
+
+    if user_found == False:
+        raise AccessError(description="User not in channel/dm")
+
+    if message_found['is_pinned'] == True:
+        raise InputError(description="Message has already been pinned")
+    
+    if has_perms == False:
+        raise AccessError(description=f"User ID {u_id} does not have owner permissions in this channel.")
+    
+    message_found['is_pinned'] = True
+
+    data_store.set(store)
+
+    return {}
+
+
+def message_unpin_v1(token, message_id):
+    '''
+    Given a message within a channel or DM, remove its mark as pinned.
+    
+    Arguments:
+        Token (token), user token
+        Message_id (int), id of the message
+    Exceptions:
+        AccessError - Invalid token
+        InputError -  message_id is invalid
+        AccessError - User not in channel/dm
+        InputError -  Message has not already been pinned
+        InputError -  User does not have owner permissions in channel/DM
+
+    Return Value:
+        {}
+    '''
+    store = data_store.get()
+
+    payload = is_valid_token(token)
+    if payload is False:
+        raise AccessError(description="Invalid token")
+    
+    u_id = payload['u_id']
+
+    # Naive approach; Scan all channels and dms for the message_id match
+    # Break upon done
+
+    # Message_found remains false if message cannot be found, otherwise
+    # message_found is changed to the message
+    # User_found checks to see whether user is in the channel/dm
+
+    message_found = False
+    user_found = False
+    has_perms = True
+
+    # Since channel stores all_members as a list of dicts
+    # Large nesting due to how all_members are stored in channels
+    for channel in store['channels']:
+        for message in channel['messages']:
+            if message['message_id'] == message_id:
+                message_found = message
+                for user in channel['all_members']:
+                    if user['user_id'] == u_id:
+                        user_found = True
+                if u_id not in channel['owner_members'] or permission_id_given_user(u_id) != 1:
+                    has_perms = False
+
+    # Reloop for DMs; If found already this is skipped.
+    if message_found == False:
+        for dm in store['dms']:
+            for message in dm['messages']:
+                if message['message_id'] == message_id:
+                    message_found = message
+                    for user in dm['all_members']:
+                        if user == u_id:
+                            user_found = True
+                    if u_id not in dm['owners'] or permission_id_given_user(u_id) != 1:
+                        has_perms = False
+
+    if message_found == False:
+        raise InputError(description="Invalid Message ID")
+
+    if user_found == False:
+        raise AccessError(description="User not in channel/dm")
+
+    if message_found['is_pinned'] == False:
+        raise InputError(description="Message has not already been pinned")
+    
+    if has_perms == False:
+        raise AccessError(description=f"User ID {u_id} does not have owner permissions in this channel.")
+
+    message_found['is_pinned'] = False
+
+    data_store.set(store)
+
+    return {}
+
