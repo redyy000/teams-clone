@@ -46,7 +46,7 @@ def test_invalid_token(setup_users):
 def test_user_not_in_channel(setup_users):
     user1 = setup_users[0]
     user2 = setup_users[1]
-    requests.post(f"{config.url}channels/create/v2", json={
+    channel_response = requests.post(f"{config.url}channels/create/v2", json={
         "token": user1['token'],
         "name": "general",
         "is_public": True
@@ -61,6 +61,7 @@ def test_user_not_in_channel(setup_users):
         "message_id": message_response.json()['message_id'],
         "react_id": 1
     })
+    assert react_response.status_code == 403
 
 def test_invalid_message_id(setup_users):
     user1 = setup_users[0]
