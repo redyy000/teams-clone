@@ -175,6 +175,24 @@ def test_pin_with_no_owner_permissions(setup_users):
     })
     assert pin_response.status_code == 403
 
+def test_pin_with_no_owner_permissions2(setup_users):
+    user1 = setup_users[0]
+    user2 = setup_users[1]
+    dm_response = requests.post(f'{config.url}dm/create/v1', json={
+        'token': user1['token'],
+        'u_ids': [user2['auth_user_id']]
+    })
+    message_response = requests.post(f"{config.url}message/senddm/v1", json={
+        "token": user1['token'],
+        "dm_id": dm_response.json()['dm_id'],
+        "message": 'First message of the dm!'
+    })
+    pin_response = requests.post(f"{config.url}/message/pin/v1", json={
+        "token": user2['token'],
+        "message_id": message_response.json()['message_id']
+    })
+    assert pin_response.status_code == 403
+
 def test_pin_success(setup_users):
     user1 = setup_users[0]
     channel_response = requests.post(f"{config.url}channels/create/v2", json={
