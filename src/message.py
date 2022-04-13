@@ -483,7 +483,7 @@ def message_react_v1(token, message_id, react_id):
                 if message['message_id'] == message_id:
                     message_found = message
                     for user in dm['all_members']:
-                        if user['user_id'] == u_id:
+                        if user == u_id:
                             user_found = True
 
     if message_found == False:
@@ -559,7 +559,7 @@ def message_unreact_v1(token, message_id, react_id):
                 if message['message_id'] == message_id:
                     message_found = message
                     for user in dm['all_members']:
-                        if user['user_id'] == u_id:
+                        if user == u_id:
                             user_found = True
 
     if message_found == False:
@@ -639,7 +639,7 @@ def message_pin_v1(token, message_id):
                 if message['message_id'] == message_id:
                     message_found = message
                     for user in dm['all_members']:
-                        if user['user_id'] == u_id:
+                        if user == u_id:
                             user_found = True
                     if u_id not in dm['owners'] or permission_id_given_user(u_id) != 1:
                         has_perms = False
@@ -718,7 +718,7 @@ def message_unpin_v1(token, message_id):
                 if message['message_id'] == message_id:
                     message_found = message
                     for user in dm['all_members']:
-                        if user['user_id'] == u_id:
+                        if user == u_id:
                             user_found = True
                     if u_id not in dm['owners'] or permission_id_given_user(u_id) != 1:
                         has_perms = False
@@ -740,3 +740,4 @@ def message_unpin_v1(token, message_id):
     data_store.set(store)
 
     return {}
+
