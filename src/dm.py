@@ -117,13 +117,16 @@ def dm_create_v1(token, u_ids):
     # notification
     # Should apply to invited members only
 
+    datastore['dms'].append(dm)
+    data_store.set(datastore)
+
     for member_id in u_ids:
         for user_dict in datastore['users']:
             if user_dict['u_id'] == member_id:
+                print(user_dict['handle_str'])
                 user_dict['notifications'].append(
-                    invite_notification(member_id, dm_id, dm['name'], False))
+                    invite_notification(owner_id, dm_id, False))
 
-    datastore['dms'].append(dm)
     data_store.set(datastore)
     return {
         'dm_id': dm_id
