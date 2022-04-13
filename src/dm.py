@@ -1,5 +1,5 @@
 from src.error import InputError, AccessError
-from src.other import token_create, is_valid_token
+from src.other import token_create, is_valid_token, invite_notification
 from src.data_store import data_store
 from src.user import user_profile_v1
 from datetime import timezone
@@ -114,6 +114,14 @@ def dm_create_v1(token, u_ids):
         }
         datastore['users'][u_id -
                            1]['stats']['dms_joined'].append(user_dm_entry)
+    # notification
+    # Should apply to invited members only
+
+    for member_id in u_ids:
+        for user_dict in datastore['users']:
+            if user_dict['u_id'] == member_id:
+                user_dict['notifications'].append(
+                    invite_notification(member_id, dm_id, dm['name'], False))
 
     datastore['dms'].append(dm)
     data_store.set(datastore)
