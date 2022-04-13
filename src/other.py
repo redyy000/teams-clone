@@ -192,9 +192,14 @@ def notifications_get_v1(token):
     if decoded_token is False:
         raise AccessError(description='Token not authorised to search.')
     data = data_store.get()
-    user = next(user for user in data['users']
-                if user['u_id'] == decoded_token['u_id'])
-    return {'notifications': user['notifications'][:20]}
+    u_id = decoded_token['u_id']
+
+    for user in data['users']:
+        if user['u_id'] == u_id:
+            # Invert notifications
+            # Return up to 20 most recent
+            recent_notifications = user['notifications'][::-1]
+            return {'notifications': recent_notifications[:20]}
 
 
 # ADDED THESE 12APR 2100
