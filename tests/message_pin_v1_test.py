@@ -37,7 +37,7 @@ def test_invalid_token(setup_users):
         "is_public": True
     })
     pin_response = requests.post(f"{config.url}/message/pin/v1", json={
-        "token": user1['token'],
+        "token": 7,
         "message_id": 4
     })
     assert pin_response.status_code == 403
@@ -62,7 +62,7 @@ def test_user_not_in_channel(setup_users):
     })
     pin_response = requests.post(f"{config.url}/message/pin/v1", json={
         "token": user2['token'],
-        "message_id": 4
+        "message_id": message_response.json()['message_id']
     })
     assert pin_response.status_code == 403
 
@@ -104,15 +104,15 @@ def test_already_pinned(setup_users):
         'token': user1['token'],
         'u_ids': [user2['auth_user_id']]
     })
-    requests.post(f"{config.url}message/send/v1", json={
+    requests.post(f"{config.url}message/senddm/v1", json={
         "token": user1['token'],
-        "channel_id": channel_response.json()['channel_id'],
-        "message": 'First message of the channel!'
+        "dm_id": dm_response.json()['dm_id'],
+        "message": 'First message of the dm!'
     })
-    message_response = requests.post(f"{config.url}message/send/v1", json={
+    message_response = requests.post(f"{config.url}message/senddm/v1", json={
         "token": user1['token'],
-        "channel_id": channel_response.json()['channel_id'],
-        "message": 'SECOND message of the channel!'
+        "dm_id": dm_response.json()['dm_id'],
+        "message": 'SECOND message of the dm!'
     })
     requests.post(f"{config.url}/message/pin/v1", json={
         "token": user1['token'],
@@ -149,7 +149,7 @@ def test_already_pinned2(setup_users):
         "token": user1['token'],
         "message_id": message_response.json()['message_id']
     })
-    assert react_response.status_code == 400
+    assert pin_response.status_code == 400
 
 def test_pin_with_no_owner_permissions(setup_users):
     user1 = setup_users[0]
