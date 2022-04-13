@@ -1,4 +1,3 @@
-
 from src.data_store import data_store
 from src.channels import channels_create_v2, channels_list_v2
 from src.error import InputError, AccessError
@@ -425,7 +424,8 @@ def channel_addowner_v1(token, channel_id, u_id):
     for channels in store['channels']:
         if channels['channel_id'] == channel_id:
             # Check if auth_user_id has owner permissions
-            if auth_user_id not in channels['owner_members'] or permission_id_given_user(auth_user_id) != 1:
+            # Raise access error if they are both NOT a channel owner and NOT a seams owner
+            if auth_user_id not in channels['owner_members'] and permission_id_given_user(auth_user_id) != 1:
                 raise AccessError(
                     description=f"User ID {auth_user_id} does not have owner permissions in this channel.")
             # Check if u_id is already an owner
@@ -436,7 +436,9 @@ def channel_addowner_v1(token, channel_id, u_id):
             else:
                 channels['owner_members'].append(u_id)
     data_store.set(store)
-    return
+    return {
+
+    }
 
 
 def channel_removeowner_v1(token, channel_id, u_id):
@@ -495,7 +497,7 @@ def channel_removeowner_v1(token, channel_id, u_id):
     for channels in store['channels']:
         if channels['channel_id'] == channel_id:
             # Check if auth_user_id does not have owner permissions
-            if auth_user_id not in channels['owner_members'] or permission_id_given_user(auth_user_id) != 1:
+            if auth_user_id not in channels['owner_members'] and permission_id_given_user(auth_user_id) != 1:
                 raise AccessError(
                     description=f"User ID {auth_user_id} does not have owner permissions in this channel.")
             # Check if u_id is not an owner
@@ -510,4 +512,6 @@ def channel_removeowner_v1(token, channel_id, u_id):
             else:
                 channels['owner_members'].remove(u_id)
     data_store.set(store)
-    return
+    return {
+
+    }
