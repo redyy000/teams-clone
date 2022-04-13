@@ -483,7 +483,7 @@ def message_react_v1(token, message_id, react_id):
                 if message['message_id'] == message_id:
                     message_found = message
                     for user in dm['all_members']:
-                        if user['user_id'] == u_id:
+                        if user == u_id:
                             user_found = True
 
     if message_found == False:
