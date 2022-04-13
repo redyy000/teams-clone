@@ -416,9 +416,11 @@ def message_pin_v1(token, message_id):
         Token (token), user token
         Message_id (int), id of the message
     Exceptions:
+        AccessError - Invalid token
         InputError -  message_id is invalid
+        AccessError - User not in channel/dm
         InputError -  Message has already been pinned
-        InputError -  User does not have owner permissions in channel/DM
+        AccessError -  User does not have owner permissions in channel/DM
 
     Return Value:
         {}
@@ -440,7 +442,8 @@ def message_pin_v1(token, message_id):
 
     message_found = False
     user_found = False
-    
+    has_perms = True
+
     # Since channel stores all_members as a list of dicts
     # Large nesting due to how all_members are stored in channels
     for channel in store['channels']:
@@ -451,8 +454,7 @@ def message_pin_v1(token, message_id):
                     if user['user_id'] == u_id:
                         user_found = True
                 if u_id not in channel['owner_members'] or permission_id_given_user(u_id) != 1:
-                    raise AccessError(
-                        description=f"User ID {u_id} does not have owner permissions in this channel.")
+                    has_perms = False
 
     # Reloop for DMs; If found already this is skipped.
     if message_found == False:
@@ -464,8 +466,7 @@ def message_pin_v1(token, message_id):
                         if user['user_id'] == u_id:
                             user_found = True
                     if u_id not in dm['owners'] or permission_id_given_user(u_id) != 1:
-                        raise AccessError(
-                            description=f"User ID {u_id} does not have owner permissions in this channel.")
+                        has_perms = False
 
     if message_found == False:
         raise InputError(description="Invalid Message ID")
@@ -475,6 +476,9 @@ def message_pin_v1(token, message_id):
 
     if message_found['is_pinned'] == True:
         raise InputError(description="Message has already been pinned")
+    
+    if has_perms == False:
+        raise AccessError(description=f"User ID {u_id} does not have owner permissions in this channel.")
     
     message_found['is_pinned'] = True
 
@@ -490,7 +494,9 @@ def message_unpin_v1(token, message_id):
         Token (token), user token
         Message_id (int), id of the message
     Exceptions:
+        AccessError - Invalid token
         InputError -  message_id is invalid
+        AccessError - User not in channel/dm
         InputError -  Message has not already been pinned
         InputError -  User does not have owner permissions in channel/DM
 
@@ -514,7 +520,8 @@ def message_unpin_v1(token, message_id):
 
     message_found = False
     user_found = False
-    
+    has_perms = True
+
     # Since channel stores all_members as a list of dicts
     # Large nesting due to how all_members are stored in channels
     for channel in store['channels']:
@@ -525,8 +532,7 @@ def message_unpin_v1(token, message_id):
                     if user['user_id'] == u_id:
                         user_found = True
                 if u_id not in channel['owner_members'] or permission_id_given_user(u_id) != 1:
-                    raise AccessError(
-                        description=f"User ID {u_id} does not have owner permissions in this channel.")
+                    has_perms = False
 
     # Reloop for DMs; If found already this is skipped.
     if message_found == False:
@@ -538,8 +544,7 @@ def message_unpin_v1(token, message_id):
                         if user['user_id'] == u_id:
                             user_found = True
                     if u_id not in dm['owners'] or permission_id_given_user(u_id) != 1:
-                        raise AccessError(
-                            description=f"User ID {u_id} does not have owner permissions in this channel.")
+                        has_perms = False
 
     if message_found == False:
         raise InputError(description="Invalid Message ID")
@@ -550,6 +555,9 @@ def message_unpin_v1(token, message_id):
     if message_found['is_pinned'] == False:
         raise InputError(description="Message has not already been pinned")
     
+    if has_perms == False:
+        raise AccessError(description=f"User ID {u_id} does not have owner permissions in this channel.")
+
     message_found['is_pinned'] = False
 
     data_store.set(store)
