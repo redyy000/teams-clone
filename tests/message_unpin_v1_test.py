@@ -78,6 +78,10 @@ def test_unpin_with_no_owner_permissions(setup_users):
         "channel_id": channel_response.json()['channel_id'],
         "message": 'First message of the channel!'
     })
+    requests.post(f"{config.url}/message/pin/v1", json={
+        "token": user1['token'],
+        "message_id": message_response.json()['message_id']
+    })
     unpin_response = requests.post(f"{config.url}/message/unpin/v1", json={
         "token": user2['token'],
         "message_id": message_response.json()['message_id']
