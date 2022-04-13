@@ -124,33 +124,6 @@ def test_already_pinned(setup_users):
     })
     assert pin_response.status_code == 400
 
-def test_already_pinned2(setup_users):
-    user1 = setup_users[0]
-    user2 = setup_users[1]
-    dm_response = requests.post(f'{config.url}dm/create/v1', json={
-        'token': user1['token'],
-        'u_ids': [user2['auth_user_id']]
-    })
-    requests.post(f"{config.url}message/senddm/v1", json={
-        "token": user1['token'],
-        "dm_id": dm_response.json()['dm_id'],
-        "message": 'First message of the dm!'
-    })
-    message_response = requests.post(f"{config.url}message/senddm/v1", json={
-        "token": user1['token'],
-        "dm_id": dm_response.json()['dm_id'],
-        "message": 'SECOND message of the dm!'
-    })
-    requests.post(f"{config.url}message/pin/v1", json={
-        "token": user1['token'],
-        "message_id": message_response.json()['message_id']
-    })
-    pin_response = requests.post(f"{config.url}message/pin/v1", json={
-        "token": user1['token'],
-        "message_id": message_response.json()['message_id']
-    })
-    assert pin_response.status_code == 400
-
 def test_pin_with_no_owner_permissions(setup_users):
     user1 = setup_users[0]
     user2 = setup_users[1]
