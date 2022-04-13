@@ -29,6 +29,20 @@ def setup_users():
     userlist.append(user3_info)
     return userlist
 
+def test_invalid_token(setup_users):
+    user1 = setup_users[0]
+    requests.post(f"{config.url}channels/create/v2", json={
+        "token": user1['token'],
+        "name": "general",
+        "is_public": True
+    })
+    react_response = requests.post(f"{config.url}message/react/v1", json={
+        "token": 7,
+        "message_id": 1,
+        "react_id": 1
+    })
+    assert react_response.status_code == 403
+
 def test_invalid_message_id(setup_users):
     user1 = setup_users[0]
     requests.post(f"{config.url}channels/create/v2", json={
@@ -50,10 +64,15 @@ def test_invalid_react_id(setup_users):
         "name": "general",
         "is_public": True
     })
-    message_response = requests.post(f"{config.url}message/send/v1", json={
+    requests.post(f"{config.url}message/send/v1", json={
         "token": user1['token'],
         "channel_id": channel_response.json()['channel_id'],
         "message": 'First message of the channel!'
+    })
+    message_response = requests.post(f"{config.url}message/send/v1", json={
+        "token": user1['token'],
+        "channel_id": channel_response.json()['channel_id'],
+        "message": 'SECOND message of the channel!'
     })
     react_response = requests.post(f"{config.url}message/react/v1", json={
         "token": user1['token'],
@@ -64,15 +83,15 @@ def test_invalid_react_id(setup_users):
 
 def test_already_reacted(setup_users):
     user1 = setup_users[0]
-    channel_response = requests.post(f"{config.url}channels/create/v2", json={
-        "token": user1['token'],
-        "name": "general",
-        "is_public": True
+    user2 = setup_users[1]
+    dm_response = requests.post(f'{config.url}dm/create/v1', json={
+        'token': user1['token'],
+        'u_ids': [user2['auth_user_id']]
     })
-    message_response = requests.post(f"{config.url}message/send/v1", json={
+    message_response = requests.post(f"{config.url}message/senddm/v1", json={
         "token": user1['token'],
-        "channel_id": channel_response.json()['channel_id'],
-        "message": 'First message of the channel!'
+        "dm_id": dm_response.json()['dm_id'],
+        "message": 'First message of the dm!'
     })
     requests.post(f"{config.url}message/react/v1", json={
         "token": user1['token'],
