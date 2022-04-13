@@ -406,3 +406,10 @@ def message_remove_v1(token, message_id):
     return {}
 
 
+def message_pin_v1(token, message_id):
+    pass
+
+
+def message_unpin_v1(token, message_id):
+    pass
+
