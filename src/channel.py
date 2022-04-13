@@ -121,7 +121,7 @@ def channel_invite_v2(token, channel_id, u_id):
     for user in user_info:
         if user['u_id'] == u_id:
             user['notifications'].append(invite_notification(
-                u_id, channel_id, get_channel_name(channel_id), True))
+                auth_user_id, channel_id, True))
 
     data_store.set(store)
     return {
