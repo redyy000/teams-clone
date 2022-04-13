@@ -86,8 +86,9 @@ def test_invalid_message_id2(setup_users):
         "is_public": True
     })
     requests.post(f"{config.url}channel/invite/v2", json={'token': user1['token'],
-                                                          'channel_id': channel.json()['channel_id'],
-                                                          'u_id': user2['auth_user_id']})
+        'channel_id': channel.json()['channel_id'],
+        'u_id': user2['auth_user_id']
+    })
     react_response = requests.post(f"{config.url}message/react/v1", json={
         "token": user2['token'],
         "message_id": 4,
@@ -171,7 +172,6 @@ def test_already_reacted2(setup_users):
         "react_id": 1
     })
     assert react_response.status_code == 400
-
 
 def test_react_success(setup_users):
     user1 = setup_users[0]
