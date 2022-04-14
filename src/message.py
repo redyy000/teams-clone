@@ -1,5 +1,5 @@
 from src.error import InputError, AccessError
-from src.other import is_valid_token, message_notification, is_channel_member, is_dm_member, get_channel_name, get_dm_name
+from src.other import is_valid_token, message_notification, is_channel_member, is_dm_member, get_channel_name, get_dm_name, react_notification
 from src.data_store import data_store
 from datetime import timezone
 import datetime
@@ -151,10 +151,10 @@ def message_send_v1(token, channel_id, message):
         # Check if tag in message
         # Check if member in channel
 
-        is_member = is_channel_member(u_id, channel_id)
+        is_member = is_channel_member(user['u_id'], channel_id)
         if tag in message and is_member:
             user['notifications'].append(message_notification(
-                u_id, channel_id, get_channel_name(channel_id), True, message))
+                u_id, channel_id, True, message))
 
     data_store.set(store)
 
@@ -236,7 +236,7 @@ def message_senddm_v1(token, dm_id, message):
     }
 
     reacts = [default_reacts]
-    
+
     new_message = {
         'message_id': message_id,
         'u_id': u_id,
@@ -273,9 +273,9 @@ def message_senddm_v1(token, dm_id, message):
         tag = '@' + user['handle_str']
         # Check if tag in message
         # Check if member in channel
-        if tag in message and is_dm_member(u_id, dm_id):
+        if tag in message and is_dm_member(user['u_id'], dm_id):
             user['notifications'].append(message_notification(
-                u_id, dm_id, get_dm_name(dm_id), False, message))
+                u_id, dm_id, False, message))
 
     data_store.set(store)
     return {'message_id': message_id}
@@ -444,6 +444,7 @@ def message_react_v1(token, message_id, react_id):
         InputError -  message_id is invalid
         InputError -  react_id is an invalid reaction
         InputError -  Message already contains a react with this react_id
+        AccessError - Invalid Token
 
     Return Value:
         {}
@@ -453,7 +454,7 @@ def message_react_v1(token, message_id, react_id):
     payload = is_valid_token(token)
     if payload is False:
         raise AccessError(description="Invalid token")
-    
+
     u_id = payload['u_id']
 
     # Naive approach; Scan all channels and dms for the message_id match
@@ -465,25 +466,32 @@ def message_react_v1(token, message_id, react_id):
 
     message_found = False
     user_found = False
-    
+    sender_id = False
+    is_channel_message = False
+    channel_dm_id = -1
     # Since channel stores all_members as a list of dicts
     # Large nesting due to how all_members are stored in channels
     for channel in store['channels']:
         for message in channel['messages']:
             if message['message_id'] == message_id:
                 message_found = message
+                sender_id = message['u_id']
+                is_channel_message = True
+                channel_dm_id = channel['channel_id']
                 for user in channel['all_members']:
                     if user['user_id'] == u_id:
                         user_found = True
-            
+
     # Reloop for DMs; If found already this is skipped.
     if message_found == False:
         for dm in store['dms']:
             for message in dm['messages']:
                 if message['message_id'] == message_id:
                     message_found = message
+                    sender_id = message['u_id']
+                    channel_dm_id = dm['dm_id']
                     for user in dm['all_members']:
-                        if user['user_id'] == u_id:
+                        if user == u_id:
                             user_found = True
 
     if message_found == False:
@@ -497,12 +505,19 @@ def message_react_v1(token, message_id, react_id):
         raise InputError(description="Invalid React ID")
 
     if u_id in message_found['reacts'][0]['u_ids']:
-        raise InputError(description="Message already contains your reaction with this React ID!")
-    
+        raise InputError(
+            description="Message already contains your reaction with this React ID!")
+
     message_found['reacts'][0]['react_id'] = 1
     message_found['reacts'][0]['u_ids'].append(u_id)
     message_found['reacts'][0]['is_this_user_reacted'] == True
 
+    # Send a reaction notification to the original message sender.
+    # Doesn't actually need the original message.
+    for user in store['users']:
+        if user['u_id'] == sender_id:
+            user['notifications'].append(react_notification(sender_id, channel_dm_id,
+                                                            is_channel_message))
     data_store.set(store)
 
     return {}
@@ -529,9 +544,9 @@ def message_unreact_v1(token, message_id, react_id):
     payload = is_valid_token(token)
     if payload is False:
         raise AccessError(description="Invalid token")
-    
+
     u_id = payload['u_id']
-    
+
     # Naive approach; Scan all channels and dms for the message_id match
     # Break upon done
 
@@ -541,7 +556,7 @@ def message_unreact_v1(token, message_id, react_id):
 
     message_found = False
     user_found = False
-    
+
     # Since channel stores all_members as a list of dicts
     # Large nesting due to how all_members are stored in channels
     for channel in store['channels']:
@@ -551,7 +566,7 @@ def message_unreact_v1(token, message_id, react_id):
                 for user in channel['all_members']:
                     if user['user_id'] == u_id:
                         user_found = True
-            
+
     # Reloop for DMs; If found already this is skipped.
     if message_found == False:
         for dm in store['dms']:
@@ -559,7 +574,7 @@ def message_unreact_v1(token, message_id, react_id):
                 if message['message_id'] == message_id:
                     message_found = message
                     for user in dm['all_members']:
-                        if user['user_id'] == u_id:
+                        if user == u_id:
                             user_found = True
 
     if message_found == False:
@@ -567,14 +582,15 @@ def message_unreact_v1(token, message_id, react_id):
 
     if user_found == False:
         raise AccessError(description="User not in channel/dm")
-    
+
     # Check if react_id is a valid reaction
     if react_id != 1:
         raise InputError(description="Invalid React ID")
 
     if u_id not in message_found['reacts'][0]['u_ids']:
-        raise InputError(description="You have not reacted to this message with this React ID!")
-    
+        raise InputError(
+            description="You have not reacted to this message with this React ID!")
+
     message_found['reacts'][0]['react_id'] = 1
     message_found['reacts'][0]['u_ids'].remove(u_id)
     message_found['reacts'][0]['is_this_user_reacted'] == False
@@ -639,7 +655,7 @@ def message_pin_v1(token, message_id):
                 if message['message_id'] == message_id:
                     message_found = message
                     for user in dm['all_members']:
-                        if user['user_id'] == u_id:
+                        if user == u_id:
                             user_found = True
                     if u_id not in dm['owners'] or permission_id_given_user(u_id) != 1:
                         has_perms = False
@@ -718,7 +734,7 @@ def message_unpin_v1(token, message_id):
                 if message['message_id'] == message_id:
                     message_found = message
                     for user in dm['all_members']:
-                        if user['user_id'] == u_id:
+                        if user == u_id:
                             user_found = True
                     if u_id not in dm['owners'] or permission_id_given_user(u_id) != 1:
                         has_perms = False
@@ -740,3 +756,4 @@ def message_unpin_v1(token, message_id):
     data_store.set(store)
 
     return {}
+
