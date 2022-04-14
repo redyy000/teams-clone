@@ -205,7 +205,7 @@ def test_standup_send_success(init):
     #assert len(messages) == 1
     assert messages[0]['message_id'] == 1
     assert messages[0]['u_id'] == 1
-    assert messages[0]['message'] == "daniellin: Message 1\ndaniellin: Message 2\ndaniellin: Message 3\n"
+    assert messages[0]['message'] == "daniellin: Message 1\ndaniellin: Message 2\ndaniellin: Message 3"
 
     #margin of error less than half a second
     assert messages[0]['time_sent'] - current_time < 0.5
