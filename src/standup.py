@@ -78,6 +78,8 @@ def standup_thread(token, channel_id, start):
             handle = user['handle_str']
             message = text["message"]
             message_str += f"{handle}: {message}\n"
+        
+    message_str.rstrip(message_str[-1])
 
     #pass buffer as a paramter into message_send_v1()
     #if message_length == 0 do nothing
