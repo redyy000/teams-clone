@@ -239,24 +239,3 @@ def message_notification(u_id, id, is_channel, message):
             else:  # if being sent to a dm
                 notification_message = f"{user_dict['handle_str']} tagged you in {get_dm_name(id)}: {message[:20]}"
                 return {'channel_id': -1, 'dm_id': id, 'notification_message': notification_message}
-
-
-def reset_standup(channel_id):
-    #load data
-    store = data_store.get()
-    
-    #get channel and standup
-    channel = next((c for c in store["channels"] if c["channel_id"] == channel_id), None)
-    if channel == None:
-        return 
-
-    standup = channel["standup"]
-    
-    #clear standup data
-    standup["is_active"] = False
-    standup["u_id"] = 0
-    standup["time_finish"] = None
-    standup["buffer"] = []
-
-    #store data
-    data_store.set(store)
