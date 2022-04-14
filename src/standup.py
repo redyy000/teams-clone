@@ -44,7 +44,7 @@ def reset_standup(channel_id):
     #clear standup data
     standup["is_active"] = False
     standup["u_id"] = 0
-    standup["time_start"] = False
+    standup["time_start"] = None
     standup["time_finish"] = None
     standup["buffer"] = []
 
