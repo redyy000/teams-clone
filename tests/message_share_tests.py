@@ -53,18 +53,6 @@ def test_share_channel_success(setup_users):
         "is_public": True
     })
 
-    message_response1 = requests.post(f"{config.url}message/send/v1", json={
-        "token": owner['token'],
-        "channel_id": channel_response.json()['channel_id'],
-        "message": 'Every soul has its dark'
-    })
-
-    message_response2 = requests.post(f"{config.url}message/send/v1", json={
-        "token": owner['token'],
-        "channel_id": channel_response.json()['channel_id'],
-        "message": 'Every john has its burger'
-    })
-
     message_response3 = requests.post(f"{config.url}message/send/v1", json={
         "token": owner['token'],
         "channel_id": channel_response.json()['channel_id'],
@@ -115,18 +103,6 @@ def test_share_dm_success(setup_users):
         'dm_id': dm_id1.json()['dm_id'],
         'message': "Hello World"})
 
-    message_response1 = requests.post(f"{config.url}message/send/v1", json={
-        "token": owner['token'],
-        "channel_id": channel_response.json()['channel_id'],
-        "message": 'Every soul has its dark'
-    })
-
-    message_response2 = requests.post(f"{config.url}message/send/v1", json={
-        "token": owner['token'],
-        "channel_id": channel_response.json()['channel_id'],
-        "message": 'Every john has its burger'
-    })
-
     message_response3 = requests.post(f"{config.url}message/send/v1", json={
         "token": owner['token'],
         "channel_id": channel_response.json()['channel_id'],
@@ -174,12 +150,6 @@ def test_share_invalid_ids(setup_users):
         'token': owner['token'],
         'dm_id': dm_id1.json()['dm_id'],
         'message': "Hello World"})
-
-    message_response1 = requests.post(f"{config.url}message/send/v1", json={
-        "token": owner['token'],
-        "channel_id": channel_response.json()['channel_id'],
-        "message": 'Every soul has its dark'
-    })
 
     share_response = requests.post(f"{config.url}message/share/v1", json={
         "token": owner['token'],
