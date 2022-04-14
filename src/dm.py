@@ -434,7 +434,7 @@ def dm_messages_v1(token, dm_id, start):
     end_fail = False
     for idx in range(start, start + 50):
         try:
-            if u_id in recent_message_list[idx]['reacts'][0]['u_ids']:
+            if user_id in recent_message_list[idx]['reacts'][0]['u_ids']:
                 recent_message_list[idx]['reacts'][0]['is_this_user_reacted'] = True
             else:
                 recent_message_list[idx]['reacts'][0]['is_this_user_reacted'] = False
