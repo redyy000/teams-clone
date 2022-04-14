@@ -1,5 +1,43 @@
 {
-    "users": [],
+    "users": [
+        {
+            "u_id": 1,
+            "email": "user@gmail.com",
+            "password": "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8",
+            "name_first": "FirstName",
+            "name_last": "LastName",
+            "handle_str": "firstnamelastname",
+            "session_id_list": [
+                1
+            ],
+            "permission_id": 1,
+            "is_deleted": false,
+            "profile_img_url": "",
+            "reset_code_list": [],
+            "stats": {
+                "channels_joined": [
+                    {
+                        "num_channels_joined": 0,
+                        "time_stamp": 1649904258
+                    }
+                ],
+                "dms_joined": [
+                    {
+                        "num_dms_joined": 0,
+                        "time_stamp": 1649904258
+                    }
+                ],
+                "messages_sent": [
+                    {
+                        "num_messages_sent": 0,
+                        "time_stamp": 1649904258
+                    }
+                ],
+                "involvement_rate": 0
+            },
+            "notifications": []
+        }
+    ],
     "channels": [],
     "dms": [],
     "message_ids": [
@@ -8,5 +46,26 @@
             "message_type": 1,
             "source_id": 0
         }
-    ]
+    ],
+    "workspace_stats": {
+        "channels_exist": [
+            {
+                "num_channels_exist": 0,
+                "time_stamp": 1649904221
+            }
+        ],
+        "dms_exist": [
+            {
+                "num_dms_exist": 0,
+                "time_stamp": 1649904221
+            }
+        ],
+        "messages_exist": [
+            {
+                "num_messages_exist": 0,
+                "time_stamp": 1649904221
+            }
+        ],
+        "utilization_rate": 0
+    }
 }
