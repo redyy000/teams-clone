@@ -446,6 +446,8 @@ def dm_messages_v1(token, dm_id, start):
         end = -1
     else:
         end = start + 50
+        
+    data_store.set(store)
 
     return {
         'messages': message_list,
