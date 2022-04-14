@@ -135,7 +135,7 @@ def test_share_invalid_ids(setup_users):
     user2 = setup_users[1]
     user3 = setup_users[2]
 
-    channel_response = requests.post(f"{config.url}channels/create/v2", json={
+    requests.post(f"{config.url}channels/create/v2", json={
         "token": owner['token'],
         "name": "general",
         "is_public": True
