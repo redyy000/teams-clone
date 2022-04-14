@@ -510,7 +510,7 @@ def message_react_v1(token, message_id, react_id):
 
     message_found['reacts'][0]['react_id'] = 1
     message_found['reacts'][0]['u_ids'].append(u_id)
-    message_found['reacts'][0]['is_this_user_reacted'] == True
+    message_found['reacts'][0]['is_this_user_reacted'] = True
 
     # Send a reaction notification to the original message sender.
     # Doesn't actually need the original message.
@@ -593,7 +593,7 @@ def message_unreact_v1(token, message_id, react_id):
 
     message_found['reacts'][0]['react_id'] = 1
     message_found['reacts'][0]['u_ids'].remove(u_id)
-    message_found['reacts'][0]['is_this_user_reacted'] == False
+    message_found['reacts'][0]['is_this_user_reacted'] = False
 
     data_store.set(store)
 
