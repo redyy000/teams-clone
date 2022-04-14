@@ -208,6 +208,6 @@ def test_standup_send_success(init):
     assert messages[0]['message'] == "daniellin: Message 1\ndaniellin: Message 2\ndaniellin: Message 3\n"
 
     #margin of error less than half a second
-    assert messages[0]['time_sent'] == round(int(current_time))
+    assert messages[0]['time_sent'] - current_time < 0.5
 
 
