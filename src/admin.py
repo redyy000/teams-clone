@@ -217,7 +217,7 @@ def admin_user_remove_v1(token, u_id):
     for channel in datastore['channels']:
         #RESETS ANY STANDUPS CREATED BY USER
         standup = channel["standup"]
-        if standup["u_id"] == u_id and standup["is_active"] == True:
+        if standup["u_id"] == u_id or standup["is_active"] == True:
             reset_standup(channel["channel_id"])
         if u_id in channel['owner_members']:
             # Remove from channel
