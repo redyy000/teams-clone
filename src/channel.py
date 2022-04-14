@@ -412,8 +412,8 @@ def channel_leave_v1(token, channel_id):
 
     #Resets standup if user started the standup
     standup = channel["standup"]
-    if standup["u_id"] == u_id and standup["is_active"] == True:
-        reset_standup(channel["channel_id"])
+    if standup["u_id"] == u_id or standup["is_active"] == True:
+        reset_standup(channel_id)
 
     data_store.set(store)
     return
