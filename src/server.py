@@ -417,7 +417,7 @@ def message_sendlater_dm():
 
 
 @APP.route("/message/share/v1", methods=['POST'])
-def message_share_v1():
+def message_share():
     arguments = request.get_json()
     resp = message_share_v1(arguments['token'], arguments['og_message_id'],
                             arguments['message'], arguments['channel_id'], arguments['dm_id'])
