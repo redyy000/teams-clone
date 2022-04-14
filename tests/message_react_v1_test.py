@@ -198,3 +198,49 @@ def test_react_success(setup_users):
     })
     assert messages_response.json()['messages'][0]['reacts'][0]['react_id'] == 1
     assert messages_response.json()['messages'][0]['reacts'][0]['u_ids'] == [user1['auth_user_id']]
+    assert messages_response.json()['messages'][0]['reacts'][0]['is_this_user_reacted'] == True
+
+def test_react_channel_messages(setup_users):
+    user1 = setup_users[0]
+    user2 = setup_users[1]
+    channel_response = requests.post(f"{config.url}channels/create/v2", json={
+        "token": user1['token'],
+        "name": "general",
+        "is_public": True
+    })
+    requests.post(f"{config.url}channel/invite/v2", json={'token': user1['token'],
+        'channel_id': channel_response.json()['channel_id'],
+        'u_id': user2['auth_user_id']
+    })
+    message1_response = requests.post(f"{config.url}message/send/v1", json={
+        "token": user1['token'],
+        "channel_id": channel_response.json()['channel_id'],
+        "message": 'First message of the channel!'
+    })
+    requests.post(f"{config.url}message/react/v1", json={
+        "token": user1['token'],
+        "message_id": message1_response.json()['message_id'],
+        "react_id": 1
+    })
+    message2_response = requests.post(f"{config.url}message/send/v1", json={
+        "token": user1['token'],
+        "channel_id": channel_response.json()['channel_id'],
+        "message": 'SECOND message of the channel!'
+    })
+    requests.post(f"{config.url}message/react/v1", json={
+        "token": user2['token'],
+        "message_id": message2_response.json()['message_id'],
+        "react_id": 1
+    })
+    messages_response = requests.get(f'{config.url}/channel/messages/v2', params={
+        'token': user2['token'],
+        'channel_id': channel_response.json()['channel_id'],
+        'start': 0
+    })
+    assert messages_response.json()['messages'][1]['reacts'][0]['react_id'] == 1
+    assert messages_response.json()['messages'][1]['reacts'][0]['u_ids'] == [user1['auth_user_id']]
+    assert messages_response.json()['messages'][1]['reacts'][0]['is_this_user_reacted'] == False
+
+    assert messages_response.json()['messages'][0]['reacts'][0]['react_id'] == 1
+    assert messages_response.json()['messages'][0]['reacts'][0]['u_ids'] == [user2['auth_user_id']]
+    assert messages_response.json()['messages'][0]['reacts'][0]['is_this_user_reacted'] == True
