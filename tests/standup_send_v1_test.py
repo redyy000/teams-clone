@@ -223,9 +223,7 @@ def test_standup_send_success_removed_user(init):
     requests.post(f"{config.url}channel/invite/v2", json={'token': init["user"],
                                                           'channel_id': init["channel1"],
                                                           'u_id': user2["auth_user_id"]})
-    dt = datetime.datetime.now(timezone.utc)
-    utc_time = dt.replace(tzinfo=timezone.utc)
-    current_time = utc_time.timestamp() + 1.5                                                          
+                                                        
     response = requests.post(f'{config.url}standup/start/v1', json = {
         "token": init["user"],
         "channel_id": init["channel1"],
