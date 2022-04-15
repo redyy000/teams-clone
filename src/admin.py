@@ -1,6 +1,6 @@
-
 from src.error import InputError, AccessError
 from src.other import is_valid_token
+from src.standup import reset_standup
 
 from src.data_store import data_store
 
@@ -215,6 +215,10 @@ def admin_user_remove_v1(token, u_id):
     # Remove all instance of user in channel
     # Change messages....
     for channel in datastore['channels']:
+        #RESETS ANY STANDUPS CREATED BY USER
+        standup = channel["standup"]
+        if standup["u_id"] == u_id and standup["is_active"] == True:
+            reset_standup(channel)
         if u_id in channel['owner_members']:
             # Remove from channel
             channel['owner_members'].remove(u_id)
@@ -238,6 +242,7 @@ def admin_user_remove_v1(token, u_id):
         for message in dm['messages']:
             if message['u_id'] == u_id:
                 message['message'] = 'Removed user'
+
 
     # TODO CODE WITH USER MESSAGES STATS
 

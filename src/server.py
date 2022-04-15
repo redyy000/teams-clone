@@ -15,8 +15,9 @@ from src.other import clear_v1, search_v1, notifications_get_v1
 from src.channels import channels_create_v2, channels_list_v2, channels_listall_v2
 from src.channel import channel_details_v2, channel_invite_v2, channel_join_v2, channel_messages_v2, channel_leave_v1, channel_addowner_v1, channel_removeowner_v1
 from src.dm import dm_create_v1, dm_details_v1, dm_list_v1, dm_remove_v1, dm_leave_v1, dm_messages_v1
-from src.message import message_send_v1, message_senddm_v1, message_remove_v1, message_edit_v1, message_react_v1, message_unreact_v1, message_pin_v1, message_unpin_v1
+from src.message import message_send_v1, message_senddm_v1, message_remove_v1, message_edit_v1, message_react_v1, message_unreact_v1, message_pin_v1, message_unpin_v1, message_share_v1
 from src.admin import admin_userpermission_change_v1, admin_user_remove_v1
+from src.message_send_later import message_sendlater_dm_v1, message_sendlater_v1
 from src.data_store import data_store
 from src.standup import standup_start_v1, standup_send_v1, standup_active_v1, standup_thread
 
@@ -464,21 +465,48 @@ def users_stats():
     return dumps(resp)
 
 
+@APP.route("/message/sendlater/v1", methods=['POST'])
+def message_sendlater():
+    arguments = request.get_json()
+    resp = message_sendlater_v1(
+        arguments['token'], arguments['channel_id'], arguments['message'], arguments['time_sent'])
+    data_store.save()
+    return dumps(resp)
+
 @APP.route("/search/v1", methods=['GET'])
 def search():
     token = request.args.get('token', type=str)
     query_str = request.args.get('query_str', type=str)
     resp = search_v1(
         token, query_str)
+
     data_store.save()
     return dumps(resp)
 
+
+@APP.route("/message/sendlaterdm/v1", methods=['POST'])
+def message_sendlater_dm():
+    arguments = request.get_json()
+    resp = message_sendlater_dm_v1(
+        arguments['token'], arguments['dm_id'], arguments['message'], arguments['time_sent'])
+    data_store.save()
+    return dumps(resp)
+
+
+@APP.route("/message/share/v1", methods=['POST'])
+def message_share():
+    arguments = request.get_json()
+    resp = message_share_v1(arguments['token'], arguments['og_message_id'],
+                            arguments['message'], arguments['channel_id'], arguments['dm_id'])
+    data_store.save()
+    return dumps(resp)
 
 @APP.route("/notifications/get/v1", methods=['GET'])
 def notifications():
     token = request.args.get('token')
     notifications = notifications_get_v1(token)
     return jsonify(notifications)
+
 
 
 # NO NEED TO MODIFY BELOW THIS POINT

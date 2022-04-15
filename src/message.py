@@ -3,7 +3,7 @@ from src.other import is_valid_token, message_notification, is_channel_member, i
 from src.data_store import data_store
 from datetime import timezone
 import datetime
-
+from src.message_send_later import message_timer, dm_timer
 
 def create_time_stamp():
     '''
@@ -432,6 +432,156 @@ def message_remove_v1(token, message_id):
     return {}
 
 
+def message_share_v1(token, og_message_id, message, channel_id, dm_id):
+    '''
+    Given an existing message, send a new message containing the optional message
+    to the specified dm or channel. Once sent, the new message has no link to 
+    the original message and will not be affected if the original message is 
+    changed or deleted.
+
+    Arguments:
+        token(token) - Token of the authorised user
+        og_message_id (int) - message id of the message to be shared
+        message (string) - Optional message to be appended to the shared message
+        channel_id (int) - id of the specified channel. (-1 if sent to dm)
+        dm_id (int) - if of the specified dm. (-1 if sent to channel)
+
+    Exceptions:
+        InputError - Both channel_id and dm_id are invalid
+        InputError - Neither channel id nor dm id are -1
+        InputError - og_message_id does not refer to a valid message within a 
+                     channel/DM that the authorised user has joined
+
+        InputError - Length of message is more than 1000 characters
+
+        AccessError - The pair of channel_id and dm_id are valid,
+                      but the authorised user has not joined the channel or
+                      dm they are trying to send the message to 
+
+    Return Value:
+    {
+        shared_message_id
+    }   
+    '''
+
+    store = data_store.get()
+    message_store = store['message_ids']
+
+    payload = is_valid_token(token)
+    if payload is False:
+        raise AccessError(description="Invalid token")
+    
+    message_found = False
+    for messages in message_store:
+        if og_message_id == messages['message_id']:
+            message_found = True
+            message_type = messages['message_type']
+            source_id = messages['source_id']
+
+    if message_found == False:
+        raise InputError(description="No such message exists")
+
+    if message_type == 1:
+        channel_list = store['channels']
+        for channel in channel_list:
+            if channel['channel_id'] == source_id:
+                channel_messages = channel['messages']
+        for messages in channel_messages:
+            if og_message_id == messages['message_id']:
+                shared_message = messages['message']
+
+    elif message_type == 2:
+        dm_list = store['dms']
+        for dms in dm_list:
+            if dms['dm_id'] == source_id:
+                dm_messages = dms['messages']
+        for messages in dm_messages:
+            if og_message_id == messages['message_id']:
+                shared_message = messages['message']
+
+
+    if (channel_id == -1 and dm_id == -1) or (channel_id != -1 and dm_id != -1):
+        raise InputError(description="Invalid send location")
+    elif channel_id == -1:  # If send to dms
+        u_id = payload['u_id']
+        dm_data = store['dms']
+
+        dm_found = False
+        user_found = False
+        for dms in dm_data:
+            if dms['dm_id'] == dm_id:
+                dm_found = True
+                if u_id in dms['all_members']:
+                    user_found = True
+
+        if dm_found == False:
+            raise InputError(description="Invalid DM ID")
+        if user_found == False:
+            raise AccessError(description="User not in dm")
+
+        if len(message) > 1000:
+            raise InputError(description="Invalid message length")
+
+        message_id = 0
+        if len(store['message_ids']) == 0:
+            message_id = 1
+        else:
+            message_id = store['message_ids'][-1]['message_id'] + 1
+
+        store_messages = {
+            'message_id': message_id,
+            'message_type': 2,
+            'source_id': dm_id
+        }
+        store['message_ids'].append(store_messages)
+        joined_message = shared_message + " " + message
+
+        dm_timer(dm_id, u_id, joined_message, message_id)
+        
+        return {'shared_message_id': message_id}
+
+    elif dm_id == -1:  # If send to channels
+
+        u_id = payload['u_id']
+        channel_list = store['channels']
+
+        channel_found = False
+        user_found = False
+        for channel in channel_list:
+            if channel['channel_id'] == channel_id:
+                channel_found = True
+
+        for channel in channel_list:
+            for member in channel['all_members']:
+                if member['user_id'] == u_id:
+                    user_found = True
+
+        if channel_found == False:
+            raise InputError(description="Invalid channel ID")
+        if user_found == False:
+            raise AccessError(description="User not in channel")
+
+        if len(message) > 1000:
+            raise InputError(description="Invalid message length")
+
+        message_id = 0
+        if len(store['message_ids']) == 0:
+            message_id = 1
+        else:
+            message_id = store['message_ids'][-1]['message_id'] + 1
+
+        store_messages = {
+            'message_id': message_id,
+            'message_type': 1,
+            'source_id': channel_id
+        }
+        store['message_ids'].append(store_messages)
+        joined_message = shared_message + " " + message
+        
+        message_timer(channel_id, u_id, joined_message, message_id)
+        data_store.set(store)
+
+        return {'shared_message_id': message_id}
 def message_react_v1(token, message_id, react_id):
     '''
     Given a message within a channel or DM the authorised user is part of, add a "react" to that particular message.
@@ -510,7 +660,7 @@ def message_react_v1(token, message_id, react_id):
 
     message_found['reacts'][0]['react_id'] = 1
     message_found['reacts'][0]['u_ids'].append(u_id)
-    message_found['reacts'][0]['is_this_user_reacted'] == True
+    message_found['reacts'][0]['is_this_user_reacted'] = True
 
     # Send a reaction notification to the original message sender.
     # Doesn't actually need the original message.
@@ -593,7 +743,7 @@ def message_unreact_v1(token, message_id, react_id):
 
     message_found['reacts'][0]['react_id'] = 1
     message_found['reacts'][0]['u_ids'].remove(u_id)
-    message_found['reacts'][0]['is_this_user_reacted'] == False
+    message_found['reacts'][0]['is_this_user_reacted'] = False
 
     data_store.set(store)
 
@@ -698,6 +848,7 @@ def message_unpin_v1(token, message_id):
         {}
     '''
     store = data_store.get()
+
 
     payload = is_valid_token(token)
     if payload is False:

@@ -1,4 +1,3 @@
-
 from src.data_store import data_store
 from src.channels import channels_create_v2, channels_list_v2
 from src.error import InputError, AccessError
@@ -8,6 +7,7 @@ from src.other import is_valid_token, notifications_get_v1, invite_notification,
 from src.admin import is_global_owner
 from src.user import user_profile_v1
 from src.data_store import data_store
+from src.standup import reset_standup
 from datetime import timezone
 import datetime
 
@@ -198,6 +198,10 @@ def channel_messages_v2(token, channel_id, start):
     end_fail = False
     for idx in range(start, start + 50):
         try:
+            if u_id in recent_message_list[idx]['reacts'][0]['u_ids']:
+                recent_message_list[idx]['reacts'][0]['is_this_user_reacted'] = True
+            else:
+                recent_message_list[idx]['reacts'][0]['is_this_user_reacted'] = False
             message_list.append(recent_message_list[idx])
         except:
             end_fail = True
@@ -396,6 +400,10 @@ def channel_leave_v1(token, channel_id):
     # remove selected member from channel
     for channels in store['channels']:
         if channels['channel_id'] == channel_id:
+            #Resets standup if user started the standup
+            standup = channels["standup"]
+            if standup["u_id"] == u_id and standup["is_active"] == True:
+                raise InputError(description = "This user is running a standup, cannot remove!")
             for member in channels['all_members']:
                 if u_id == member['user_id']:
                     channels['all_members'].remove(member)

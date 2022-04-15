@@ -1,12 +1,255 @@
 {
-    "users": [],
-    "channels": [],
-    "dms": [],
+    "users": [
+        {
+            "u_id": 1,
+            "email": "dlin@gmail.com",
+            "password": "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8",
+            "name_first": "daniel",
+            "name_last": "lin",
+            "handle_str": "daniellin",
+            "session_id_list": [
+                1
+            ],
+            "permission_id": 1,
+            "is_deleted": false,
+            "profile_img_url": "",
+            "reset_code_list": [],
+            "stats": {
+                "channels_joined": [
+                    {
+                        "num_channels_joined": 0,
+                        "time_stamp": 1650032942
+                    },
+                    {
+                        "num_channels_joined": 1,
+                        "time_stamp": 1650032942.558441
+                    }
+                ],
+                "dms_joined": [
+                    {
+                        "num_dms_joined": 0,
+                        "time_stamp": 1650032942
+                    },
+                    {
+                        "num_dms_joined": 1,
+                        "time_stamp": 1650032942
+                    }
+                ],
+                "messages_sent": [
+                    {
+                        "num_messages_sent": 0,
+                        "time_stamp": 1650032942
+                    },
+                    {
+                        "num_messages_sent": 1,
+                        "time_stamp": 1650032942
+                    }
+                ],
+                "involvement_rate": 0
+            },
+            "notifications": []
+        },
+        {
+            "u_id": 2,
+            "email": "rxue@gmail.com",
+            "password": "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8",
+            "name_first": "richard",
+            "name_last": "xue",
+            "handle_str": "richardxue",
+            "session_id_list": [
+                1
+            ],
+            "permission_id": 2,
+            "is_deleted": false,
+            "profile_img_url": "",
+            "reset_code_list": [],
+            "stats": {
+                "channels_joined": [
+                    {
+                        "num_channels_joined": 0,
+                        "time_stamp": 1650032942
+                    }
+                ],
+                "dms_joined": [
+                    {
+                        "num_dms_joined": 0,
+                        "time_stamp": 1650032942
+                    },
+                    {
+                        "num_dms_joined": 1,
+                        "time_stamp": 1650032942
+                    }
+                ],
+                "messages_sent": [
+                    {
+                        "num_messages_sent": 0,
+                        "time_stamp": 1650032942
+                    }
+                ],
+                "involvement_rate": 0
+            },
+            "notifications": [
+                {
+                    "channel_id": -1,
+                    "dm_id": 1,
+                    "notification_message": "daniellin added you to daniellin, richardxue, ryangodakanda"
+                }
+            ]
+        },
+        {
+            "u_id": 3,
+            "email": "ryan@gmail.com",
+            "password": "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8",
+            "name_first": "ryan",
+            "name_last": "godakanda",
+            "handle_str": "ryangodakanda",
+            "session_id_list": [
+                1
+            ],
+            "permission_id": 2,
+            "is_deleted": false,
+            "profile_img_url": "",
+            "reset_code_list": [],
+            "stats": {
+                "channels_joined": [
+                    {
+                        "num_channels_joined": 0,
+                        "time_stamp": 1650032942
+                    }
+                ],
+                "dms_joined": [
+                    {
+                        "num_dms_joined": 0,
+                        "time_stamp": 1650032942
+                    },
+                    {
+                        "num_dms_joined": 1,
+                        "time_stamp": 1650032942
+                    }
+                ],
+                "messages_sent": [
+                    {
+                        "num_messages_sent": 0,
+                        "time_stamp": 1650032942
+                    }
+                ],
+                "involvement_rate": 0
+            },
+            "notifications": [
+                {
+                    "channel_id": -1,
+                    "dm_id": 1,
+                    "notification_message": "daniellin added you to daniellin, richardxue, ryangodakanda"
+                }
+            ]
+        }
+    ],
+    "channels": [
+        {
+            "channel_id": 1,
+            "name": "general",
+            "owner_members": [
+                1
+            ],
+            "all_members": [
+                {
+                    "user_id": 1,
+                    "permission_id": 1
+                }
+            ],
+            "is_public": true,
+            "messages": [],
+            "standup": {
+                "is_active": false,
+                "u_id": null,
+                "time_finish": null,
+                "buffer": []
+            }
+        }
+    ],
+    "dms": [
+        {
+            "name": "daniellin, richardxue, ryangodakanda",
+            "dm_id": 1,
+            "owners": [
+                1
+            ],
+            "normal_members": [
+                2,
+                3
+            ],
+            "all_members": [
+                2,
+                3,
+                1
+            ],
+            "messages": [
+                {
+                    "message_id": 1,
+                    "u_id": 1,
+                    "message": "Hello World",
+                    "time_sent": 1650032942,
+                    "reacts": [
+                        {
+                            "react_id": 1,
+                            "u_ids": [],
+                            "is_this_user_reacted": false
+                        }
+                    ],
+                    "is_pinned": false
+                }
+            ]
+        }
+    ],
     "message_ids": [
         {
             "message_id": 0,
             "message_type": 1,
             "source_id": 0
+        },
+        {
+            "message_id": 1,
+            "message_type": 2,
+            "source_id": 1
         }
-    ]
+    ],
+    "workplace_stats": {
+        "channels_exist": [],
+        "dms_exist": [],
+        "messages_exist": [],
+        "utilization_rate": 0
+    },
+    "workspace_stats": {
+        "channels_exist": [
+            {
+                "num_channels_exist": 0,
+                "time_stamp": 1650032707
+            },
+            {
+                "num_channels_exist": 1,
+                "time_stamp": 1650032942.558441
+            }
+        ],
+        "dms_exist": [
+            {
+                "num_dms_exist": 0,
+                "time_stamp": 1650032707
+            },
+            {
+                "num_dms_exist": 1,
+                "time_stamp": 1650032942
+            }
+        ],
+        "messages_exist": [
+            {
+                "num_messages_exist": 0,
+                "time_stamp": 1650032707
+            },
+            {
+                "num_messages_exist": 1,
+                "time_stamp": 1650032942
+            }
+        ],
+        "utilization_rate": 0
+    }
 }
