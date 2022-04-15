@@ -3,7 +3,10 @@ import jwt
 from src.data_store import data_store, initial_object
 from datetime import timezone
 import datetime
+import threading
+
 from src.error import InputError, AccessError
+
 
 SECRET = "RICHARDRYANDANIELMAXTAYLA"
 
@@ -14,6 +17,7 @@ BASE_URL = "http://127.0.0.1:{config.port}"
 dt = datetime.datetime.now(timezone.utc)
 utc_time = dt.replace(tzinfo=timezone.utc)
 time_stamp = int(utc_time.timestamp())
+
 
 
 def is_channel_member(u_id, channel_id):

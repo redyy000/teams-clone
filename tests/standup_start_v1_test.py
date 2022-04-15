@@ -125,7 +125,7 @@ def test_standup_start_success_thread(init):
     #test successful endpoints
     assert response.status_code == 200
     #test by correct finish time
-    assert response.json()["time_finish"] == int(current_time)
+    assert response.json()["time_finish"] - int(current_time) < 0.5
     #test another thread can be created after the standup has ended
     time.sleep(2)
     response = requests.post(f'{config.url}standup/start/v1', json = {
