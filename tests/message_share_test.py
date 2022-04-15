@@ -125,7 +125,7 @@ def test_share_dm_success(setup_users):
         "og_message_id": message_id2,
         "message": "",
         "channel_id": -1,
-        "dm_id": dm_response.json()['dm_id']
+        "dm_id": dm_id1.json()['dm_id']
     })
     assert share_response2.status_code == 200
 
@@ -288,7 +288,7 @@ def test_share_not_joined(setup_users):
     u_id3 = user3['auth_user_id']
     dm_id1 = requests.post(f'{config.url}dm/create/v1', json={
         'token': owner['token'],
-        'u_ids': [u_id2, u_id3]})
+        'u_ids': [u_id2]})
 
     dm_response = requests.post(f'{config.url}message/senddm/v1', json={
         'token': owner['token'],
@@ -305,16 +305,16 @@ def test_share_not_joined(setup_users):
         "token": user2['token'],
         "og_message_id": dm_response.json()['message_id'],
         "message": "",
-        "channel_id": message_response1.json()['message_id'],
+        "channel_id": channel_response.json()['channel_id'],
         "dm_id": -1
     })
     assert share_response.status_code == 403
 
     share_response2 = requests.post(f"{config.url}message/share/v1", json={
-        "token": user2['token'],
+        "token": user3['token'],
         "og_message_id": dm_response.json()['message_id'],
         "message": "",
         "channel_id": -1,
-        "dm_id": dm_response.json()['message_id']
+        "dm_id": dm_id1.json()['dm_id']
     })
     assert share_response2.status_code == 403

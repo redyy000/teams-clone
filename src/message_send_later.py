@@ -1,4 +1,5 @@
-from datetime import datetime, timezone
+from datetime import timezone
+import datetime
 from threading import Timer
 from src.data_store import data_store
 from src.error import AccessError, InputError
@@ -109,7 +110,6 @@ def message_timer(channel_id, u_id, message, message_id):
         'time_sent': int(utc_timestamp),
         'reacts': reacts,
         'is_pinned': False
-
     }
     for channel in channel_list:
         if channel['channel_id'] == channel_id:
@@ -255,15 +255,49 @@ def dm_timer(dm_id, u_id, message, message_id):
     utc_time = dt.replace(tzinfo=timezone.utc)
     utc_timestamp = utc_time.timestamp()
 
+    default_reacts = {
+        'react_id': 1,
+        'u_ids': [],
+        'is_this_user_reacted': False
+    }
+
+    reacts = [default_reacts]
+
     new_message = {
         'message_id': message_id,
         'u_id': u_id,
         'message': message,
-        'time_sent': int(utc_timestamp)
+        'time_sent': int(utc_timestamp),
+        'reacts': reacts,
+        'is_pinned': False
     }
 
     for dms in dm_data:
         if dms['dm_id'] == dm_id:
             dms['messages'].append(new_message)
+
+    seams_message_entry = {
+        'num_messages_exist': store['workspace_stats']['messages_exist'][-1]['num_messages_exist'] + 1,
+        'time_stamp': utc_timestamp
+    }
+    store['workspace_stats']['messages_exist'].append(seams_message_entry)
+
+    # Increase amount of user messages sent
+    user_member_entry = {
+        'num_messages_sent': store['users'][u_id - 1]['stats']['messages_sent'][-1]['num_messages_sent'] + 1,
+        'time_stamp': utc_timestamp
+    }
+    store['users'][u_id -
+                   1]['stats']['messages_sent'].append(user_member_entry)
+
+    # Add notifications for tag
+
+    for user in store['users']:
+        tag = '@' + user['handle_str']
+        # Check if tag in message
+        # Check if member in channel
+        if tag in message and is_dm_member(user['u_id'], dm_id):
+            user['notifications'].append(message_notification(
+                u_id, dm_id, False, message))
 
     data_store.set(store)
