@@ -62,7 +62,7 @@ def message_sendlater_v1(token, channel_id, message, time_sent):
         message_id = store['message_ids'][-1]['message_id'] + 1
 
     # Setting delay for message
-    duration = time_sent - datetime.now().timestamp()
+    duration = time_sent - datetime.datetime.now().timestamp()
     if duration < 0:
         raise InputError(description="Invalid time for message to be sent")
     store_messages = {
@@ -191,7 +191,7 @@ def message_sendlater_dm_v1(token, dm_id, message, time_sent):
     if len(message) < 1 or len(message) > 1000:
         raise InputError(description="Invalid message length")
 
-    duration = time_sent - datetime.now().timestamp()
+    duration = time_sent - datetime.datetime.now().timestamp()
     if duration < 0:
         raise InputError(description="Invalid time for message to be sent")
 
@@ -208,6 +208,7 @@ def message_sendlater_dm_v1(token, dm_id, message, time_sent):
     }
     store['message_ids'].append(store_messages)
 
+    assert len(store['message_ids']) > 0
     t = Timer(duration, dm_timer, args=(dm_id, u_id, message, message_id))
     t.start()
 
@@ -216,12 +217,13 @@ def message_sendlater_dm_v1(token, dm_id, message, time_sent):
     for dms in dm_data:
         if dms['dm_id'] == dm_id:
             dm_exists = True
+    assert len(dm_data) > 0
     data_store.set(store)
 
     if dm_exists == False:
         return {}
     else:
-        return (f"dm exsits? - {dm_exists}")
+        return {'message_id': message_id}
 
 
 # Wrapper that checks if dm has been removed

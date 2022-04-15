@@ -18,35 +18,27 @@
                 "channels_joined": [
                     {
                         "num_channels_joined": 0,
-                        "time_stamp": 1650022610
-                    },
-                    {
-                        "num_channels_joined": 1,
-                        "time_stamp": 1650022610.45677
+                        "time_stamp": 1650025122
                     }
                 ],
                 "dms_joined": [
                     {
                         "num_dms_joined": 0,
-                        "time_stamp": 1650022610
+                        "time_stamp": 1650025122
                     },
                     {
                         "num_dms_joined": 1,
-                        "time_stamp": 1650022610
+                        "time_stamp": 1650025122
+                    },
+                    {
+                        "num_dms_joined": 0,
+                        "time_stamp": 1650025122
                     }
                 ],
                 "messages_sent": [
                     {
                         "num_messages_sent": 0,
-                        "time_stamp": 1650022610
-                    },
-                    {
-                        "num_messages_sent": 1,
-                        "time_stamp": 1650022610
-                    },
-                    {
-                        "num_messages_sent": 2,
-                        "time_stamp": 1650022610
+                        "time_stamp": 1650025122
                     }
                 ],
                 "involvement_rate": 0
@@ -71,23 +63,27 @@
                 "channels_joined": [
                     {
                         "num_channels_joined": 0,
-                        "time_stamp": 1650022610
+                        "time_stamp": 1650025122
                     }
                 ],
                 "dms_joined": [
                     {
                         "num_dms_joined": 0,
-                        "time_stamp": 1650022610
+                        "time_stamp": 1650025122
                     },
                     {
                         "num_dms_joined": 1,
-                        "time_stamp": 1650022610
+                        "time_stamp": 1650025122
+                    },
+                    {
+                        "num_dms_joined": 0,
+                        "time_stamp": 1650025122
                     }
                 ],
                 "messages_sent": [
                     {
                         "num_messages_sent": 0,
-                        "time_stamp": 1650022610
+                        "time_stamp": 1650025122
                     }
                 ],
                 "involvement_rate": 0
@@ -96,7 +92,7 @@
                 {
                     "channel_id": -1,
                     "dm_id": 1,
-                    "notification_message": "daniellin added you to daniellin, richardxue"
+                    "notification_message": "daniellin added you to daniellin, richardxue, ryangodakanda"
                 }
             ]
         },
@@ -118,96 +114,42 @@
                 "channels_joined": [
                     {
                         "num_channels_joined": 0,
-                        "time_stamp": 1650022610
+                        "time_stamp": 1650025122
                     }
                 ],
                 "dms_joined": [
                     {
                         "num_dms_joined": 0,
-                        "time_stamp": 1650022610
+                        "time_stamp": 1650025122
+                    },
+                    {
+                        "num_dms_joined": 1,
+                        "time_stamp": 1650025122
+                    },
+                    {
+                        "num_dms_joined": 0,
+                        "time_stamp": 1650025122
                     }
                 ],
                 "messages_sent": [
                     {
                         "num_messages_sent": 0,
-                        "time_stamp": 1650022610
+                        "time_stamp": 1650025122
                     }
                 ],
                 "involvement_rate": 0
             },
-            "notifications": []
-        }
-    ],
-    "channels": [
-        {
-            "channel_id": 1,
-            "name": "general",
-            "owner_members": [
-                1
-            ],
-            "all_members": [
+            "notifications": [
                 {
-                    "user_id": 1,
-                    "permission_id": 1
-                }
-            ],
-            "is_public": true,
-            "messages": [
-                {
-                    "message_id": 2,
-                    "u_id": 1,
-                    "message": "Every soul has its dark",
-                    "time_sent": 1650022610,
-                    "reacts": [
-                        {
-                            "react_id": 1,
-                            "u_ids": [],
-                            "is_this_user_reacted": false
-                        }
-                    ],
-                    "is_pinned": false
-                }
-            ],
-            "standup": {
-                "is_active": false,
-                "u_id": null,
-                "time_finish": null,
-                "buffer": []
-            }
-        }
-    ],
-    "dms": [
-        {
-            "name": "daniellin, richardxue",
-            "dm_id": 1,
-            "owners": [
-                1
-            ],
-            "normal_members": [
-                2
-            ],
-            "all_members": [
-                2,
-                1
-            ],
-            "messages": [
-                {
-                    "message_id": 1,
-                    "u_id": 1,
-                    "message": "Hello World",
-                    "time_sent": 1650022610,
-                    "reacts": [
-                        {
-                            "react_id": 1,
-                            "u_ids": [],
-                            "is_this_user_reacted": false
-                        }
-                    ],
-                    "is_pinned": false
+                    "channel_id": -1,
+                    "dm_id": 1,
+                    "notification_message": "daniellin added you to daniellin, richardxue, ryangodakanda"
                 }
             ]
         }
     ],
+    "channels": [],
+    "dms": [],
     "message_ids": [
         {
             "message_id": 0,
@@ -217,11 +159,6 @@
         {
             "message_id": 1,
             "message_type": 2,
-            "source_id": 1
-        },
-        {
-            "message_id": 2,
-            "message_type": 1,
             "source_id": 1
         }
     ],
@@ -235,35 +172,31 @@
         "channels_exist": [
             {
                 "num_channels_exist": 0,
-                "time_stamp": 1650022606
-            },
-            {
-                "num_channels_exist": 1,
-                "time_stamp": 1650022610.45677
+                "time_stamp": 1650025003
             }
         ],
         "dms_exist": [
             {
                 "num_dms_exist": 0,
-                "time_stamp": 1650022606
+                "time_stamp": 1650025003
             },
             {
                 "num_dms_exist": 1,
-                "time_stamp": 1650022610
+                "time_stamp": 1650025122
+            },
+            {
+                "num_dms_exist": 0,
+                "time_stamp": 1650025122
             }
         ],
         "messages_exist": [
             {
                 "num_messages_exist": 0,
-                "time_stamp": 1650022606
+                "time_stamp": 1650025003
             },
             {
-                "num_messages_exist": 1,
-                "time_stamp": 1650022610
-            },
-            {
-                "num_messages_exist": 2,
-                "time_stamp": 1650022610
+                "num_messages_exist": 0,
+                "time_stamp": 1650025122
             }
         ],
         "utilization_rate": 0
