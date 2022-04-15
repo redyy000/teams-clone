@@ -18,27 +18,31 @@
                 "channels_joined": [
                     {
                         "num_channels_joined": 0,
-                        "time_stamp": 1650025122
+                        "time_stamp": 1650032942
+                    },
+                    {
+                        "num_channels_joined": 1,
+                        "time_stamp": 1650032942.558441
                     }
                 ],
                 "dms_joined": [
                     {
                         "num_dms_joined": 0,
-                        "time_stamp": 1650025122
+                        "time_stamp": 1650032942
                     },
                     {
                         "num_dms_joined": 1,
-                        "time_stamp": 1650025122
-                    },
-                    {
-                        "num_dms_joined": 0,
-                        "time_stamp": 1650025122
+                        "time_stamp": 1650032942
                     }
                 ],
                 "messages_sent": [
                     {
                         "num_messages_sent": 0,
-                        "time_stamp": 1650025122
+                        "time_stamp": 1650032942
+                    },
+                    {
+                        "num_messages_sent": 1,
+                        "time_stamp": 1650032942
                     }
                 ],
                 "involvement_rate": 0
@@ -63,27 +67,23 @@
                 "channels_joined": [
                     {
                         "num_channels_joined": 0,
-                        "time_stamp": 1650025122
+                        "time_stamp": 1650032942
                     }
                 ],
                 "dms_joined": [
                     {
                         "num_dms_joined": 0,
-                        "time_stamp": 1650025122
+                        "time_stamp": 1650032942
                     },
                     {
                         "num_dms_joined": 1,
-                        "time_stamp": 1650025122
-                    },
-                    {
-                        "num_dms_joined": 0,
-                        "time_stamp": 1650025122
+                        "time_stamp": 1650032942
                     }
                 ],
                 "messages_sent": [
                     {
                         "num_messages_sent": 0,
-                        "time_stamp": 1650025122
+                        "time_stamp": 1650032942
                     }
                 ],
                 "involvement_rate": 0
@@ -114,27 +114,23 @@
                 "channels_joined": [
                     {
                         "num_channels_joined": 0,
-                        "time_stamp": 1650025122
+                        "time_stamp": 1650032942
                     }
                 ],
                 "dms_joined": [
                     {
                         "num_dms_joined": 0,
-                        "time_stamp": 1650025122
+                        "time_stamp": 1650032942
                     },
                     {
                         "num_dms_joined": 1,
-                        "time_stamp": 1650025122
-                    },
-                    {
-                        "num_dms_joined": 0,
-                        "time_stamp": 1650025122
+                        "time_stamp": 1650032942
                     }
                 ],
                 "messages_sent": [
                     {
                         "num_messages_sent": 0,
-                        "time_stamp": 1650025122
+                        "time_stamp": 1650032942
                     }
                 ],
                 "involvement_rate": 0
@@ -148,8 +144,63 @@
             ]
         }
     ],
-    "channels": [],
-    "dms": [],
+    "channels": [
+        {
+            "channel_id": 1,
+            "name": "general",
+            "owner_members": [
+                1
+            ],
+            "all_members": [
+                {
+                    "user_id": 1,
+                    "permission_id": 1
+                }
+            ],
+            "is_public": true,
+            "messages": [],
+            "standup": {
+                "is_active": false,
+                "u_id": null,
+                "time_finish": null,
+                "buffer": []
+            }
+        }
+    ],
+    "dms": [
+        {
+            "name": "daniellin, richardxue, ryangodakanda",
+            "dm_id": 1,
+            "owners": [
+                1
+            ],
+            "normal_members": [
+                2,
+                3
+            ],
+            "all_members": [
+                2,
+                3,
+                1
+            ],
+            "messages": [
+                {
+                    "message_id": 1,
+                    "u_id": 1,
+                    "message": "Hello World",
+                    "time_sent": 1650032942,
+                    "reacts": [
+                        {
+                            "react_id": 1,
+                            "u_ids": [],
+                            "is_this_user_reacted": false
+                        }
+                    ],
+                    "is_pinned": false
+                }
+            ]
+        }
+    ],
     "message_ids": [
         {
             "message_id": 0,
@@ -172,31 +223,31 @@
         "channels_exist": [
             {
                 "num_channels_exist": 0,
-                "time_stamp": 1650025003
+                "time_stamp": 1650032707
+            },
+            {
+                "num_channels_exist": 1,
+                "time_stamp": 1650032942.558441
             }
         ],
         "dms_exist": [
             {
                 "num_dms_exist": 0,
-                "time_stamp": 1650025003
+                "time_stamp": 1650032707
             },
             {
                 "num_dms_exist": 1,
-                "time_stamp": 1650025122
-            },
-            {
-                "num_dms_exist": 0,
-                "time_stamp": 1650025122
+                "time_stamp": 1650032942
             }
         ],
         "messages_exist": [
             {
                 "num_messages_exist": 0,
-                "time_stamp": 1650025003
+                "time_stamp": 1650032707
             },
             {
-                "num_messages_exist": 0,
-                "time_stamp": 1650025122
+                "num_messages_exist": 1,
+                "time_stamp": 1650032942
             }
         ],
         "utilization_rate": 0

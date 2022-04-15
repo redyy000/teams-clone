@@ -196,7 +196,7 @@ def test_dm_removed(setup_users):
         'dm_id': dm_id_1.json()['dm_id']
     })
 
-    assert response.json() == {}
+    assert response.json() == {'message_id': 1}
 
 
 def test_messages_senddm_success(setup_users):
@@ -221,3 +221,4 @@ def test_messages_senddm_success(setup_users):
     })
 
     assert response.status_code == 200
+    assert response.json() == {'message_id': 1}

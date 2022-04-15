@@ -212,18 +212,9 @@ def message_sendlater_dm_v1(token, dm_id, message, time_sent):
     t = Timer(duration, dm_timer, args=(dm_id, u_id, message, message_id))
     t.start()
 
-    # Check if
-    dm_exists = False
-    for dms in dm_data:
-        if dms['dm_id'] == dm_id:
-            dm_exists = True
-    assert len(dm_data) > 0
     data_store.set(store)
 
-    if dm_exists == False:
-        return {}
-    else:
-        return {'message_id': message_id}
+    return {'message_id': message_id}
 
 
 # Wrapper that checks if dm has been removed
@@ -235,7 +226,6 @@ def recheck(function):
             if dms['dm_id'] == args[0]:
                 data_store.set(store)
                 return function(*args, **kwargs)
-
         message_id = args[3]
         for x in store['message_ids']:
             if x['message_id'] == message_id:
