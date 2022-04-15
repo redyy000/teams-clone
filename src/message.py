@@ -753,7 +753,7 @@ def message_unreact_v1(token, message_id, react_id):
 def message_pin_v1(token, message_id):
     '''
     Given a message within a channel or DM, mark it as "pinned".
-    
+
     Arguments:
         Token (token), user token
         Message_id (int), id of the message
@@ -772,7 +772,7 @@ def message_pin_v1(token, message_id):
     payload = is_valid_token(token)
     if payload is False:
         raise AccessError(description="Invalid token")
-    
+
     u_id = payload['u_id']
 
     # Naive approach; Scan all channels and dms for the message_id match
@@ -795,7 +795,7 @@ def message_pin_v1(token, message_id):
                 for user in channel['all_members']:
                     if user['user_id'] == u_id:
                         user_found = True
-                if u_id not in channel['owner_members'] or permission_id_given_user(u_id) != 1:
+                if u_id not in channel['owner_members'] and permission_id_given_user(u_id) != 1:
                     has_perms = False
 
     # Reloop for DMs; If found already this is skipped.
@@ -807,7 +807,7 @@ def message_pin_v1(token, message_id):
                     for user in dm['all_members']:
                         if user == u_id:
                             user_found = True
-                    if u_id not in dm['owners'] or permission_id_given_user(u_id) != 1:
+                    if u_id not in dm['owners'] and permission_id_given_user(u_id) != 1:
                         has_perms = False
 
     if message_found == False:
@@ -818,10 +818,11 @@ def message_pin_v1(token, message_id):
 
     if message_found['is_pinned'] == True:
         raise InputError(description="Message has already been pinned")
-    
+
     if has_perms == False:
-        raise AccessError(description=f"User ID {u_id} does not have owner permissions in this channel.")
-    
+        raise AccessError(
+            description=f"User ID {u_id} does not have owner permissions in this channel.")
+
     message_found['is_pinned'] = True
 
     data_store.set(store)
@@ -832,7 +833,7 @@ def message_pin_v1(token, message_id):
 def message_unpin_v1(token, message_id):
     '''
     Given a message within a channel or DM, remove its mark as pinned.
-    
+
     Arguments:
         Token (token), user token
         Message_id (int), id of the message
@@ -852,7 +853,7 @@ def message_unpin_v1(token, message_id):
     payload = is_valid_token(token)
     if payload is False:
         raise AccessError(description="Invalid token")
-    
+
     u_id = payload['u_id']
 
     # Naive approach; Scan all channels and dms for the message_id match
@@ -875,7 +876,7 @@ def message_unpin_v1(token, message_id):
                 for user in channel['all_members']:
                     if user['user_id'] == u_id:
                         user_found = True
-                if u_id not in channel['owner_members'] or permission_id_given_user(u_id) != 1:
+                if u_id not in channel['owner_members'] and permission_id_given_user(u_id) != 1:
                     has_perms = False
 
     # Reloop for DMs; If found already this is skipped.
@@ -887,7 +888,7 @@ def message_unpin_v1(token, message_id):
                     for user in dm['all_members']:
                         if user == u_id:
                             user_found = True
-                    if u_id not in dm['owners'] or permission_id_given_user(u_id) != 1:
+                    if u_id not in dm['owners'] and permission_id_given_user(u_id) != 1:
                         has_perms = False
 
     if message_found == False:
@@ -898,14 +899,13 @@ def message_unpin_v1(token, message_id):
 
     if message_found['is_pinned'] == False:
         raise InputError(description="Message has not already been pinned")
-    
+
     if has_perms == False:
-        raise AccessError(description=f"User ID {u_id} does not have owner permissions in this channel.")
+        raise AccessError(
+            description=f"User ID {u_id} does not have owner permissions in this channel.")
 
     message_found['is_pinned'] = False
 
     data_store.set(store)
 
     return {}
-
-
