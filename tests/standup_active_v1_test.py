@@ -118,7 +118,8 @@ def test_standup_active_success(init):
         "channel_id": init["channel1"],  
     })
     assert response.status_code == 200
-    assert response.json() == {"is_active": True, "time_finish": current_time}
+    assert response.json()["is_active"] == True
+    assert response.json()["time_finish"] - current_time < 0.5
     #test status inactive
     time.sleep(1.5)
     response = requests.get(f'{config.url}standup/active/v1', params = {
@@ -148,3 +149,5 @@ def test_standup_active_success(init):
     })
     assert response.status_code == 200
     assert response.json() == {"is_active": False, "time_finish": None}
+    
+

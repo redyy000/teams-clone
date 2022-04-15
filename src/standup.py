@@ -30,14 +30,9 @@ channel = : channel_id,
 
 '''
 
-def reset_standup(channel_id):
+def reset_standup(channel):
     #load data
     store = data_store.get()
-    
-    #get channel and standup
-    channel = next((c for c in store["channels"] if c["channel_id"] == channel_id), None)
-    if channel == None:
-        return 
 
     standup = channel["standup"]
     
@@ -51,40 +46,33 @@ def reset_standup(channel_id):
     #store data
     data_store.set(store)
 
-def standup_thread(token, channel_id, start):
+def standup_thread(token, channel, start):
     '''
     Operation for thread function
     '''
     #load data
     store = data_store.get()
 
-
-    #get channel and standup
-    channel = next((c for c in store["channels"] if c["channel_id"] == channel_id), None)
-    if channel == None:
-        return 
-
     standup = channel["standup"]
 
     if standup["time_start"] != start or standup["is_active"] == False:
         return
-
-    #convert buffer to string
-    message_str = ''
-    for text in standup["buffer"]:
-        user_exists = next((c for c in store["users"] if c["u_id"] == text["u_id"]), None)
-        if user_exists != None:
-            user = user_profile_v1(token, text["u_id"])["user"]
-            handle = user['handle_str']
-            message = text["message"]
-            message_str += f"{handle}: {message}\n"
         
-    message_str.rstrip(message_str[-1])
-
-    #pass buffer as a paramter into message_send_v1()
-    #if message_length == 0 do nothing
     if len(standup["buffer"]) > 0:
-        message_send_v1(token, channel_id, message_str)
+        #convert buffer to string
+        message_str = ''
+        for text in standup["buffer"]:
+            #checks the user exists in the server
+            user_exists = next((c for c in store["users"] if c["u_id"] == text["u_id"]), None)
+            if  user_exists["is_deleted"] == False:
+                user = user_profile_v1(token, text["u_id"])["user"]
+                handle = user['handle_str']
+                message = text["message"]
+                message_str += f"{handle}: {message}\n"
+
+        #pass buffer as a paramter into message_send_v1()
+        #if message_length == 0 do nothing
+        message_send_v1(token, channel["channel_id"], message_str[:-1])
 
     #clear standup data
     standup["is_active"] = False
@@ -181,7 +169,7 @@ def standup_start_v1(token, channel_id, length):
     standup["time_start"] = start
 
     #create thread helper function passing seconds as time
-    new_thread = threading.Timer(float(length), standup_thread, args=(token, channel_id, start))
+    new_thread = threading.Timer(float(length), standup_thread, args=(token, curr_channel, start))
     new_thread.start()
 
     #store data

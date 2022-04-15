@@ -396,6 +396,10 @@ def channel_leave_v1(token, channel_id):
     # remove selected member from channel
     for channels in store['channels']:
         if channels['channel_id'] == channel_id:
+            #Resets standup if user started the standup
+            standup = channels["standup"]
+            if standup["u_id"] == u_id and standup["is_active"] == True:
+                raise InputError(description = "This user is running a standup, cannot remove!")
             for member in channels['all_members']:
                 if u_id == member['user_id']:
                     channels['all_members'].remove(member)
@@ -409,11 +413,6 @@ def channel_leave_v1(token, channel_id):
     }
     store['users'][u_id -
                    1]['stats']['channels_joined'].append(user_channel_entry)
-
-    #Resets standup if user started the standup
-    standup = channel["standup"]
-    if standup["u_id"] == u_id or standup["is_active"] == True:
-        reset_standup(channel_id)
 
     data_store.set(store)
     return
