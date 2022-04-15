@@ -484,7 +484,7 @@ def search():
 
 
 @APP.route("/message/sendlaterdm/v1", methods=['POST'])
-def message_sendlaterdm():
+def message_sendlater_dm():
     arguments = request.get_json()
     resp = message_sendlater_dm_v1(
         arguments['token'], arguments['dm_id'], arguments['message'], arguments['time_sent'])
