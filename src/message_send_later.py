@@ -162,7 +162,13 @@ def message_sendlater_dm_v1(token, dm_id, message, time_sent):
         time_sent(time), time for message to be sent
 
     Exceptions:
-    AccessError - Authorised user is not part of the dm 
+        AccessError - Authorised user is not part of the dm.
+        InputError - dm-id does not refer to a valid DM
+        InputError - Length of message is < 1 or > 1000 characters
+        InputError - Time sent is in the past
+
+    Return Value:
+        {message_id}
     '''
 
     store = data_store.get()

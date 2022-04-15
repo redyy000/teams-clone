@@ -534,7 +534,7 @@ def message_share_v1(token, og_message_id, message, channel_id, dm_id):
             'source_id': dm_id
         }
         store['message_ids'].append(store_messages)
-        joined_message = shared_message + message
+        joined_message = shared_message + " " + message
 
         dm_timer(dm_id, u_id, joined_message, message_id)
         
@@ -576,7 +576,7 @@ def message_share_v1(token, og_message_id, message, channel_id, dm_id):
             'source_id': channel_id
         }
         store['message_ids'].append(store_messages)
-        joined_message = shared_message + message
+        joined_message = shared_message + " " + message
         
         message_timer(channel_id, u_id, joined_message, message_id)
         data_store.set(store)
