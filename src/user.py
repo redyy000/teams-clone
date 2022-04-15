@@ -217,6 +217,7 @@ def user_stats_v1(token):
     if involvement > 1:
         involvement = 1
 
+
     user_stats['involvement_rate'] = involvement
 
     return {
@@ -298,7 +299,7 @@ def user_profile_uploadphoto_v1(token, img_url, x_start, y_start, x_end, y_end):
     '''
     Given a token and and a img_url
     Decode and evaluate the token to find authorised user
-    Change user's profile_img_url to img_url, 
+    Change user's profile_img_url to img_url,
     Cropped within the given bounds
 
     Arguments:
