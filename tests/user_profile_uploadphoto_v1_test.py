@@ -91,6 +91,51 @@ def test_user_profile_uploadphoto_non_jpg(setup_users):
     assert image_2.status_code == 400
 
 
+def test_user_profile_uploadphoto_fail_none(setup_users):
+    owner = setup_users[0]
+    image_2 = requests.post(f'{config.url}/user/profile/uploadphoto/v1', json={
+        'token': owner['token'],
+        'img_url': '',
+        'x_start': 0,
+        'y_start': 0,
+        'x_end': 100,
+        'y_end': 100
+
+    })
+
+    assert image_2.status_code == 400
+
+
+def test_user_profile_uploadphoto_fail_false_url(setup_users):
+    owner = setup_users[0]
+    image_2 = requests.post(f'{config.url}/user/profile/uploadphoto/v1', json={
+        'token': owner['token'],
+        'img_url': 'gwoghoawhoi',
+        'x_start': 0,
+        'y_start': 0,
+        'x_end': 100,
+        'y_end': 100
+
+    })
+
+    assert image_2.status_code == 400
+
+
+def test_user_profile_uploadphoto_fail_non_img_url(setup_users):
+    owner = setup_users[0]
+    image_2 = requests.post(f'{config.url}/user/profile/uploadphoto/v1', json={
+        'token': owner['token'],
+        'img_url': 'https://wikipedia.com',
+        'x_start': 0,
+        'y_start': 0,
+        'x_end': 100,
+        'y_end': 100
+
+    })
+
+    assert image_2.status_code == 400
+
+
 def test_user_profile_uploadphoto_x_small(setup_users):
 
     owner = setup_users[0]

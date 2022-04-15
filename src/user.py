@@ -9,6 +9,7 @@ import requests
 import datetime
 import urllib.request
 from PIL import Image
+import PIL
 import random
 import string
 
@@ -270,35 +271,11 @@ def user_profile_sethandle_v1(token, handle_str):
     return {}
 
 
-def photo_crop(img_file, x_start, y_start, x_end, y_end):
-    '''
-    Given a img_file
-    Crop the image with the given bounds
-    Save over original img with new cropped img
-
-    Arguments:
-        img_file (string), file in file system for an image to be cropped
-        x_start (int), x coordinate start for crop
-        y_start (int), y coordinate start for crop
-        x_end (int), x coordinate end for crop
-        y_end (int), y coordinate end for crop
-
-    Exceptions:
-        None
-    Return Value:
-        None
-    '''
-
-    imageObject = Image.open(img_file)
-    cropped = imageObject.crop((x_start, y_start, x_end, y_end))
-    cropped.save(img_file)
-
-
 def user_profile_uploadphoto_v1(token, img_url, x_start, y_start, x_end, y_end):
     '''
     Given a token and and a img_url
     Decode and evaluate the token to find authorised user
-    Change user's profile_img_url to img_url, 
+    Change user's profile_img_url to img_url,
     Cropped within the given bounds
 
     Arguments:
@@ -331,13 +308,15 @@ def user_profile_uploadphoto_v1(token, img_url, x_start, y_start, x_end, y_end):
     u_id = token_decoded['u_id']
 
     # Determine if the online image exists, and is a .jpg file
+
     try:
-        resp = requests.get(img_url)
-        if resp.status_code != 200:
-            raise InputError(description='img_url http response is not 200!')
-    except InputError as failure:
+        resp = urllib.request.urlopen(img_url)
+    except ValueError as failure:
         raise InputError(
             description='Failed to connect to given img_url') from failure
+
+    if resp.getcode() != 200:
+        raise InputError(description='img_url http response is not 200!')
 
     # Construct path for where to save the cropped image
     random_string = ''.join(random.choice(string.ascii_letters)
@@ -346,13 +325,14 @@ def user_profile_uploadphoto_v1(token, img_url, x_start, y_start, x_end, y_end):
 
     # Download image
     urllib.request.urlretrieve(img_url, img_file)
-    web_url = urllib.request.urlopen(img_url)
-    if web_url.getcode() != 200:
-        raise InputError(
-            description='Failed while retrieving image from URL!')
 
     # Cropping part
-    imageObject = Image.open(img_file)
+    try:
+        imageObject = Image.open(img_file)
+    except PIL.UnidentifiedImageError as failure:
+        raise InputError(
+            description='Not an image...') from failure
+
     # Check for format
     if imageObject.format != 'JPEG':
         raise InputError(description='Not a JPEG file!')
