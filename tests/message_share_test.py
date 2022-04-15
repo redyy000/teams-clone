@@ -190,7 +190,7 @@ def test_share_neither_ids_minus_one(setup_users):
         'dm_id': dm_id1.json()['dm_id'],
         'message': "Hello World"})
 
-    message_response1 = requests.post(f"{config.url}message/send/v1", json={
+    requests.post(f"{config.url}message/send/v1", json={
         "token": owner['token'],
         "channel_id": channel_response.json()['channel_id'],
         "message": 'Every soul has its dark'
@@ -227,7 +227,7 @@ def test_share_invalid_message_id(setup_users):
         'dm_id': dm_id1.json()['dm_id'],
         'message': "Hello World"})
 
-    message_response1 = requests.post(f"{config.url}message/send/v1", json={
+    requests.post(f"{config.url}message/send/v1", json={
         "token": owner['token'],
         "channel_id": channel_response.json()['channel_id'],
         "message": 'Every soul has its dark'
@@ -265,7 +265,7 @@ def test_invalid_message_length(setup_users):
         'dm_id': dm_id1.json()['dm_id'],
         'message': "Hello World"})
 
-    message_response1 = requests.post(f"{config.url}message/send/v1", json={
+    requests.post(f"{config.url}message/send/v1", json={
         "token": owner['token'],
         "channel_id": channel_response.json()['channel_id'],
         "message": 'Every soul has its dark'
@@ -296,7 +296,7 @@ def test_invalid_token(setup_users):
         'token': owner['token'],
         'u_ids': [u_id2, u_id3]})
 
-    dm_response = requests.post(f'{config.url}message/senddm/v1', json={
+    requests.post(f'{config.url}message/senddm/v1', json={
         'token': owner['token'],
         'dm_id': dm_id1.json()['dm_id'],
         'message': "Hello World"})
@@ -329,7 +329,6 @@ def test_share_not_joined(setup_users):
     })
 
     u_id2 = user2['auth_user_id']
-    u_id3 = user3['auth_user_id']
     dm_id1 = requests.post(f'{config.url}dm/create/v1', json={
         'token': owner['token'],
         'u_ids': [u_id2]})
@@ -339,7 +338,7 @@ def test_share_not_joined(setup_users):
         'dm_id': dm_id1.json()['dm_id'],
         'message': "Hello World"})
 
-    message_response1 = requests.post(f"{config.url}message/send/v1", json={
+    requests.post(f"{config.url}message/send/v1", json={
         "token": owner['token'],
         "channel_id": channel_response.json()['channel_id'],
         "message": 'Every soul has its dark'
