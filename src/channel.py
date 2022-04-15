@@ -198,6 +198,10 @@ def channel_messages_v2(token, channel_id, start):
     end_fail = False
     for idx in range(start, start + 50):
         try:
+            if u_id in recent_message_list[idx]['reacts'][0]['u_ids']:
+                recent_message_list[idx]['reacts'][0]['is_this_user_reacted'] = True
+            else:
+                recent_message_list[idx]['reacts'][0]['is_this_user_reacted'] = False
             message_list.append(recent_message_list[idx])
         except:
             end_fail = True
