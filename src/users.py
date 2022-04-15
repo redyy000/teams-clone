@@ -72,16 +72,15 @@ def users_stats_v1(token):
 
     datastore = data_store.get()
 
-    num_channels_exist = len(datastore['channels'])
-    num_dms_exist = len(datastore['dms'])
-    num_messages_exist = 0
-    for channel in datastore['channels']:
-        num_messages_exist = num_messages_exist + len(channel['messages'])
-
-    for dm in datastore['dms']:
-        num_messages_exist = num_messages_exist + len(dm['messages'])
+    # Used for calculating user involvement
+    # General stats of seams
 
     num_users = len(datastore['users'])
+    # Does this count removed users?
+    # No remove the removed users...
+
+    num_users = len([user for user in datastore['users']
+                    if user['is_deleted'] == False])
     num_users_joined = 0
 
     for user in datastore['users']:
@@ -102,27 +101,10 @@ def users_stats_v1(token):
             num_users_joined = num_users_joined + 1
 
     utilization = float(num_users_joined)/float(num_users)
-    '''
-    Dictionary of shape {
-     channels_exist: [{num_channels_exist, time_stamp}], 
-     dms_exist: [{num_dms_exist, time_stamp}], 
-     messages_exist: [{num_messages_exist, time_stamp}], 
-     utilization_rate 
-    }
-    '''
 
-    dt = datetime.datetime.now(timezone.utc)
-    utc_time = dt.replace(tzinfo=timezone.utc)
-    time_stamp = int(utc_time.timestamp())
+    stats = datastore['workspace_stats']
+    stats['utilization_rate'] = utilization
 
-    stats = {
-        'channels_exist': [{num_channels_exist, time_stamp}],
-        'dms_exist': [{num_dms_exist, time_stamp}],
-        'messages_exist': [{num_messages_exist, time_stamp}],
-        'utilization_rate': utilization
-
-
-    }
     return {
-        'workplace_stats': stats
+        'workspace_stats': stats
     }

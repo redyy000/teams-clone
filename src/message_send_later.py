@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 from threading import Timer
 from src.data_store import data_store
 from src.error import AccessError, InputError
-from src.other import is_valid_token
+from src.other import is_valid_token, message_notification, is_channel_member, is_dm_member, get_channel_name, get_dm_name, react_notification
 
 
 def message_sendlater_v1(token, channel_id, message, time_sent):
@@ -77,6 +77,7 @@ def message_sendlater_v1(token, channel_id, message, time_sent):
 
     # Takes latest message as return as timer function
     # doesnt allow for return values
+
     data_store.set(store)
     return {'message_id': message_id}
 
@@ -93,15 +94,56 @@ def message_timer(channel_id, u_id, message, message_id):
     utc_time = dt.replace(tzinfo=timezone.utc)
     utc_timestamp = utc_time.timestamp()
 
+    default_reacts = {
+        'react_id': 1,
+        'u_ids': [],
+        'is_this_user_reacted': False
+    }
+
+    reacts = [default_reacts]
+
     new_message = {
         'message_id': message_id,
         'u_id': u_id,
         'message': message,
-        'time_sent': int(utc_timestamp)
+        'time_sent': int(utc_timestamp),
+        'reacts': reacts,
+        'is_pinned': False
+
     }
     for channel in channel_list:
         if channel['channel_id'] == channel_id:
             channel['messages'].append(new_message)
+
+    
+    seams_message_entry = {
+        'num_messages_exist': store['workspace_stats']['messages_exist'][-1]['num_messages_exist'] + 1,
+        'time_stamp': utc_timestamp
+    }
+    store['workspace_stats']['messages_exist'].append(seams_message_entry)
+
+    # Increase amount of user messages sent
+    user_member_entry = {
+        'num_messages_sent': store['users'][u_id - 1]['stats']['messages_sent'][-1]['num_messages_sent'] + 1,
+        'time_stamp': utc_timestamp
+    }
+    store['users'][u_id -
+                   1]['stats']['messages_sent'].append(user_member_entry)
+    # Add message notification if tagged...
+    # Some sort of tagging function.
+    # Check for @handle in string
+    # Only should fire once for a single tag in a message
+
+    for user in store['users']:
+        tag = '@' + user['handle_str']
+        # Check if tag in message
+        # Check if member in channel
+
+        is_member = is_channel_member(user['u_id'], channel_id)
+        if tag in message and is_member:
+            user['notifications'].append(message_notification(
+                u_id, channel_id, True, message))
+
 
     data_store.set(store)
 

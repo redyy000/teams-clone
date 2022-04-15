@@ -390,3 +390,34 @@ def test_message_edit_global_owner(setup_users):
     assert messages_response.status_code == 200
     assert messages_response.json(
     )['messages'][0]['message'] == 'every bruh has its dark'
+
+
+def test_message_remove_non_global_owner(setup_users):
+    owner = setup_users[0]
+    member1 = setup_users[1]
+
+    channel_response = requests.post(f"{config.url}channels/create/v2", json={
+        "token": owner['token'],
+        "name": "general",
+        "is_public": True
+    })
+
+    join_response = requests.post(f'{config.url}channel/join/v2', json={
+        'token': member1['token'],
+        'channel_id':  channel_response.json()['channel_id']
+    })
+    assert join_response.status_code == 200
+
+    message_response = requests.post(f"{config.url}message/send/v1", json={
+        "token": owner['token'],
+        "channel_id": channel_response.json()['channel_id'],
+        "message": 'Every soul has its dark'
+    })
+
+    edit_response = requests.put(f"{config.url}message/edit/v1", json={
+        "token": member1['token'],
+        "message_id": message_response.json()['message_id'],
+        'message': 'every bruh has its dark'
+    })
+
+    assert edit_response.status_code == 403

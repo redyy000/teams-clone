@@ -1,6 +1,9 @@
 import os
 import json
+from datetime import timezone
+import datetime
 '''
+
 data_store.py
 
 This contains a definition for a Datastore class which you should use to store your data.
@@ -26,6 +29,11 @@ Example usage:
     data_store.set(store)
 '''
 
+
+dt = datetime.datetime.now(timezone.utc)
+utc_time = dt.replace(tzinfo=timezone.utc)
+time_stamp = int(utc_time.timestamp())
+
 # YOU SHOULD MODIFY THIS OBJECT BELOW
 initial_object = {
     'users': [],
@@ -42,10 +50,10 @@ initial_object = {
         }
 
     ],
-    'workplace_stats': {
-        'channels_exist': [],
-        'dms_exist': [],
-        'messages_exist': [],
+    'workspace_stats': {
+        'channels_exist': [{'num_channels_exist': 0, 'time_stamp': time_stamp}],
+        'dms_exist': [{'num_dms_exist': 0, 'time_stamp': time_stamp}],
+        'messages_exist': [{'num_messages_exist': 0, 'time_stamp': time_stamp}],
         'utilization_rate': 0,
     }
 }

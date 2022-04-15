@@ -8,18 +8,22 @@ import sys
 import signal
 from json import dumps
 from urllib import response
-from flask import Flask, request, abort, send_from_directory
+from flask import Flask, request, abort, send_from_directory, jsonify
 from flask_cors import CORS
 from src.auth import auth_register_v2, auth_login_v2, auth_logout_v1, auth_passwordreset_request_v1, auth_passwordreset_reset_v1
-from src.other import clear_v1
+from src.other import clear_v1, search_v1, notifications_get_v1
 from src.channels import channels_create_v2, channels_list_v2, channels_listall_v2
 from src.channel import channel_details_v2, channel_invite_v2, channel_join_v2, channel_messages_v2, channel_leave_v1, channel_addowner_v1, channel_removeowner_v1
 from src.dm import dm_create_v1, dm_details_v1, dm_list_v1, dm_remove_v1, dm_leave_v1, dm_messages_v1
+<<<<<<< HEAD
 from src.message import message_send_v1, message_senddm_v1, message_remove_v1, message_edit_v1, message_share_v1
+=======
+from src.message import message_send_v1, message_senddm_v1, message_remove_v1, message_edit_v1, message_react_v1, message_unreact_v1, message_pin_v1, message_unpin_v1
+>>>>>>> master
 from src.admin import admin_userpermission_change_v1, admin_user_remove_v1
 from src.message_send_later import message_sendlater_dm_v1, message_sendlater_v1
 from src.data_store import data_store
-
+from src.standup import standup_start_v1, standup_send_v1, standup_active_v1, standup_thread
 
 APP = Flask(__name__)
 
@@ -327,6 +331,42 @@ def message_remove():
     return dumps(resp)
 
 
+@APP.route("/message/react/v1", methods=['POST'])
+def message_react():
+    arguments = request.get_json()
+    resp = message_react_v1(
+        arguments['token'], arguments['message_id'], arguments['react_id'])
+    data_store.save()
+    return dumps(resp)
+
+
+@APP.route("/message/unreact/v1", methods=['POST'])
+def message_unreact():
+    arguments = request.get_json()
+    resp = message_unreact_v1(
+        arguments['token'], arguments['message_id'], arguments['react_id'])
+    data_store.save()
+    return dumps(resp)
+
+
+@APP.route("/message/pin/v1", methods=['POST'])
+def message_pin():
+    arguments = request.get_json()
+    resp = message_pin_v1(
+        arguments['token'], arguments['message_id'])
+    data_store.save()
+    return dumps(resp)
+
+
+@APP.route("/message/unpin/v1", methods=['POST'])
+def message_unpin():
+    arguments = request.get_json()
+    resp = message_unpin_v1(
+        arguments['token'], arguments['message_id'])
+    data_store.save()
+    return dumps(resp)
+
+
 @APP.route("/admin/userpermission/change/v1", methods=['POST'])
 def admin_permission_change():
     arguments = request.get_json()
@@ -341,6 +381,39 @@ def admin_user_remove():
     arguments = request.get_json()
     resp = admin_user_remove_v1(
         arguments['token'], arguments['u_id'])
+    data_store.save()
+    return dumps(resp)
+
+
+@APP.route("/standup/start/v1", methods=['POST'])
+def standup_start():
+    payload = request.get_json()
+    print(payload['token'])
+    token = payload['token']
+    channel_id = payload['channel_id']
+    length = payload['length']
+    resp = standup_start_v1(token, channel_id, length)
+    data_store.save()
+    return dumps(resp)
+
+
+@APP.route("/standup/send/v1", methods=['POST'])
+def standup_send():
+    payload = request.get_json()
+    print(payload['token'])
+    token = payload['token']
+    channel_id = payload['channel_id']
+    message = payload['message']
+    resp = standup_send_v1(token, channel_id, message)
+    data_store.save()
+    return dumps(resp)
+
+
+@APP.route("/standup/active/v1", methods=['GET'])
+def standup_active():
+    token = request.args.get('token', type=str)
+    channel_id = request.args.get('channel_id', type=int)
+    resp = standup_active_v1(token, channel_id)
     data_store.save()
     return dumps(resp)
 
@@ -371,11 +444,9 @@ def user_profile_uploadphoto():
     return dumps(resp)
 
 
-'''
 @APP.route("/static/<path:path>")
 def return_photo_static(path):
     return send_from_directory('', path)
-'''
 
 
 @APP.route("/user/stats/v1", methods=['GET'])
@@ -398,15 +469,25 @@ def users_stats():
     return dumps(resp)
 
 
+<<<<<<< HEAD
 @APP.route("/message/sendlater/v1", methods=['POST'])
 def message_sendlater():
     arguments = request.get_json()
     resp = message_sendlater_v1(
         arguments['token'], arguments['channel_id'], arguments['message'], arguments['time_sent'])
+=======
+@APP.route("/search/v1", methods=['GET'])
+def search():
+    token = request.args.get('token', type=str)
+    query_str = request.args.get('query_str', type=str)
+    resp = search_v1(
+        token, query_str)
+>>>>>>> master
     data_store.save()
     return dumps(resp)
 
 
+<<<<<<< HEAD
 @APP.route("/message/sendlaterdm/v1", methods=['POST'])
 def message_sendlater_dm():
     arguments = request.get_json()
@@ -423,6 +504,13 @@ def message_share():
                             arguments['message'], arguments['channel_id'], arguments['dm_id'])
     data_store.save()
     return dumps(resp)
+=======
+@APP.route("/notifications/get/v1", methods=['GET'])
+def notifications():
+    token = request.args.get('token')
+    notifications = notifications_get_v1(token)
+    return jsonify(notifications)
+>>>>>>> master
 
 
 # NO NEED TO MODIFY BELOW THIS POINT
