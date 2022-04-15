@@ -177,3 +177,6 @@ def test_users_all_invalid_token(post_test_user):
     })
 
     assert list_response.status_code == 403
+
+
+requests.delete(f"{config.url}/clear/v1")
