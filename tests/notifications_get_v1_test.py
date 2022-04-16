@@ -268,8 +268,79 @@ def test_notifications_get_channel_invite(setup_users):
 
 
 def test_notifications_react_channel(setup_users):
-    pass
+
+    owner = setup_users[0]
+    member1 = setup_users[1]
+
+    channel_response = requests.post(f"{config.url}channels/create/v2", json={
+        "token": owner['token'],
+        "name": "general",
+        "is_public": True
+    })
+
+    requests.post(f'{config.url}channel/join/v2', json={
+        'token': member1['token'],
+        'channel_id':  channel_response.json()['channel_id']
+    })
+
+    message_response = requests.post(f"{config.url}message/send/v1", json={
+        "token": owner['token'],
+        "channel_id": channel_response.json()['channel_id'],
+        "message": 'Every soul has its dark'
+    })
+
+    react_response = requests.post(f"{config.url}message/react/v1", json={
+        "token": member1['token'],
+        "message_id": message_response.json()['message_id'],
+        "react_id": 1
+    })
+
+    assert react_response.status_code == 200
+
+    notification_member1 = requests.get(f'{config.url}/notifications/get/v1', params={
+        'token': owner['token']
+    })
+
+    assert notification_member1.status_code == 200
+    note = notification_member1.json()['notifications']
+    assert len(note) == 1
+    assert note[0][
+        'notification_message'] == 'richardxue reacted to your message in general'
+    assert note[0]['dm_id'] == -1
+    assert note[0]['channel_id'] == 1
 
 
 def test_notifications_react_dms(setup_users):
-    pass
+
+    owner = setup_users[0]
+    member1 = setup_users[1]
+
+    dm = requests.post(f'{config.url}dm/create/v1', json={
+        'token': owner['token'],
+        'u_ids': [member1['auth_user_id']]
+    })
+
+    message_response = requests.post(f'{config.url}message/senddm/v1', json={
+        'token': owner['token'],
+        'dm_id': dm.json()['dm_id'],
+        'message': 'bruh '})
+
+    react_response = requests.post(f"{config.url}message/react/v1", json={
+        "token": member1['token'],
+        "message_id": message_response.json()['message_id'],
+        "react_id": 1
+    })
+
+    assert react_response.status_code == 200
+
+    notification_member1 = requests.get(f'{config.url}/notifications/get/v1', params={
+        'token': owner['token']
+    })
+
+    assert notification_member1.status_code == 200
+    note = notification_member1.json()['notifications']
+    assert len(note) == 1
+    assert note[0][
+        'notification_message'] == 'richardxue reacted to your message in daniellin, richardxue'
+    assert note[0]['dm_id'] == 1
+    assert note[0]['channel_id'] == -1

@@ -225,10 +225,13 @@ def invite_notification(u_id, id, is_channel):
                 return {"channel_id": -1, "dm_id": id, "notification_message": f"{user_dict['handle_str']} added you to {get_dm_name(id)}"}
 
 
-def react_notification(u_id, id, is_channel):
+def react_notification(u_id, reacter_id, id, is_channel):
+
+    # u_id is the sender
+
     datastore = data_store.get()
     for user_dict in datastore['users']:
-        if user_dict['u_id'] == u_id:
+        if user_dict['u_id'] == reacter_id:
             if is_channel:  # if being sent to a channel
                 notification_message = f"{user_dict['handle_str']} reacted to your message in {get_channel_name(id)}"
                 return {'channel_id': id, 'dm_id': -1, 'notification_message': notification_message}
