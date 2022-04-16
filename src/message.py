@@ -5,6 +5,7 @@ from datetime import timezone
 import datetime
 from src.message_send_later import message_timer, dm_timer
 
+
 def create_time_stamp():
     '''
     Return the current UTC time_stamp
@@ -312,12 +313,15 @@ def message_edit_v1(token, message_id, message):
     if len(message) > 1000:
         raise InputError(description='Message is too long!')
 
+    is_dm = False
+    is_channel = False
     # Since channel stores all_members as a list of dicts
     # Large nesting due to how all_members are stored in channels
     for channel in datastore['channels']:
         for message_dict in channel['messages']:
             if message_dict['message_id'] == message_id:
-
+                channel_dm_id = channel['channel_id']
+                is_channel = True
                 user_in_channel = user_in_channel_all_members(user_id)
                 if permission_id_given_user(user_id) == 1 and user_in_channel == True:
                     pass
@@ -336,6 +340,8 @@ def message_edit_v1(token, message_id, message):
         for dm in datastore['dms']:
             for message_dict in dm['messages']:
                 if message_dict['message_id'] == message_id:
+                    channel_dm_id = dm['dm_id']
+                    is_dm = True
                     if user_id not in dm['owners'] and user_id != message_dict['u_id']:
                         raise AccessError(
                             description='You are both not a channel owner and sender of message')
@@ -348,6 +354,22 @@ def message_edit_v1(token, message_id, message):
 
     if message_found == False:
         raise InputError(description="Invalid Message ID")
+
+    # Edit allows for tagging to occur
+    for user in datastore['users']:
+        tag = '@' + user['handle_str']
+        # Check if tag in message
+        # Check if member in channel
+        # Or DM:
+
+        if is_channel is True:
+            is_member = is_channel_member(user['u_id'], channel_dm_id)
+        elif is_dm is True:
+            is_member = is_dm_member(user['u_id'], channel_dm_id)
+
+        if tag in message and is_member:
+            user['notifications'].append(message_notification(
+                user_id, channel_dm_id, is_channel, message))
 
     data_store.set(datastore)
 
@@ -470,7 +492,7 @@ def message_share_v1(token, og_message_id, message, channel_id, dm_id):
     payload = is_valid_token(token)
     if payload is False:
         raise AccessError(description="Invalid token")
-    
+
     message_found = False
     for messages in message_store:
         if og_message_id == messages['message_id']:
@@ -498,7 +520,6 @@ def message_share_v1(token, og_message_id, message, channel_id, dm_id):
         for messages in dm_messages:
             if og_message_id == messages['message_id']:
                 shared_message = messages['message']
-
 
     if (channel_id == -1 and dm_id == -1) or (channel_id != -1 and dm_id != -1):
         raise InputError(description="Invalid send location")
@@ -537,7 +558,7 @@ def message_share_v1(token, og_message_id, message, channel_id, dm_id):
         joined_message = shared_message + " " + message
 
         dm_timer(dm_id, u_id, joined_message, message_id)
-        
+
         return {'shared_message_id': message_id}
 
     elif dm_id == -1:  # If send to channels
@@ -577,11 +598,13 @@ def message_share_v1(token, og_message_id, message, channel_id, dm_id):
         }
         store['message_ids'].append(store_messages)
         joined_message = shared_message + " " + message
-        
+
         message_timer(channel_id, u_id, joined_message, message_id)
         data_store.set(store)
 
         return {'shared_message_id': message_id}
+
+
 def message_react_v1(token, message_id, react_id):
     '''
     Given a message within a channel or DM the authorised user is part of, add a "react" to that particular message.
@@ -664,9 +687,11 @@ def message_react_v1(token, message_id, react_id):
 
     # Send a reaction notification to the original message sender.
     # Doesn't actually need the original message.
+    # If user reacts to their own message, they do NOT receive a notification
+
     for user in store['users']:
-        if user['u_id'] == sender_id:
-            user['notifications'].append(react_notification(sender_id, channel_dm_id,
+        if user['u_id'] == sender_id and user['u_id'] != u_id:
+            user['notifications'].append(react_notification(sender_id, u_id, channel_dm_id,
                                                             is_channel_message))
     data_store.set(store)
 
@@ -848,7 +873,6 @@ def message_unpin_v1(token, message_id):
         {}
     '''
     store = data_store.get()
-
 
     payload = is_valid_token(token)
     if payload is False:

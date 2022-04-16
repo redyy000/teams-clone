@@ -64,6 +64,78 @@ def test_message_edit_success(setup_users):
     )['messages'][0]['message'] == 'Ringo did nothing wrong'
 
 
+def test_message_edit_channel_notification(setup_users):
+    owner = setup_users[0]
+
+    channel_response = requests.post(f"{config.url}channels/create/v2", json={
+        "token": owner['token'],
+        "name": "general",
+        "is_public": True
+    })
+
+    message_response = requests.post(f"{config.url}message/send/v1", json={
+        "token": owner['token'],
+        "channel_id": channel_response.json()['channel_id'],
+        "message": 'Every soul has its dark'
+    })
+
+    edit_response = requests.put(f"{config.url}message/edit/v1", json={
+        "token": owner['token'],
+        "message_id": message_response.json()['message_id'],
+        "message": '@daniellin bruh'
+    })
+
+    notification_member2 = requests.get(f'{config.url}/notifications/get/v1', params={
+        'token': owner['token']
+    })
+
+    assert notification_member2.status_code == 200
+    note2 = notification_member2.json()['notifications']
+
+    assert len(note2) == 1
+    assert note2[0]['notification_message'] == 'daniellin tagged you in general: @daniellin bruh'
+    assert note2[0]['dm_id'] == -1
+    assert note2[0]['channel_id'] == channel_response.json()['channel_id']
+    assert edit_response.status_code == 200
+
+
+def test_message_edit_dm_notification(setup_users):
+    owner = setup_users[0]
+    member1 = setup_users[1]
+    member2 = setup_users[2]
+
+    dm1 = requests.post(f'{config.url}dm/create/v1', json={
+        'token': owner['token'],
+        'u_ids': [member1['auth_user_id'], member2['auth_user_id']]
+    })
+
+    message_response = requests.post(f'{config.url}message/senddm/v1', json={
+        'token': owner['token'],
+        'dm_id': dm1.json()['dm_id'],
+        'message': "Hello World"})
+
+    edit_response = requests.put(f"{config.url}message/edit/v1", json={
+        "token": owner['token'],
+        "message_id": message_response.json()['message_id'],
+        "message": '@daniellin bruh'
+    })
+
+    assert dm1.status_code == 200
+
+    notification_member2 = requests.get(f'{config.url}/notifications/get/v1', params={
+        'token': owner['token']
+    })
+
+    assert notification_member2.status_code == 200
+    note2 = notification_member2.json()['notifications']
+
+    assert len(note2) == 1
+    assert note2[0]['notification_message'] == 'daniellin tagged you in daniellin, richardxue, ryangodakanda: @daniellin bruh'
+    assert note2[0]['dm_id'] == dm1.json()['dm_id']
+    assert note2[0]['channel_id'] == -1
+    assert edit_response.status_code == 200
+
+
 def test_message_edit_invalid_token(setup_users):
     owner = setup_users[0]
 
