@@ -431,6 +431,7 @@ def test_notifications_share_channels(setup_users):
         "channel_id": channel_response.json()['channel_id'],
         "message": '@daniellin bruh'
     })
+    assert message_response.status_code == 200
 
     requests.post(f"{config.url}message/share/v1", json={
         "token": owner['token'],
