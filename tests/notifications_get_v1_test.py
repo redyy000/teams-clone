@@ -1,6 +1,9 @@
 import pytest
 import requests
 from src import config
+import datetime
+import time
+
 
 '''
     Tests for notifications_get_v1
@@ -344,3 +347,153 @@ def test_notifications_react_dms(setup_users):
         'notification_message'] == 'richardxue reacted to your message in daniellin, richardxue'
     assert note[0]['dm_id'] == 1
     assert note[0]['channel_id'] == -1
+
+
+def test_notifications_sendlater_channels(setup_users):
+
+    owner = setup_users[0]
+
+    channel_response = requests.post(f"{config.url}channels/create/v2", json={
+        "token": owner['token'],
+        "name": "general",
+        "is_public": True
+    })
+
+    time_now = int(datetime.datetime.now().timestamp())
+    message_response1 = requests.post(f"{config.url}message/sendlater/v1", json={
+        "token": owner['token'],
+        "channel_id": channel_response.json()['channel_id'],
+        "message": '@daniellin bruh',
+        "time_sent": time_now + 1
+    })
+
+    assert message_response1.status_code == 200
+    time.sleep(1.5)
+
+    notification_member1 = requests.get(f'{config.url}/notifications/get/v1', params={
+        'token': owner['token']
+    })
+
+    assert notification_member1.status_code == 200
+    note = notification_member1.json()['notifications']
+    assert len(note) == 1
+    assert note[0][
+        'notification_message'] == 'daniellin tagged you in general: @daniellin bruh'
+    assert note[0]['dm_id'] == -1
+    assert note[0]['channel_id'] == 1
+
+
+def test_notifications_sendlater_dms(setup_users):
+
+    owner = setup_users[0]
+
+    dm = requests.post(f'{config.url}dm/create/v1', json={
+        'token': owner['token'],
+        'u_ids': []
+    })
+
+    time_now = int(datetime.datetime.now().timestamp())
+    message_response1 = requests.post(f"{config.url}message/sendlaterdm/v1", json={
+        "token": owner['token'],
+        "dm_id": dm.json()['dm_id'],
+        "message": '@daniellin bruh',
+        "time_sent": time_now + 1
+    })
+
+    assert message_response1.status_code == 200
+    time.sleep(1.5)
+
+    notification_member1 = requests.get(f'{config.url}/notifications/get/v1', params={
+        'token': owner['token']
+    })
+
+    assert notification_member1.status_code == 200
+    note = notification_member1.json()['notifications']
+    assert len(note) == 1
+    assert note[0][
+        'notification_message'] == 'daniellin tagged you in daniellin: @daniellin bruh'
+    assert note[0]['dm_id'] == 1
+    assert note[0]['channel_id'] == -1
+
+
+def test_notifications_share_channels(setup_users):
+
+    owner = setup_users[0]
+
+    channel_response = requests.post(f"{config.url}channels/create/v2", json={
+        "token": owner['token'],
+        "name": "general",
+        "is_public": True
+    })
+
+    message_response = requests.post(f"{config.url}message/send/v1", json={
+        "token": owner['token'],
+        "channel_id": channel_response.json()['channel_id'],
+        "message": '@daniellin bruh'
+    })
+
+    requests.post(f"{config.url}message/share/v1", json={
+        "token": owner['token'],
+        "og_message_id": message_response.json()['message_id'],
+        "message": "wow",
+        "channel_id": channel_response.json()['channel_id'],
+        "dm_id": -1
+    })
+
+    notification_member1 = requests.get(f'{config.url}/notifications/get/v1', params={
+        'token': owner['token']
+    })
+
+    assert notification_member1.status_code == 200
+    note = notification_member1.json()['notifications']
+    assert len(note) == 2
+    assert note[0][
+        'notification_message'] == 'daniellin tagged you in general: @daniellin bruh wow'
+    assert note[0]['dm_id'] == -1
+    assert note[0]['channel_id'] == 1
+    assert note[1][
+        'notification_message'] == 'daniellin tagged you in general: @daniellin bruh'
+    assert note[1]['dm_id'] == -1
+    assert note[1]['channel_id'] == 1
+
+
+def test_notifications_share_dms(setup_users):
+
+    owner = setup_users[0]
+
+    dm = requests.post(f'{config.url}dm/create/v1', json={
+        'token': owner['token'],
+        'u_ids': []
+    })
+
+    message_response = requests.post(f'{config.url}message/senddm/v1', json={
+        'token': owner['token'],
+        'dm_id': dm.json()['dm_id'],
+        'message': '@daniellin bruh'})
+
+    message_id = message_response.json()['message_id']
+
+    share_response1 = requests.post(f"{config.url}message/share/v1", json={
+        "token": owner['token'],
+        "og_message_id": message_id,
+        "message": "wow",
+        "channel_id": -1,
+        "dm_id": dm.json()['dm_id']
+    })
+    assert share_response1.status_code == 200
+
+    notification_member1 = requests.get(f'{config.url}/notifications/get/v1', params={
+        'token': owner['token']
+    })
+
+    assert notification_member1.status_code == 200
+    note = notification_member1.json()['notifications']
+    assert len(note) == 2
+    assert note[0][
+        'notification_message'] == 'daniellin tagged you in daniellin: @daniellin bruh wow'
+    assert note[0]['dm_id'] == 1
+    assert note[0]['channel_id'] == -1
+    assert note[1][
+        'notification_message'] == 'daniellin tagged you in daniellin: @daniellin bruh'
+    assert note[1]['dm_id'] == 1
+    assert note[1]['channel_id'] == -1

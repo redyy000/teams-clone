@@ -1,6 +1,8 @@
 import pytest
 import requests
 from src import config
+import time
+import datetime
 
 
 @pytest.fixture
@@ -374,17 +376,185 @@ def test_users_stats_messages(setup_users):
     # Test
 
 
-'''
-def test_users_stats_standup(setup_users):
+def test_users_stats_sendlater_channels(setup_users):
     owner = setup_users[0]
-    member1 = setup_users[1]
-    member2 = setup_users[2]
-    pass
+    channel_response = requests.post(f"{config.url}channels/create/v2", json={
+        "token": owner['token'],
+        "name": "general",
+        "is_public": True
+    })
+
+    time_now = int(datetime.datetime.now().timestamp())
+    message_response1 = requests.post(f"{config.url}message/sendlater/v1", json={
+        "token": owner['token'],
+        "channel_id": channel_response.json()['channel_id'],
+        "message": '@daniellin bruh',
+        "time_sent": time_now + 1
+    })
+
+    assert message_response1.status_code == 200
+    time.sleep(1.5)
+
+    # USER STATS
+    user_stat_response1 = requests.get(f'{config.url}/user/stats/v1', params={
+        'token': owner['token'],
+    })
+
+    assert user_stat_response1.status_code == 200
+    assert len(user_stat_response1.json()['user_stats']['messages_sent']) == 2
+    assert user_stat_response1.json(
+    )['user_stats']['messages_sent'][0]['num_messages_sent'] == 0
+    assert user_stat_response1.json(
+    )['user_stats']['messages_sent'][1]['num_messages_sent'] == 1
+
+    users_stats_response1 = requests.get(f'{config.url}/users/stats/v1', params={
+        'token': owner['token']
+    })
+
+    assert users_stats_response1.status_code == 200
+    stats1 = users_stats_response1.json()
+    assert len(stats1['workspace_stats']['messages_exist']) == 2
+    assert stats1['workspace_stats']['messages_exist'][0]['num_messages_exist'] == 0
+    assert stats1['workspace_stats']['messages_exist'][1]['num_messages_exist'] == 1
 
 
-def test_users_stats_sendlater(setup_users):
+def test_users_stats_sendlater_dms(setup_users):
     owner = setup_users[0]
-    member1 = setup_users[1]
-    member2 = setup_users[2]
-    pass
-'''
+
+    dm = requests.post(f'{config.url}dm/create/v1', json={
+        'token': owner['token'],
+        'u_ids': []
+    })
+
+    time_now = int(datetime.datetime.now().timestamp())
+    message_response1 = requests.post(f"{config.url}message/sendlaterdm/v1", json={
+        "token": owner['token'],
+        "dm_id": dm.json()['dm_id'],
+        "message": '@daniellin bruh',
+        "time_sent": time_now + 1
+    })
+
+    assert message_response1.status_code == 200
+    time.sleep(1.5)
+
+    # USER STATS
+    user_stat_response1 = requests.get(f'{config.url}/user/stats/v1', params={
+        'token': owner['token'],
+    })
+
+    assert user_stat_response1.status_code == 200
+    assert len(user_stat_response1.json()['user_stats']['messages_sent']) == 2
+    assert user_stat_response1.json(
+    )['user_stats']['messages_sent'][0]['num_messages_sent'] == 0
+    assert user_stat_response1.json(
+    )['user_stats']['messages_sent'][1]['num_messages_sent'] == 1
+
+    users_stats_response1 = requests.get(f'{config.url}/users/stats/v1', params={
+        'token': owner['token']
+    })
+
+    assert users_stats_response1.status_code == 200
+    stats1 = users_stats_response1.json()
+    assert len(stats1['workspace_stats']['messages_exist']) == 2
+    assert stats1['workspace_stats']['messages_exist'][0]['num_messages_exist'] == 0
+    assert stats1['workspace_stats']['messages_exist'][1]['num_messages_exist'] == 1
+
+
+def test_users_stats_share_channels(setup_users):
+    owner = setup_users[0]
+
+    channel_response = requests.post(f"{config.url}channels/create/v2", json={
+        "token": owner['token'],
+        "name": "general",
+        "is_public": True
+    })
+
+    message_response = requests.post(f"{config.url}message/send/v1", json={
+        "token": owner['token'],
+        "channel_id": channel_response.json()['channel_id'],
+        "message": '@daniellin bruh'
+    })
+
+    requests.post(f"{config.url}message/share/v1", json={
+        "token": owner['token'],
+        "og_message_id": message_response.json()['message_id'],
+        "message": "wow",
+        "channel_id": channel_response.json()['channel_id'],
+        "dm_id": -1
+    })
+
+    # USER STATS
+    user_stat_response1 = requests.get(f'{config.url}/user/stats/v1', params={
+        'token': owner['token'],
+    })
+
+    assert user_stat_response1.status_code == 200
+    assert len(user_stat_response1.json()['user_stats']['messages_sent']) == 3
+    assert user_stat_response1.json(
+    )['user_stats']['messages_sent'][0]['num_messages_sent'] == 0
+    assert user_stat_response1.json(
+    )['user_stats']['messages_sent'][1]['num_messages_sent'] == 1
+    assert user_stat_response1.json(
+    )['user_stats']['messages_sent'][2]['num_messages_sent'] == 2
+
+    # SEAMS STATS
+    users_stats_response1 = requests.get(f'{config.url}/users/stats/v1', params={
+        'token': owner['token']
+    })
+
+    assert users_stats_response1.status_code == 200
+    stats1 = users_stats_response1.json()
+    assert len(stats1['workspace_stats']['messages_exist']) == 3
+    assert stats1['workspace_stats']['messages_exist'][0]['num_messages_exist'] == 0
+    assert stats1['workspace_stats']['messages_exist'][1]['num_messages_exist'] == 1
+    assert stats1['workspace_stats']['messages_exist'][2]['num_messages_exist'] == 2
+
+
+def test_users_stats_share_dms(setup_users):
+    owner = setup_users[0]
+
+    dm = requests.post(f'{config.url}dm/create/v1', json={
+        'token': owner['token'],
+        'u_ids': []
+    })
+
+    message_response = requests.post(f'{config.url}message/senddm/v1', json={
+        'token': owner['token'],
+        'dm_id': dm.json()['dm_id'],
+        'message': '@daniellin bruh'})
+
+    message_id = message_response.json()['message_id']
+
+    share_response1 = requests.post(f"{config.url}message/share/v1", json={
+        "token": owner['token'],
+        "og_message_id": message_id,
+        "message": "wow",
+        "channel_id": -1,
+        "dm_id": dm.json()['dm_id']
+    })
+    assert share_response1.status_code == 200
+
+    # USER STATS
+    user_stat_response1 = requests.get(f'{config.url}/user/stats/v1', params={
+        'token': owner['token'],
+    })
+
+    assert user_stat_response1.status_code == 200
+    assert len(user_stat_response1.json()['user_stats']['messages_sent']) == 3
+    assert user_stat_response1.json(
+    )['user_stats']['messages_sent'][0]['num_messages_sent'] == 0
+    assert user_stat_response1.json(
+    )['user_stats']['messages_sent'][1]['num_messages_sent'] == 1
+    assert user_stat_response1.json(
+    )['user_stats']['messages_sent'][2]['num_messages_sent'] == 2
+
+    users_stats_response1 = requests.get(f'{config.url}/users/stats/v1', params={
+        'token': owner['token']
+    })
+
+    assert users_stats_response1.status_code == 200
+    stats1 = users_stats_response1.json()
+    assert len(stats1['workspace_stats']['messages_exist']) == 3
+    assert stats1['workspace_stats']['messages_exist'][0]['num_messages_exist'] == 0
+    assert stats1['workspace_stats']['messages_exist'][1]['num_messages_exist'] == 1
+    assert stats1['workspace_stats']['messages_exist'][2]['num_messages_exist'] == 2
