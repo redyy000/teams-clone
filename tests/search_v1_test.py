@@ -44,7 +44,6 @@ def setup_users():
 def test_search_success_case_channels(setup_users):
     owner = setup_users[0]
     user1 = setup_users[1]
-    user2 = setup_users[2]
 
     # create channel, invite user 1 and send messages
     channel1 = requests.post(f'{config.url}channels/create/v2', json={
