@@ -139,6 +139,7 @@ def is_valid_token(token):
 def search_v1(token, query_str):
     '''
     Given a query string, return a collection of messages in all of the channels/DMs that the user has joined that match the query
+    Case insensitive
     Arguments:
         token (string)      - an authorisation hash of the user conducting the search
         query_str (string)  - case insensitive search query
@@ -171,7 +172,7 @@ def search_v1(token, query_str):
                 break
         if is_in_channel:
             for channel_message in channel['messages']:
-                if query_str in channel_message['message']:
+                if query_str.lower() in channel_message['message'].lower():
                     message_list.append(channel_message)
 
     for dm in store['dms']:
@@ -180,7 +181,7 @@ def search_v1(token, query_str):
             is_in_dm = True
         if is_in_dm:
             for dm_message in dm['messages']:
-                if query_str in dm_message['message']:
+                if query_str.lower() in dm_message['message'].lower():
                     message_list.append(dm_message)
 
     return {
