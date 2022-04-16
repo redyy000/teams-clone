@@ -4,6 +4,8 @@ from src.data_store import data_store, initial_object
 from datetime import timezone
 import datetime
 import threading
+import os
+import shutil
 
 from src.error import InputError, AccessError
 
@@ -17,7 +19,6 @@ BASE_URL = "http://127.0.0.1:{config.port}"
 dt = datetime.datetime.now(timezone.utc)
 utc_time = dt.replace(tzinfo=timezone.utc)
 time_stamp = int(utc_time.timestamp())
-
 
 
 def is_channel_member(u_id, channel_id):
@@ -75,6 +76,12 @@ def clear_v1():
     }
 
     data_store.set(data)
+
+    # Clear images in static folder
+    shutil.rmtree('src/static', ignore_errors=True)
+    os.makedirs('src/static')
+
+    # Create new folder
 
 
 def token_create(u_id, session_id):
