@@ -1,9 +1,6 @@
 import pytest
 import requests
 from src import config
-import datetime
-import time
-
 
 '''
     Tests for notifications_get_v1

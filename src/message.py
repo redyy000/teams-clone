@@ -87,10 +87,8 @@ def message_send_v1(token, channel_id, message):
     if len(message) < 1 or len(message) > 1000:
         raise InputError(description="Invalid message length")
 
-    message_id = 0
-    if len(store['message_ids']) == 0:
-        message_id = 1
-    else:
+    message_id = 1
+    if len(store['message_ids']) != 0:
         message_id = store['message_ids'][-1]['message_id'] + 1
 
     store_messages = {
@@ -210,10 +208,8 @@ def message_senddm_v1(token, dm_id, message):
     if len(message) < 1 or len(message) > 1000:
         raise InputError(description="Invalid message length")
 
-    message_id = 0
-    if len(store['message_ids']) == 0:
-        message_id = 1
-    else:
+    message_id = 1
+    if len(store['message_ids']) != 0:
         message_id = store['message_ids'][-1]['message_id'] + 1
 
     store_messages = {
@@ -543,10 +539,8 @@ def message_share_v1(token, og_message_id, message, channel_id, dm_id):
         if len(message) > 1000:
             raise InputError(description="Invalid message length")
 
-        message_id = 0
-        if len(store['message_ids']) == 0:
-            message_id = 1
-        else:
+        message_id = 1
+        if len(store['message_ids']) != 0:
             message_id = store['message_ids'][-1]['message_id'] + 1
 
         store_messages = {
@@ -585,10 +579,8 @@ def message_share_v1(token, og_message_id, message, channel_id, dm_id):
         if len(message) > 1000:
             raise InputError(description="Invalid message length")
 
-        message_id = 0
-        if len(store['message_ids']) == 0:
-            message_id = 1
-        else:
+        message_id = 1
+        if len(store['message_ids']) != 0:
             message_id = store['message_ids'][-1]['message_id'] + 1
 
         store_messages = {

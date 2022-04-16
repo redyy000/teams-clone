@@ -82,6 +82,31 @@ def test_share_channel_success(setup_users):
     assert message_response5.status_code == 200
 
 
+def test_share_dm_long(setup_users):
+    owner = setup_users[0]
+
+    channel_response = requests.post(f"{config.url}channels/create/v2", json={
+        "token": owner['token'],
+        "name": "general",
+        "is_public": True
+    })
+
+    message_response3 = requests.post(f"{config.url}message/send/v1", json={
+        "token": owner['token'],
+        "channel_id": channel_response.json()['channel_id'],
+        "message": 'Every ring has no maidens'
+    })
+
+    share_response1 = requests.post(f"{config.url}message/share/v1", json={
+        "token": owner['token'],
+        "og_message_id": message_response3.json()['message_id'],
+        "message": "AAAA" * 600,
+        "channel_id": channel_response.json()['channel_id'],
+        "dm_id": -1
+    })
+    assert share_response1.status_code == 400
+
+
 def test_share_dm_success(setup_users):
     owner = setup_users[0]
     user2 = setup_users[1]
@@ -168,6 +193,7 @@ def test_share_invalid_ids(setup_users):
         "dm_id": 999
     })
     assert share_response2.status_code == 400
+
 
 def test_share_neither_ids_minus_one(setup_users):
     owner = setup_users[0]
@@ -280,6 +306,7 @@ def test_invalid_message_length(setup_users):
     })
     assert share_response.status_code == 400
 
+
 def test_invalid_token(setup_users):
     owner = setup_users[0]
     user2 = setup_users[1]
@@ -316,6 +343,7 @@ def test_invalid_token(setup_users):
         "dm_id": dm_id1.json()['dm_id']
     })
     assert share_response1.status_code == 403
+
 
 def test_share_not_joined(setup_users):
     owner = setup_users[0]
