@@ -376,13 +376,6 @@ def test_users_stats_messages(setup_users):
     # Test
 
 
-def test_users_stats_standup(setup_users):
-    owner = setup_users[0]
-    member1 = setup_users[1]
-    member2 = setup_users[2]
-    pass
-
-
 def test_users_stats_sendlater_channels(setup_users):
     owner = setup_users[0]
     channel_response = requests.post(f"{config.url}channels/create/v2", json={
