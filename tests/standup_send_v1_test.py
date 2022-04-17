@@ -372,11 +372,11 @@ def test_standup_send_success_no_user_channel_leave(init):
     response = requests.post(f'{config.url}standup/start/v1', json={
         "token": user3["token"],
         "channel_id": init["channel1"],
-        "length": 1.5,
+        "length": 2,
     })
     dt = datetime.datetime.now(timezone.utc)
     utc_time = dt.replace(tzinfo=timezone.utc)
-    current_time = int(utc_time.timestamp() + 1.5)
+    current_time = int(utc_time.timestamp() + 2)
     assert response.status_code == 200
     assert response.json() == {"time_finish": current_time}
 
