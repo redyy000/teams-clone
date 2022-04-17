@@ -173,3 +173,31 @@ def test_message_send_invalid_time(setup_users):
     })
 
     assert message_response1.status_code == 400
+
+
+def test_edit_before_msg_send(setup_users):
+    owner = setup_users[0]
+
+    channel_response = requests.post(f"{config.url}channels/create/v2", json={
+        "token": owner['token'],
+        "name": "general",
+        "is_public": True
+    })
+
+    time_now = int(datetime.datetime.now().timestamp())
+    message_response1 = requests.post(f"{config.url}message/sendlater/v1", json={
+        "token": owner['token'],
+        "channel_id": channel_response.json()['channel_id'],
+        "message": 'Every soul has its dark',
+        "time_sent": time_now + 6
+    })
+
+    assert message_response1.status_code == 200
+
+    edit_response = requests.put(f"{config.url}message/edit/v1", json={
+        "token": owner['token'],
+        "message_id": message_response1.json()['message_id'],
+        "message": 'Ringo did nothing wrong'
+    })
+
+    assert edit_response.status_code == 400
