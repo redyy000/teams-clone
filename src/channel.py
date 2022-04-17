@@ -400,10 +400,11 @@ def channel_leave_v1(token, channel_id):
     # remove selected member from channel
     for channels in store['channels']:
         if channels['channel_id'] == channel_id:
-            #Resets standup if user started the standup
+            # Resets standup if user started the standup
             standup = channels["standup"]
             if standup["u_id"] == u_id and standup["is_active"] == True:
-                raise InputError(description = "This user is running a standup, cannot remove!")
+                raise InputError(
+                    description="This user is running a standup, cannot remove!")
             for member in channels['all_members']:
                 if u_id == member['user_id']:
                     channels['all_members'].remove(member)
@@ -476,13 +477,13 @@ def channel_addowner_v1(token, channel_id, u_id):
                 if auth_user_id == member['user_id']:
                     is_auth_member = True
 
+    if is_auth_member == False:
+        raise AccessError(
+            description=f"User ID {auth_user_id} is not an owner of the channel.")
+
     if is_member == False:
         raise InputError(
             description=f"User ID {u_id} is not a member of channel (Channel ID {channel_id}).")
-
-    if is_auth_member == False:
-        raise InputError(
-            description=f"User ID {auth_user_id} is not a member of channel (Channel ID {channel_id}).")
 
     for channels in store['channels']:
         if channels['channel_id'] == channel_id:
@@ -502,8 +503,6 @@ def channel_addowner_v1(token, channel_id, u_id):
     return {
 
     }
-
-
 
 
 def channel_removeowner_v1(token, channel_id, u_id):
@@ -559,12 +558,12 @@ def channel_removeowner_v1(token, channel_id, u_id):
                     is_member = True
                 if auth_user_id == member['user_id']:
                     is_auth_member = True
+    if is_auth_member == False:
+        raise AccessError(
+            description=f"User ID {auth_user_id} is not an owner of the channel.")
     if is_member == False:
         raise InputError(
             description=f"User ID {u_id} is not an owner of the channel.")
-    if is_auth_member == False:
-        raise InputError(
-            description=f"User ID {auth_user_id} is not an owner of the channel.")
 
     for channels in store['channels']:
         if channels['channel_id'] == channel_id:
