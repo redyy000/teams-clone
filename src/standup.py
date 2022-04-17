@@ -58,7 +58,6 @@ def standup_thread(token, channel, start):
     if payload is False:
         raise AccessError(description="Invalid token")
 
-    user_id = payload['u_id']
     store = data_store.get()
 
     standup = channel["standup"]
