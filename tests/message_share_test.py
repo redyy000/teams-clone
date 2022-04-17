@@ -155,6 +155,112 @@ def test_share_dm_success(setup_users):
     assert share_response2.status_code == 200
 
 
+def test_share_non_dm_member(setup_users):
+
+    owner = setup_users[0]
+    member1 = setup_users[1]
+
+    dm_id1 = requests.post(f'{config.url}dm/create/v1', json={
+        'token': owner['token'],
+        'u_ids': [member1['auth_user_id']]})
+
+    dm_response = requests.post(f'{config.url}message/senddm/v1', json={
+        'token': owner['token'],
+        'dm_id': dm_id1.json()['dm_id'],
+        'message': "Hello World"})
+
+    # Member1 attempts to share to unjoined channel
+    channel1 = requests.post(f"{config.url}channels/create/v2", json={
+        "token": owner['token'],
+        "name": "general",
+        "is_public": True
+    })
+
+    share_response1 = requests.post(f"{config.url}message/share/v1", json={
+        "token": member1['token'],
+        "og_message_id": dm_response.json()['message_id'],
+        "message": "",
+        "channel_id": channel1.json()['channel_id'],
+        "dm_id": -1
+    })
+
+    assert share_response1.status_code == 403
+
+    # Member1 attemps to share to unjoined DM
+
+    dm_id2 = requests.post(f'{config.url}dm/create/v1', json={
+        'token': owner['token'],
+        'u_ids': []})
+    share_response2 = requests.post(f"{config.url}message/share/v1", json={
+        "token": member1['token'],
+        "og_message_id": dm_response.json()['message_id'],
+        "message": "",
+        "channel_id": -1,
+        "dm_id": dm_id2.json()['dm_id']
+    })
+
+    assert share_response2.status_code == 403
+
+
+def test_share_non_channel_member(setup_users):
+    owner = setup_users[0]
+    member1 = setup_users[1]
+
+    channel1 = requests.post(f"{config.url}channels/create/v2", json={
+        "token": owner['token'],
+        "name": "general",
+        "is_public": True
+    })
+
+    message_response3 = requests.post(f"{config.url}message/send/v1", json={
+        "token": owner['token'],
+        "channel_id": channel1.json()['channel_id'],
+        "message": 'Every ring has no maidens'
+    })
+
+    # Owner owns channel
+    # Member Joins
+
+    requests.post(f'{config.url}channel/join/v2', json={
+        'token': member1['token'],
+        'channel_id': channel1.json()['channel_id']
+    })
+
+    channel2 = requests.post(f"{config.url}channels/create/v2", json={
+        "token": owner['token'],
+        "name": "AKENA",
+        "is_public": True
+    })
+
+    # Member attempts to share owner's message to channel2
+
+    share_response = requests.post(f"{config.url}message/share/v1", json={
+        "token": member1['token'],
+        "og_message_id": message_response3.json()['message_id'],
+        "message": "",
+        "channel_id": channel2.json()['channel_id'],
+        "dm_id": -1
+    })
+
+    assert share_response.status_code == 403
+
+    # Attempt to share unowned DM
+    dm_id1 = requests.post(f'{config.url}dm/create/v1', json={
+        'token': owner['token'],
+        'u_ids': []
+    })
+
+    share_response2 = requests.post(f"{config.url}message/share/v1", json={
+        "token": member1['token'],
+        "og_message_id": message_response3.json()['message_id'],
+        "message": "",
+        "channel_id": -1,
+        "dm_id": dm_id1.json()['dm_id']
+    })
+
+    assert share_response2.status_code == 403
+
+
 def test_share_invalid_ids(setup_users):
     owner = setup_users[0]
     user2 = setup_users[1]

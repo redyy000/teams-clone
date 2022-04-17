@@ -565,11 +565,9 @@ def message_share_v1(token, og_message_id, message, channel_id, dm_id):
         for channel in channel_list:
             if channel['channel_id'] == channel_id:
                 channel_found = True
-
-        for channel in channel_list:
-            for member in channel['all_members']:
-                if member['user_id'] == u_id:
-                    user_found = True
+                for member in channel['all_members']:
+                    if member['user_id'] == u_id:
+                        user_found = True
 
         if channel_found == False:
             raise InputError(description="Invalid channel ID")
