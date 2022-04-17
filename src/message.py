@@ -824,7 +824,7 @@ def message_pin_v1(token, message_id):
                     for user in dm['all_members']:
                         if user == u_id:
                             user_found = True
-                    if u_id not in dm['owners'] and permission_id_given_user(u_id) != 1:
+                    if u_id not in dm['owners']:
                         has_perms = False
 
     if message_found == False:
@@ -838,7 +838,7 @@ def message_pin_v1(token, message_id):
 
     if has_perms == False:
         raise AccessError(
-            description=f"User ID {u_id} does not have owner permissions in this channel.")
+            description=f"User ID {u_id} does not have owner permissions in this channel/dm.")
 
     message_found['is_pinned'] = True
 
@@ -904,7 +904,7 @@ def message_unpin_v1(token, message_id):
                     for user in dm['all_members']:
                         if user == u_id:
                             user_found = True
-                    if u_id not in dm['owners'] and permission_id_given_user(u_id) != 1:
+                    if u_id not in dm['owners']:
                         has_perms = False
 
     if message_found == False:
@@ -918,7 +918,7 @@ def message_unpin_v1(token, message_id):
 
     if has_perms == False:
         raise AccessError(
-            description=f"User ID {u_id} does not have owner permissions in this channel.")
+            description=f"User ID {u_id} does not have owner permissions in this channel/dm.")
 
     message_found['is_pinned'] = False
 
