@@ -279,9 +279,9 @@ def test_remove_before_dm_send(setup_users):
 
     assert response.status_code == 200
 
-    delete_response = requests.delete(f"{config.url}/dm/remove/v1", json={
-        'token': token_id1,
-        'dm_id': dm_id_1.json()['dm_id']
+    remove_response = requests.delete(f"{config.url}message/remove/v1", json={
+        "token": token_id1,
+        "message_id": response.json()['message_id'],
     })
 
-    assert delete_response.status_code == 400
+    assert remove_response.status_code == 400
