@@ -73,7 +73,7 @@ def test_standup_send_invalid_channel(init):
     response = requests.post(f'{config.url}standup/start/v1', json={
         "token": init["user"],
         "channel_id": init["channel1"],
-        "length": 1.5,
+        "length": 2,
     })
     assert response.status_code == 200
     response = requests.post(f'{config.url}standup/send/v1', json={
@@ -95,7 +95,7 @@ def test_standup_send_message_invalid(init):
     response = requests.post(f'{config.url}standup/start/v1', json={
         "token": init["user"],
         "channel_id": init["channel1"],
-        "length": 1.5,
+        "length": 2,
     })
     assert response.status_code == 200
     response = requests.post(f'{config.url}standup/send/v1', json={
@@ -110,7 +110,7 @@ def test_standup_send_message_invalid(init):
         "message": 200,
     })
     assert response.status_code == 400
-    time.sleep(1.5)
+    time.sleep(2)
 
 
 def test_standup_send_standup_invalid(init):
@@ -118,10 +118,10 @@ def test_standup_send_standup_invalid(init):
     response = requests.post(f'{config.url}standup/start/v1', json={
         "token": init["user"],
         "channel_id": init["channel1"],
-        "length": 1.5,
+        "length": 2,
     })
     assert response.status_code == 200
-    time.sleep(1.5)
+    time.sleep(2)
     response = requests.post(f'{config.url}standup/send/v1', json={
         "token": init["user"],
         "channel_id": init["channel1"],
@@ -139,7 +139,7 @@ def test_standup_send_user_invalid(init):
     response = requests.post(f'{config.url}standup/start/v1', json={
         "token": init["user"],
         "channel_id": init["channel1"],
-        "length": 1.5,
+        "length": 2,
     })
     assert response.status_code == 200
     response = requests.post(f'{config.url}standup/send/v1', json={
@@ -148,7 +148,7 @@ def test_standup_send_user_invalid(init):
         "message": "hello world",
     })
     assert response.status_code == 403
-    time.sleep(1.5)
+    time.sleep(2)
 
 
 def test_standup_send_token_invalid(init):
@@ -156,7 +156,7 @@ def test_standup_send_token_invalid(init):
     response = requests.post(f'{config.url}standup/start/v1', json={
         "token": init["user"],
         "channel_id": init["channel1"],
-        "length": 1.5,
+        "length": 2,
     })
     assert response.status_code == 200
     response = requests.post(f'{config.url}standup/send/v1', json={
@@ -177,13 +177,13 @@ def test_standup_send_success(init):
     # note set thread time < 3 seconds
     dt = datetime.datetime.now(timezone.utc)
     utc_time = dt.replace(tzinfo=timezone.utc)
-    current_time = utc_time.timestamp() + 1.5
-    #current_time = utc_time.timestamp() + 1.5
+    current_time = utc_time.timestamp() + 2
+    #current_time = utc_time.timestamp() + 2
 
     response = requests.post(f'{config.url}standup/start/v1', json={
         "token": init["user"],
         "channel_id": init["channel1"],
-        "length": 1.5,
+        "length": 2,
     })
     assert response.status_code == 200
     requests.post(f'{config.url}standup/send/v1', json={
@@ -202,7 +202,7 @@ def test_standup_send_success(init):
         "message": "Message 3",
     })
     assert response.status_code == 200
-    time.sleep(1.5)
+    time.sleep(2)
 
     # Check for notifications
 
@@ -226,7 +226,7 @@ def test_standup_send_success(init):
 def test_standup_send_success_removed_user(init):
     # tests that a removed user (i.e. doesn't exist) does not appear in the buffer
 
-    #current_time = utc_time.timestamp() + 1.5
+    #current_time = utc_time.timestamp() + 2
     user2 = requests.post(f'{config.url}auth/register/v2', json={'email': "movingotn@gmail.com",
                                                                  'password': "newpassword",
                                                                  'name_first': "Max",
@@ -238,7 +238,7 @@ def test_standup_send_success_removed_user(init):
     response = requests.post(f'{config.url}standup/start/v1', json={
         "token": init["user"],
         "channel_id": init["channel1"],
-        "length": 1.5,
+        "length": 2,
     })
     assert response.status_code == 200
     requests.post(f'{config.url}standup/send/v1', json={
@@ -262,7 +262,7 @@ def test_standup_send_success_removed_user(init):
         'u_id': user2["auth_user_id"],
     })
     assert response.status_code == 200
-    time.sleep(1.5)
+    time.sleep(2)
     response = requests.get(f'{config.url}standup/active/v1', params={
         "token": init["user"],
         "channel_id": init["channel1"],
@@ -294,7 +294,7 @@ def test_standup_send_success_no_user_admin_remove(init):
     response = requests.post(f'{config.url}standup/start/v1', json={
         "token": user2["token"],
         "channel_id": init["channel1"],
-        "length": 1.5,
+        "length": 2,
     })
     requests.post(f'{config.url}standup/send/v1', json={
         "token": init["user"],
@@ -305,7 +305,7 @@ def test_standup_send_success_no_user_admin_remove(init):
         'token': init["user"],
         'u_id': user2["auth_user_id"],
     })
-    time.sleep(1.5)
+    time.sleep(2)
     response = requests.get(f'{config.url}standup/active/v1', params={
         "token": init["user"],
         "channel_id": init["channel1"],
@@ -333,7 +333,7 @@ def test_standup_send_success_no_user_channel_leave_2(init):
     response = requests.post(f'{config.url}standup/start/v1', json={
         "token": user2["auth_user_id"],
         "channel_id": init["channel1"],
-        "length": 1.5,
+        "length": 2,
     })
     requests.post(f'{config.url}standup/send/v1', json={
         "token": init["user"],
@@ -344,7 +344,7 @@ def test_standup_send_success_no_user_channel_leave_2(init):
         'token': init["user"],
         'u_id': user2["auth_user_id"],
     })
-    time.sleep(1.5)
+    time.sleep(2)
     response = requests.get(f'{config.url}standup/active/v1', params={
         "token": init["user"],
         "channel_id": init["channel1"],
