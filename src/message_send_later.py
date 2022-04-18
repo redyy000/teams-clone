@@ -115,7 +115,6 @@ def message_timer(channel_id, u_id, message, message_id):
         if channel['channel_id'] == channel_id:
             channel['messages'].append(new_message)
 
-    
     seams_message_entry = {
         'num_messages_exist': store['workspace_stats']['messages_exist'][-1]['num_messages_exist'] + 1,
         'time_stamp': utc_timestamp
@@ -143,7 +142,6 @@ def message_timer(channel_id, u_id, message, message_id):
         if tag in message and is_member:
             user['notifications'].append(message_notification(
                 u_id, channel_id, True, message))
-
 
     data_store.set(store)
 
@@ -249,7 +247,6 @@ def dm_timer(dm_id, u_id, message, message_id):
     # Getting the current date
     # and time
     dt = datetime.datetime.now(timezone.utc)
-
     utc_time = dt.replace(tzinfo=timezone.utc)
     utc_timestamp = utc_time.timestamp()
 

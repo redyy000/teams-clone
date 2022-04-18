@@ -42,15 +42,17 @@ def is_u_id_final_global_owner(u_id):
     Return Value:
         True/False
     '''
-
+    # LAMBDA FUNCTION AND FILTER
+    # Previously used list comprehension
     datastore = data_store.get()
-    owners_list = [user['u_id']
-                   for user in datastore['users'] if user['permission_id'] == 1]
-    if len(owners_list) == 1:
-        if owners_list[0] == u_id:
-            return True
+    users_list = datastore['users']
+    owners_list = list(
+        filter(lambda user: user['permission_id'] == 1, users_list))
 
-    return False
+    if len(owners_list) == 1 and owners_list[0]['u_id'] == u_id:
+        return True
+    else:
+        return False
 
 
 def is_global_owner(u_id):
@@ -215,7 +217,7 @@ def admin_user_remove_v1(token, u_id):
     # Remove all instance of user in channel
     # Change messages....
     for channel in datastore['channels']:
-        #RESETS ANY STANDUPS CREATED BY USER
+        # RESETS ANY STANDUPS CREATED BY USER
         standup = channel["standup"]
         if standup["u_id"] == u_id and standup["is_active"] == True:
             reset_standup(channel)
@@ -242,7 +244,6 @@ def admin_user_remove_v1(token, u_id):
         for message in dm['messages']:
             if message['u_id'] == u_id:
                 message['message'] = 'Removed user'
-
 
     # TODO CODE WITH USER MESSAGES STATS
 

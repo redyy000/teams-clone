@@ -1,3 +1,4 @@
+from email import message
 import pytest
 import requests
 from src import config
@@ -69,6 +70,7 @@ def test_share_channel_success(setup_users):
     })
 
     assert message_response4.status_code == 200
+    assert message_response4.json()['shared_message_id'] == 3
 
     message_id2 = dm_response.json()['message_id']
 
@@ -80,6 +82,15 @@ def test_share_channel_success(setup_users):
         "dm_id": -1
     })
     assert message_response5.status_code == 200
+    assert message_response5.json()['shared_message_id'] == 4
+
+    message_response6 = requests.post(f"{config.url}message/send/v1", json={
+        "token": owner['token'],
+        "channel_id": channel_response.json()['channel_id'],
+        "message": 'Every ring has no maidens'
+    })
+    assert message_response6.status_code == 200
+    assert message_response6.json()['message_id'] == 5
 
 
 def test_share_dm_long(setup_users):

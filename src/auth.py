@@ -294,20 +294,27 @@ def auth_passwordreset_request_v1(email):
 
     # Email to given address
     # Code borrowed from Corey Schafer
-    context = ssl.create_default_context()
-    with smtplib.SMTP('smtp.gmail.com', 587) as smtp:
 
-        smtp.ehlo()
-        smtp.starttls(context=context)
-        smtp.ehlo()
-        # Email address just for Iteration 3
-        smtp.login("h11abadger@gmail.com", "H11ABADGER123")
+    try:
+        context = ssl.create_default_context()
+        with smtplib.SMTP('smtp.gmail.com', 587) as smtp:
 
-        subject = f'Password change request for {email}'
-        body = f'Your password reset code is {reset_code}.'
+            smtp.ehlo()
+            smtp.starttls(context=context)
+            smtp.ehlo()
+            # Email address just for Iteration 3
+            smtp.login("h11abadger@gmail.com", "H11ABADGER123")
 
-        msg = f'Subject: {subject}\n\n{body}'
-        smtp.sendmail("h11abadger@gmail.com", email, msg)
+            subject = f'Password change request for {email}'
+            body = f'Your password reset code is {reset_code}.'
+
+            msg = f'Subject: {subject}\n\n{body}'
+            smtp.sendmail("h11abadger@gmail.com", email, msg)
+    except:
+        # Remove the unused reset_code
+        for user in datastore['users']:
+            if user['email'] == email:
+                del user['reset_code_list'][-1]
 
     return {}
 
