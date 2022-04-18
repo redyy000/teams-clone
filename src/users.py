@@ -30,6 +30,14 @@ def users_list_all_v1(token):
     datastore = data_store.get()
     user_list = []
 
+    # Use lambda function to filter out deleted users
+    valid_list = list(
+        filter(lambda user: user['is_deleted'] is False, datastore['users']))
+
+    for user in valid_list:
+        user_list.append(user_profile_v1(token, user['u_id'])['user'])
+
+    '''
     for user in datastore['users']:
         if user['is_deleted'] == False:
             user_dict = {
@@ -41,6 +49,7 @@ def users_list_all_v1(token):
                 'profile_img_url': user['profile_img_url']
             }
             user_list.append(user_dict)
+    '''
     return {
         'users': user_list
     }
@@ -53,7 +62,7 @@ def users_stats_v1(token):
     The number of channels that exist currently
     The number of DMs that exist currently
     The number of messages that exist currently
-    The workspace's utilization, which is a ratio of the number of users who have joined at least one channel/DM to the current total number of users, 
+    The workspace's utilization, which is a ratio of the number of users who have joined at least one channel/DM to the current total number of users,
     as defined by this pseudocode: num_users_who_have_joined_at_least_one_channel_or_dm / num_users
 
     Arguments:
@@ -80,7 +89,7 @@ def users_stats_v1(token):
     # No remove the removed users...
 
     num_users = len([user for user in datastore['users']
-                    if user['is_deleted'] == False])
+                     if user['is_deleted'] == False])
     num_users_joined = 0
 
     for user in datastore['users']:

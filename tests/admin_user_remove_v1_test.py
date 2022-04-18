@@ -1,4 +1,3 @@
-from math import remainder
 import pytest
 import requests
 from src import config
