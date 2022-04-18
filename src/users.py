@@ -37,19 +37,6 @@ def users_list_all_v1(token):
     for user in valid_list:
         user_list.append(user_profile_v1(token, user['u_id'])['user'])
 
-    '''
-    for user in datastore['users']:
-        if user['is_deleted'] == False:
-            user_dict = {
-                'u_id': user['u_id'],
-                'email': user['email'],
-                'name_first': user['name_first'],
-                'name_last': user['name_last'],
-                'handle_str': user['handle_str'],
-                'profile_img_url': user['profile_img_url']
-            }
-            user_list.append(user_dict)
-    '''
     return {
         'users': user_list
     }
@@ -84,10 +71,8 @@ def users_stats_v1(token):
     # Used for calculating user involvement
     # General stats of seams
 
-    num_users = len(datastore['users'])
     # Does this count removed users?
     # No remove the removed users...
-
     num_users = len([user for user in datastore['users']
                      if user['is_deleted'] == False])
     num_users_joined = 0

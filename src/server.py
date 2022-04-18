@@ -384,7 +384,6 @@ def admin_user_remove():
 @APP.route("/standup/start/v1", methods=['POST'])
 def standup_start():
     payload = request.get_json()
-    print(payload['token'])
     token = payload['token']
     channel_id = payload['channel_id']
     length = payload['length']
@@ -396,7 +395,6 @@ def standup_start():
 @APP.route("/standup/send/v1", methods=['POST'])
 def standup_send():
     payload = request.get_json()
-    print(payload['token'])
     token = payload['token']
     channel_id = payload['channel_id']
     message = payload['message']
@@ -451,8 +449,6 @@ def user_stats():
 
     resp = user_stats_v1(token)
     data_store.save()
-    print(resp)
-    print(type(resp))
     return dumps(resp)
 
 
@@ -472,6 +468,7 @@ def message_sendlater():
         arguments['token'], arguments['channel_id'], arguments['message'], arguments['time_sent'])
     data_store.save()
     return dumps(resp)
+
 
 @APP.route("/search/v1", methods=['GET'])
 def search():
@@ -501,12 +498,12 @@ def message_share():
     data_store.save()
     return dumps(resp)
 
+
 @APP.route("/notifications/get/v1", methods=['GET'])
 def notifications():
     token = request.args.get('token')
     notifications = notifications_get_v1(token)
     return jsonify(notifications)
-
 
 
 # NO NEED TO MODIFY BELOW THIS POINT
