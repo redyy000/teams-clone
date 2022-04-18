@@ -81,6 +81,8 @@ def test_users_all_success_functionality(post_test_user):
         'token': post_test_user['token']
     })
 
+    assert list_response.status_code == 200
+
     user_list = list_response.json()['users']
 
     for user_data in user_list:

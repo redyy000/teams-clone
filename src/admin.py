@@ -245,7 +245,5 @@ def admin_user_remove_v1(token, u_id):
             if message['u_id'] == u_id:
                 message['message'] = 'Removed user'
 
-    # TODO CODE WITH USER MESSAGES STATS
-
     data_store.set(datastore)
     return {}
