@@ -200,7 +200,7 @@ def test_pin_success(setup_users):
     assert messages_response.json()['messages'][0]['is_pinned'] == True
 
 
-def test_pin_with_no_owner_permissions2(setup_users):
+def test_pin_with_no_owner_permissions3(setup_users):
     user1 = setup_users[0]
     user2 = setup_users[1]
     dm_response = requests.post(f'{config.url}dm/create/v1', json={
